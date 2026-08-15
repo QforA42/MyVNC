@@ -8,6 +8,27 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.3] - 2026-08-15
+
+### Fixed
+- Throttled outgoing pointer-move events to ~60Hz. `RemoteFramebufferControl.OnMouseMove` sent a
+  synchronous network write+flush on every single WPF MouseMove event, completely unthrottled —
+  reproduced live via ResourceWatchdog catching sustained 70-145% CPU of one core, and a raw-RFB
+  probe measuring 10-16 framebuffer updates/sec continuously against the same host during the
+  episode. If the remote compositor draws its cursor into the framebuffer, an unthrottled flood
+  of position updates becomes a feedback loop.
+- Eliminated a heap allocation on every single byte/pixel read in `ZrleDecoder` (`ReadByte`
+  previously allocated a fresh `byte[1]` per call) — Plain/Palette RLE tiles on a busy screen can
+  call this thousands of times per rectangle, and the allocation churn was a real, measured
+  contributor to sustained CPU load on a large/actively-used session.
+
+### Added
+- Duplicate-connection guard: MainWindow.OpenSession now checks every open session window (a
+  static registry, since "one window per session" mode can have several at once) for an existing
+  tab already connected to the target host:port before opening a new one — focuses the existing
+  tab/window instead of opening a second connection. Two simultaneous clients against the same
+  wayvnc server were directly implicated in the resource-contention incident above.
+
 ## [0.2.0-beta.2] - 2026-08-15
 
 ### Added
