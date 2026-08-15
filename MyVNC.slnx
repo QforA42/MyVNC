@@ -3,4 +3,7 @@
     <Project Path="src/MyVNC.App/MyVNC.App.csproj" />
     <Project Path="src/MyVNC.Rfb/MyVNC.Rfb.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MyVNC.Rfb.Tests/MyVNC.Rfb.Tests.csproj" />
+  </Folder>
 </Solution>
