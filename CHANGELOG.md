@@ -8,6 +8,17 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.8] - 2026-08-15
+
+### Added
+- "Wake" button in the session toolbar, next to Ctrl+Alt+Del: sends a harmless Shift tap to wake
+  a DPMS-blanked screen. Confirmed on omarchy/Hyprland that a plain VNC click can't wake a
+  DPMS-off display — wlroots-based compositors stop delivering pointer events entirely while the
+  screen is DPMS-off (even the lock screen's own click-to-wake handler never receives the event),
+  but keyboard input isn't gated the same way, which is also why Ctrl+Alt+Del happened to work as
+  an unintended side effect. Shift alone has no side effects in a normal session, unlike
+  Ctrl+Alt+Del.
+
 ## [0.2.0-beta.7] - 2026-08-15
 
 ### Fixed

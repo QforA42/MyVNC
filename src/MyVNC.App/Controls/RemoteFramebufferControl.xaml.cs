@@ -481,6 +481,20 @@ public partial class RemoteFramebufferControl : UserControl
         SendKey(X11Keysyms.Control_L, false);
     }
 
+    /// <summary>Sends a harmless Shift tap to wake a DPMS-blanked screen. Confirmed on
+    /// omarchy/Hyprland: with the display powered off (DPMS), wlroots stops delivering pointer
+    /// motion/click events to any client — including the lock screen's own click-to-wake handler
+    /// — so a synthetic VNC click can't wake it even though the exact same click works fine once
+    /// the screen is already on. Keyboard input isn't gated the same way, which is also why
+    /// Ctrl+Alt+Del wakes it. Shift alone has no side effects in any normal app/session state,
+    /// unlike Ctrl+Alt+Del which is disruptive if the screen wasn't actually blanked.</summary>
+    public void SendWakeNudge()
+    {
+        if (_client is null || !IsConnected) return;
+        SendKey(X11Keysyms.Shift_L, true);
+        SendKey(X11Keysyms.Shift_L, false);
+    }
+
     /// <summary>Pushes the local clipboard to the remote session, skipping it if nothing changed
     /// since the last sync in either direction (avoids needless round-trips/echo loops).</summary>
     public void SyncLocalClipboardToRemote()

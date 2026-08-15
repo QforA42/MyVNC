@@ -342,6 +342,8 @@ public partial class SessionWindow : Window
 
     private void CtrlAltDel_Click(object sender, RoutedEventArgs e) => SelectedTab?.Framebuffer.SendCtrlAltDelete();
 
+    private void Wake_Click(object sender, RoutedEventArgs e) => SelectedTab?.Framebuffer.SendWakeNudge();
+
     private void ActualSize_Click(object sender, RoutedEventArgs e)
     {
         if (SelectedTab is not { } tab) return;

@@ -131,6 +131,15 @@ public static class Loc
             "Anpassa till fönster", "Fit window", "Tilpass vindu", "Tilpas vindue", "Sovita ikkunaan", "Passa í glugga");
         Add("Session.ViewOnlyBadge",
             "Visa-endast", "View only", "Vis kun", "Vis kun", "Vain katselu", "Aðeins skoða");
+        Add("Session.Wake",
+            "Väck", "Wake", "Vekk", "Væk", "Herätä", "Vekja");
+        Add("Session.WakeTooltip",
+            "Skickar ett ofarligt Shift-tryck för att väcka en DPMS-avstängd skärm. Fungerar när ett vanligt klick inte gör det, eftersom wlroots-baserade kompositorer (t.ex. Hyprland) slutar leverera muspekarhändelser helt när skärmen är avstängd via DPMS — bara tangentbordsinmatning kommer igenom.",
+            "Sends a harmless Shift tap to wake a DPMS-blanked screen. Works when a plain click doesn't, because wlroots-based compositors (e.g. Hyprland) stop delivering pointer events at all while the screen is DPMS-off — only keyboard input gets through.",
+            "Sender et harmløst Shift-trykk for å vekke en DPMS-avslått skjerm. Fungerer når et vanlig klikk ikke gjør det, fordi wlroots-baserte kompositører (f.eks. Hyprland) slutter å levere muspekerhendelser helt mens skjermen er DPMS-avslått — bare tastaturinndata slipper gjennom.",
+            "Sender et harmløst Shift-tryk for at vække en DPMS-slukket skærm. Virker, når et almindeligt klik ikke gør det, fordi wlroots-baserede kompositorer (f.eks. Hyprland) helt holder op med at levere musehændelser, mens skærmen er DPMS-slukket — kun tastaturinput slipper igennem.",
+            "Lähettää harmittoman Shift-painalluksen herättääkseen DPMS-sammutetun näytön. Toimii, kun tavallinen napsautus ei toimi, koska wlroots-pohjaiset kompositorit (esim. Hyprland) lakkaavat toimittamasta hiiritapahtumia kokonaan näytön ollessa DPMS-sammutettuna — vain näppäimistösyöte pääsee läpi.",
+            "Sendir meinlaust Shift-slag til að vekja DPMS-slökktan skjá. Virkar þegar venjulegur smellur gerir það ekki, því wlroots-byggðir gluggastjórar (t.d. Hyprland) hætta alveg að skila músarbendilsviðburðum á meðan skjárinn er DPMS-slökktur — aðeins lyklaborðsinntak kemst í gegn.");
 
         Add("Form.ChooseAddress",
             "Välj adress", "Choose address", "Velg adresse", "Vælg adresse", "Valitse osoite", "Veldu vistfang");
