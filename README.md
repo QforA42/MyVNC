@@ -4,6 +4,11 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 
 ![MyVNC dashboard](docs/assets/dashboard.png)
 
+| Tabbed sessions |
+|---|
+| ![Session tab: <hostname>](docs/assets/session1.png) |
+| ![Session tab: <hostname>](docs/assets/session2.png) |
+
 ## Features
 
 - **Own RFB/VNC client** — version handshake 3.3/3.7/3.8, None/VNC-Auth/VeNCrypt security (covers wayvnc's Plain/TLSPlain/X509Plain), Raw/CopyRect/DesktopSize/ZRLE encodings.
