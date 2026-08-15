@@ -181,7 +181,17 @@ internal sealed class ZrleDecoder
         return length + 1;
     }
 
-    private byte[] ReadCPixel() => ReadBytes(3) is [var b, var g, var r] ? [b, g, r, 0] : throw new IOException("Ofullständig ZRLE-pixel.");
+    // Reused for every ReadByte/ReadCPixel call instead of allocating a fresh array each time —
+    // Plain/Palette RLE tiles on a busy screen can call these thousands of times per rectangle,
+    // and that allocation churn showed up as real, measured CPU cost (a live incident traced
+    // sustained 50%+ CPU of one core partly to this, on a large/actively-used 2560x1440 session).
+    private readonly byte[] _scratch3 = new byte[3];
+
+    private byte[] ReadCPixel()
+    {
+        ReadBytesInto(_scratch3, 3);
+        return [_scratch3[0], _scratch3[1], _scratch3[2], 0];
+    }
 
     private static void WritePixel(byte[] pixels, int rectWidth, int x, int y, byte[] px)
     {
@@ -192,7 +202,22 @@ internal sealed class ZrleDecoder
         pixels[offset + 3] = px[3];
     }
 
-    private byte ReadByte() => ReadBytes(1)[0];
+    private byte ReadByte()
+    {
+        ReadBytesInto(_scratch3, 1);
+        return _scratch3[0];
+    }
+
+    private void ReadBytesInto(byte[] buffer, int count)
+    {
+        var read = 0;
+        while (read < count)
+        {
+            var n = _inflate.Read(buffer, read, count - read);
+            if (n <= 0) throw new IOException("ZRLE-strömmen tog slut oväntat.");
+            read += n;
+        }
+    }
 
     private byte[] ReadBytes(int count)
     {
