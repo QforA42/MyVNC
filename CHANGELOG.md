@@ -8,6 +8,23 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.9] - 2026-08-15
+
+### Fixed
+- The Wake button (added in beta.8) didn't actually wake anything — confirmed via SSH that
+  omarchy's "screensaver" is a normal terminal window running `ttfx`, which dismisses itself the
+  instant *any single byte* arrives on its stdin (`read -n1 -t 1`). A mouse click inside a
+  terminal sends nothing to the foreground process, and neither Shift nor F13 (both tried and
+  confirmed sent) produce a terminal escape sequence in most emulators, so nothing ever reached
+  `ttfx`. Switched the Wake button to send Space instead — guaranteed to produce a literal byte in
+  every terminal. Ctrl+Alt+Del only ever "worked" because Delete happens to map to a real escape
+  sequence, not because of anything DPMS/idle-related as originally assumed.
+- Removed the ResourceWatchdog's MessageBox popup. Live use showed the sustained-high threshold
+  trips routinely during ordinary active sessions (framebuffer decode/render load), not just
+  genuine runaway incidents — a popup on every busy moment was more noise than signal. Still
+  always logged to myvnc.log regardless of the debug-logging toggle, so a real runaway is still
+  evidenced without interrupting the session.
+
 ## [0.2.0-beta.8] - 2026-08-15
 
 ### Added

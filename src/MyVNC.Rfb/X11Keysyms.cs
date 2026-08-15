@@ -5,6 +5,7 @@ public static class X11Keysyms
 {
     public const uint BackSpace = 0xff08;
     public const uint Tab = 0xff09;
+    public const uint Space = 0x0020;
     public const uint Return = 0xff0d;
     public const uint Escape = 0xff1b;
     public const uint Delete = 0xffff;

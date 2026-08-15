@@ -34,6 +34,11 @@ public partial class RemoteFramebufferControl : UserControl
     // with an up-event for a key it never saw go down. Now it only releases what's tracked here.
     private readonly HashSet<uint> _keysDown = [];
 
+    // Deliberately no per-key logging here, unlike pointer events: this is the single choke point
+    // for every keystroke, including normal typing — logging the keysym here would be a de facto
+    // keylogger in myvnc.log, which conflicts with this app's own stated rule of never logging
+    // keystrokes/credentials/clipboard content. The Wake/Ctrl+Alt+Del actions log at their own
+    // call sites instead, since those are synthetic, non-typed, low-frequency, and worth tracing.
     private void SendKey(uint keysym, bool down)
     {
         if (down) _keysDown.Add(keysym);
@@ -473,6 +478,7 @@ public partial class RemoteFramebufferControl : UserControl
     public void SendCtrlAltDelete()
     {
         if (_client is null || !IsConnected) return;
+        AppLog.Write("Sending Ctrl+Alt+Del");
         SendKey(X11Keysyms.Control_L, true);
         SendKey(X11Keysyms.Alt_L, true);
         SendKey(X11Keysyms.Delete, true);
@@ -481,18 +487,24 @@ public partial class RemoteFramebufferControl : UserControl
         SendKey(X11Keysyms.Control_L, false);
     }
 
-    /// <summary>Sends a harmless Shift tap to wake a DPMS-blanked screen. Confirmed on
-    /// omarchy/Hyprland: with the display powered off (DPMS), wlroots stops delivering pointer
-    /// motion/click events to any client — including the lock screen's own click-to-wake handler
-    /// — so a synthetic VNC click can't wake it even though the exact same click works fine once
-    /// the screen is already on. Keyboard input isn't gated the same way, which is also why
-    /// Ctrl+Alt+Del wakes it. Shift alone has no side effects in any normal app/session state,
-    /// unlike Ctrl+Alt+Del which is disruptive if the screen wasn't actually blanked.</summary>
+    /// <summary>Sends a harmless Space tap to dismiss omarchy's screensaver. Confirmed on
+    /// omarchy/Hyprland via SSH: "the screensaver" is a normal terminal window
+    /// (alacritty/foot/kitty/ghostty) running `ttfx`, launched by
+    /// /usr/share/omarchy/bin/omarchy-screensaver, which dismisses itself via a plain
+    /// `read -n1 -t 1` loop — it exits the instant *any single byte* arrives on the terminal's
+    /// stdin. A mouse click inside a terminal doesn't send anything to the foreground process, so
+    /// clicking never dismisses it. Neither did a plain Shift tap or F13 (both live-tested,
+    /// confirmed sent via logging) — most terminal emulators emit no escape sequence at all for a
+    /// bare modifier or an F13-F24 key, so nothing ever reached ttfx's stdin. Ctrl+Alt+Del "works"
+    /// only because Delete maps to a real terminal escape sequence. Space is the safest choice
+    /// that's guaranteed to produce a literal byte in every terminal, with no side effects worse
+    /// than an extra space character if it lands somewhere unexpected.</summary>
     public void SendWakeNudge()
     {
         if (_client is null || !IsConnected) return;
-        SendKey(X11Keysyms.Shift_L, true);
-        SendKey(X11Keysyms.Shift_L, false);
+        AppLog.Write("Sending wake nudge (Space)");
+        SendKey(X11Keysyms.Space, true);
+        SendKey(X11Keysyms.Space, false);
     }
 
     /// <summary>Pushes the local clipboard to the remote session, skipping it if nothing changed

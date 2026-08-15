@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Windows;
 
 namespace MyVNC.App.Services;
 
@@ -73,20 +72,16 @@ public static class ResourceWatchdog
         }
     }
 
+    // No longer shows a MessageBox: live use showed this threshold trips routinely during
+    // ordinary active sessions (framebuffer decode/render load from clicking around), not just
+    // genuine runaway incidents — a popup on every busy moment was more noise than signal. Still
+    // always logged (regardless of the debug-logging toggle) so a real runaway is still evidenced
+    // in myvnc.log without interrupting the user mid-session.
     private static void Warn(long memoryBytes, double coreEquivalents)
     {
         var memoryMb = (int)(memoryBytes / 1024.0 / 1024.0);
         var cpuPercent = (int)(coreEquivalents * 100);
 
         AppLog.WriteAlways($"RESOURCE WARNING: memory={memoryMb}MB, cpu~{cpuPercent}% of one core (sustained)");
-
-        Application.Current?.Dispatcher.BeginInvoke(() =>
-        {
-            MessageBox.Show(
-                Loc.T("Watchdog.Message", memoryMb, cpuPercent),
-                Loc.T("Watchdog.Title"),
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
-        });
     }
 }
