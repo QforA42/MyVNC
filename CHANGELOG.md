@@ -8,6 +8,8 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.2] - 2026-08-15
+
 ### Added
 - Opt-in debug logging (Settings toggle, off by default) writing protocol/app diagnostics to
   `%APPDATA%\MyVNC\myvnc.log` — connection lifecycle, security/encoding negotiation, disconnects,
