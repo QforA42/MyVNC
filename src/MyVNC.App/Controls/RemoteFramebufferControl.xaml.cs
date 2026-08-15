@@ -26,6 +26,20 @@ public partial class RemoteFramebufferControl : UserControl
     private DispatcherTimer? _ctrlHoldTimer;
     private string? _lastSyncedClipboardText;
 
+    // Every keysym we've told the remote is currently held down. ReleaseAllModifiers (fired on
+    // every LostKeyboardFocus, which can happen often) used to unconditionally send an up-event
+    // for a fixed list of 8 modifiers regardless of whether any of them had actually been
+    // pressed — spamming the remote compositor's own logs (reported: repeated "Alt_R" entries)
+    // with an up-event for a key it never saw go down. Now it only releases what's tracked here.
+    private readonly HashSet<uint> _keysDown = [];
+
+    private void SendKey(uint keysym, bool down)
+    {
+        if (down) _keysDown.Add(keysym);
+        else _keysDown.Remove(keysym);
+        _client?.SendKeyEvent(keysym, down);
+    }
+
     public bool IsConnected { get; private set; }
     public string DesktopName => _client?.DesktopName ?? string.Empty;
     public int RemoteWidth => _client?.Width ?? 0;
@@ -264,7 +278,7 @@ public partial class RemoteFramebufferControl : UserControl
             {
                 _ctrlHoldTimer!.Stop();
                 if (_leftCtrlPending && !_leftCtrlSuppressed)
-                    _client.SendKeyEvent(X11Keysyms.Control_L, down: true);
+                    SendKey(X11Keysyms.Control_L, true);
                 _leftCtrlPending = false;
             };
             _ctrlHoldTimer.Start();
@@ -281,7 +295,7 @@ public partial class RemoteFramebufferControl : UserControl
                 _leftCtrlSuppressed = true;
                 _leftCtrlPending = false;
             }
-            _client.SendKeyEvent(X11Keysyms.AltGr, down: true);
+            SendKey(X11Keysyms.AltGr, true);
             e.Handled = true;
             return;
         }
@@ -293,13 +307,13 @@ public partial class RemoteFramebufferControl : UserControl
         {
             _ctrlHoldTimer?.Stop();
             if (!_leftCtrlSuppressed)
-                _client.SendKeyEvent(X11Keysyms.Control_L, down: true);
+                SendKey(X11Keysyms.Control_L, true);
             _leftCtrlPending = false;
         }
 
         if (KeyTranslator.TryGetKeysym(key, out var keysym))
         {
-            _client.SendKeyEvent(keysym, down: true);
+            SendKey(keysym, true);
             e.Handled = true;
             return;
         }
@@ -309,7 +323,7 @@ public partial class RemoteFramebufferControl : UserControl
         if (!_rightAltDown && (Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Alt)) != 0
             && KeyTranslator.TryGetBaseAsciiKeysym(key, out var asciiKeysym))
         {
-            _client.SendKeyEvent(asciiKeysym, down: true);
+            SendKey(asciiKeysym, true);
             e.Handled = true;
         }
         // Otherwise this is a plain character-producing key — fall through unhandled so
@@ -331,12 +345,12 @@ public partial class RemoteFramebufferControl : UserControl
                 if (_leftCtrlPending && !_leftCtrlSuppressed)
                 {
                     // Tapped and released faster than the AltGr detection window — send both edges now.
-                    _client.SendKeyEvent(X11Keysyms.Control_L, down: true);
-                    _client.SendKeyEvent(X11Keysyms.Control_L, down: false);
+                    SendKey(X11Keysyms.Control_L, true);
+                    SendKey(X11Keysyms.Control_L, false);
                 }
                 else if (!_leftCtrlSuppressed)
                 {
-                    _client.SendKeyEvent(X11Keysyms.Control_L, down: false);
+                    SendKey(X11Keysyms.Control_L, false);
                 }
             }
             _leftCtrlTracked = false;
@@ -349,14 +363,14 @@ public partial class RemoteFramebufferControl : UserControl
         if (key == Key.RightAlt)
         {
             _rightAltDown = false;
-            _client.SendKeyEvent(X11Keysyms.AltGr, down: false);
+            SendKey(X11Keysyms.AltGr, false);
             e.Handled = true;
             return;
         }
 
         if (KeyTranslator.TryGetKeysym(key, out var keysym))
         {
-            _client.SendKeyEvent(keysym, down: false);
+            SendKey(keysym, false);
             e.Handled = true;
             return;
         }
@@ -364,7 +378,7 @@ public partial class RemoteFramebufferControl : UserControl
         if (!_rightAltDown && (Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Alt)) != 0
             && KeyTranslator.TryGetBaseAsciiKeysym(key, out var asciiKeysym))
         {
-            _client.SendKeyEvent(asciiKeysym, down: false);
+            SendKey(asciiKeysym, false);
             e.Handled = true;
         }
     }
@@ -376,8 +390,8 @@ public partial class RemoteFramebufferControl : UserControl
         {
             if (rune.Value < 0x20) continue; // stray control character, not real text (see Ctrl-chord handling above)
             var keysym = X11Keysyms.FromUnicode(rune.Value);
-            _client.SendKeyEvent(keysym, down: true);
-            _client.SendKeyEvent(keysym, down: false);
+            SendKey(keysym, true);
+            SendKey(keysym, false);
         }
         e.Handled = true;
     }
@@ -391,28 +405,30 @@ public partial class RemoteFramebufferControl : UserControl
         _leftCtrlTracked = false;
         if (_rightAltDown)
         {
-            _client.SendKeyEvent(X11Keysyms.AltGr, down: false);
+            SendKey(X11Keysyms.AltGr, false);
             _rightAltDown = false;
         }
-        foreach (var k in new[] { X11Keysyms.Control_L, X11Keysyms.Control_R, X11Keysyms.Alt_L, X11Keysyms.Alt_R, X11Keysyms.Shift_L, X11Keysyms.Shift_R, X11Keysyms.Super_L, X11Keysyms.Super_R })
-            _client.SendKeyEvent(k, down: false);
+        // Release only what we've actually told the remote is down — not a fixed list of 8
+        // modifiers regardless of whether any were ever pressed (see _keysDown's own comment).
+        foreach (var k in _keysDown.ToArray())
+            SendKey(k, false);
     }
 
     /// <summary>Forwards a Win-key transition captured by the system-wide keyboard hook
     /// (see <see cref="Interop.GlobalKeyboardHook"/>) as the equivalent Super keysym.</summary>
     public void SendCapturedSuperKey(bool isDown, bool isRight)
-        => _client?.SendKeyEvent(isRight ? X11Keysyms.Super_R : X11Keysyms.Super_L, isDown);
+        => SendKey(isRight ? X11Keysyms.Super_R : X11Keysyms.Super_L, isDown);
 
     /// <summary>Sends the classic Ctrl+Alt+Del chord — needed because Windows intercepts it locally otherwise.</summary>
     public void SendCtrlAltDelete()
     {
         if (_client is null || !IsConnected) return;
-        _client.SendKeyEvent(X11Keysyms.Control_L, down: true);
-        _client.SendKeyEvent(X11Keysyms.Alt_L, down: true);
-        _client.SendKeyEvent(X11Keysyms.Delete, down: true);
-        _client.SendKeyEvent(X11Keysyms.Delete, down: false);
-        _client.SendKeyEvent(X11Keysyms.Alt_L, down: false);
-        _client.SendKeyEvent(X11Keysyms.Control_L, down: false);
+        SendKey(X11Keysyms.Control_L, true);
+        SendKey(X11Keysyms.Alt_L, true);
+        SendKey(X11Keysyms.Delete, true);
+        SendKey(X11Keysyms.Delete, false);
+        SendKey(X11Keysyms.Alt_L, false);
+        SendKey(X11Keysyms.Control_L, false);
     }
 
     /// <summary>Pushes the local clipboard to the remote session, skipping it if nothing changed
