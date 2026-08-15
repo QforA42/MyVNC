@@ -152,6 +152,9 @@ public static class Loc
             "Fäst", "Pin", "Fest", "Fastgør", "Kiinnitä", "Festa");
         Add("Card.Unpin",
             "Lossa", "Unpin", "Løsne", "Frigør", "Irrota", "Losa");
+        Add("Card.OpenSsh",
+            "Öppna SSH-terminal", "Open SSH terminal", "Åpne SSH-terminal",
+            "Åbn SSH-terminal", "Avaa SSH-pääte", "Opna SSH-flugstöð");
 
         Add("JumpList.Pinned",
             "Fästa", "Pinned", "Festet", "Fastgjort", "Kiinnitetyt", "Fest");
@@ -176,6 +179,21 @@ public static class Loc
             "Genopretter automatisk", "Yhdistää uudelleen automaattisesti", "Tengist sjálfkrafa aftur");
         Add("Settings.AutoReconnectOff",
             "Av", "Off", "Av", "Fra", "Pois", "Af");
+        Add("Settings.SshTerminal",
+            "SSH-TERMINAL", "SSH TERMINAL", "SSH-TERMINAL", "SSH-TERMINAL", "SSH-PÄÄTE", "SSH-FLUGSTÖÐ");
+        Add("SshTerminal.Auto",
+            "Auto (Windows Terminal om det finns, annars PowerShell)",
+            "Auto (Windows Terminal if available, otherwise PowerShell)",
+            "Auto (Windows Terminal hvis tilgjengelig, ellers PowerShell)",
+            "Auto (Windows Terminal hvis tilgængelig, ellers PowerShell)",
+            "Auto (Windows Terminal jos saatavilla, muuten PowerShell)",
+            "Sjálfvirkt (Windows Terminal ef til, annars PowerShell)");
+        Add("SshTerminal.PowerShell",
+            "PowerShell", "PowerShell", "PowerShell", "PowerShell", "PowerShell", "PowerShell");
+        Add("SshTerminal.WindowsTerminal",
+            "Windows Terminal", "Windows Terminal", "Windows Terminal", "Windows Terminal", "Windows Terminal", "Windows Terminal");
+        Add("SshTerminal.Wsl",
+            "WSL", "WSL", "WSL", "WSL", "WSL", "WSL");
 
         Add("Session.Connecting",
             "Ansluter till {0}:{1}...", "Connecting to {0}:{1}...", "Kobler til {0}:{1} …",
@@ -208,5 +226,70 @@ public static class Loc
             "Forbindelsen blev afbrudt: {0}\nPrøver igen om {1}s (forsøg {2}) …",
             "Yhteys katkesi: {0}\nYritetään uudelleen {1}s kuluttua (yritys {2})…",
             "Tengingin rofnaði: {0}\nReynt aftur eftir {1}s (tilraun {2})…");
+
+        Add("Help.Title",
+            "Hjälp", "Help", "Hjelp", "Hjælp", "Ohje", "Hjálp");
+        Add("Help.PasteHeader",
+            "Klistra in text", "Pasting text", "Lime inn tekst", "Indsæt tekst",
+            "Tekstin liittäminen", "Líma inn texta");
+        Add("Help.PasteBody",
+            "Använd Ctrl+Shift+V för att klistra in i terminalen/Vim på fjärrdatorn — vanlig Ctrl+V tolkas ofta som ett annat kommando där (t.ex. Visual Block-läge i Vim) och ger skräptecken istället för din text.",
+            "Use Ctrl+Shift+V to paste into the remote's terminal/Vim — plain Ctrl+V is often interpreted as something else there (e.g. Visual Block mode in Vim), producing garbage characters instead of your text.",
+            "Bruk Ctrl+Shift+V for å lime inn i terminalen/Vim på fjernmaskinen — vanlig Ctrl+V tolkes ofte som noe annet der (f.eks. Visual Block-modus i Vim), og gir søppeltegn i stedet for teksten din.",
+            "Brug Ctrl+Shift+V til at indsætte i terminalen/Vim på fjernmaskinen — almindelig Ctrl+V bliver ofte fortolket som noget andet der (f.eks. Visual Block-tilstand i Vim) og giver skrammeltegn i stedet for din tekst.",
+            "Käytä Ctrl+Shift+V-yhdistelmää liittääksesi tekstiä etäkoneen päätteeseen/Vimiin — pelkkä Ctrl+V tulkitaan siellä usein joksikin muuksi (esim. Vimin Visual Block -tilaksi), jolloin tekstisi sijaan näkyy roskamerkkejä.",
+            "Notaðu Ctrl+Shift+V til að líma inn í flugstöðina/Vim á fjartengdu vélinni — venjulegt Ctrl+V er oft túlkað sem eitthvað annað þar (t.d. Visual Block-hamur í Vim) og skilar rusltáknum í stað textans þíns.");
+
+        Add("Help.HowItWorksHeader",
+            "Hur MyVNC fungerar", "How MyVNC works", "Hvordan MyVNC fungerer",
+            "Sådan fungerer MyVNC", "Miten MyVNC toimii", "Hvernig MyVNC virkar");
+        Add("Help.HowItWorksBody",
+            "MyVNC är en egenbyggd VNC-klient (RFB-protokollet) som kopplar upp direkt mot en VNC-server (t.ex. wayvnc) på fjärrdatorn — inget extra program behövs på Windows-sidan. Tangentbord och mus skickas i realtid, och Windows urklipp synkas automatiskt åt båda hållen (kan stängas av per anslutning under visa-endast-/urklippsinställningarna).",
+            "MyVNC is a custom-built VNC client (the RFB protocol) that connects directly to a VNC server (e.g. wayvnc) on the remote machine — nothing extra is needed on the Windows side. Keyboard and mouse are sent in real time, and the Windows clipboard syncs automatically in both directions (can be turned off per connection under the view-only/clipboard settings).",
+            "MyVNC er en egenbygget VNC-klient (RFB-protokollen) som kobler seg direkte til en VNC-server (f.eks. wayvnc) på fjernmaskinen — ingen ekstra programvare trengs på Windows-siden. Tastatur og mus sendes i sanntid, og Windows-utklippstavlen synkroniseres automatisk begge veier (kan skrus av per tilkobling under innstillingene for kun visning/utklippstavle).",
+            "MyVNC er en hjemmelavet VNC-klient (RFB-protokollen), der forbinder direkte til en VNC-server (f.eks. wayvnc) på fjernmaskinen — der kræves intet ekstra på Windows-siden. Tastatur og mus sendes i realtid, og Windows-udklipsholderen synkroniseres automatisk begge veje (kan slås fra pr. forbindelse under indstillingerne for kun visning/udklipsholder).",
+            "MyVNC on itse rakennettu VNC-asiakasohjelma (RFB-protokolla), joka yhdistää suoraan etäkoneen VNC-palvelimeen (esim. wayvnc) — Windows-puolella ei tarvita mitään ylimääräistä. Näppäimistö ja hiiri lähetetään reaaliajassa, ja Windowsin leikepöytä synkronoituu automaattisesti molempiin suuntiin (voidaan sammuttaa yhteyskohtaisesti vain katselu-/leikepöytäasetuksista).",
+            "MyVNC er sérsmíðaður VNC-biðlari (RFB-samskiptareglan) sem tengist beint við VNC-þjón (t.d. wayvnc) á fjartengdu vélinni — ekkert aukalegt þarf á Windows-hliðinni. Lyklaborð og mús eru send í rauntíma og Windows-klippiborðið samstillist sjálfkrafa í báðar áttir (hægt að slökkva á því fyrir hverja tengingu undir stillingum fyrir aðeins-skoða/klippiborð).");
+
+        Add("Help.WayvncHeader",
+            "Konfigurera wayvnc på fjärrdatorn", "Configuring wayvnc on the remote machine",
+            "Konfigurere wayvnc på fjernmaskinen", "Konfigurer wayvnc på fjernmaskinen",
+            "wayvncin määrittäminen etäkoneella", "Stilla wayvnc á fjartengdu vélinni");
+        Add("Help.WayvncKeyboardBody",
+            "Tangentbordslayout: wayvnc följer normalt systemets egna layout automatiskt (satt vid installationen, t.ex. via localectl) — du behöver oftast inte ange något själv. Fungerar inte å, ä, ö eller liknande tangenter, kolla systemets layout (localectl status) eller sätt xkb_layout uttryckligen i wayvnc-konfigurationen.",
+            "Keyboard layout: wayvnc normally follows the system's own layout automatically (set during installation, e.g. via localectl) — you usually don't need to set anything yourself. If å, ä, ö or similar keys don't work, check the system layout (localectl status) or set xkb_layout explicitly in wayvnc's config.",
+            "Tastaturoppsett: wayvnc følger normalt systemets eget oppsett automatisk (satt ved installasjonen, f.eks. via localectl) — du trenger vanligvis ikke å angi noe selv. Fungerer ikke æ, ø, å eller lignende taster, sjekk systemets oppsett (localectl status) eller sett xkb_layout uttrykkelig i wayvnc-konfigurasjonen.",
+            "Tastaturlayout: wayvnc følger normalt systemets eget layout automatisk (angivet ved installationen, f.eks. via localectl) — du behøver som regel ikke angive noget selv. Virker æ, ø, å eller lignende taster ikke, så tjek systemets layout (localectl status) eller angiv xkb_layout eksplicit i wayvnc-konfigurationen.",
+            "Näppäimistöasettelu: wayvnc noudattaa yleensä järjestelmän omaa asettelua automaattisesti (asetettu asennuksen yhteydessä, esim. localectl-komennolla) — sinun ei yleensä tarvitse asettaa mitään itse. Jos ä, ö tai vastaavat näppäimet eivät toimi, tarkista järjestelmän asettelu (localectl status) tai aseta xkb_layout suoraan wayvnc-asetuksiin.",
+            "Lyklaborðsuppsetning: wayvnc fylgir venjulega sjálfkrafa uppsetningu kerfisins (stillt við uppsetningu, t.d. með localectl) — þú þarft yfirleitt ekki að stilla neitt sjálf(ur). Ef þ, æ, ö eða áþekkir takkar virka ekki, athugaðu uppsetningu kerfisins (localectl status) eða stilltu xkb_layout beint í wayvnc-stillingunum.");
+        Add("Help.WayvncAddressBody",
+            "Adress/port: se till att wayvnc lyssnar på rätt adress (address=0.0.0.0 för att nås via nätverket/Tailscale) och port (port=5900 som standard).",
+            "Address/port: make sure wayvnc listens on the right address (address=0.0.0.0 to be reachable over the network/Tailscale) and port (port=5900 by default).",
+            "Adresse/port: sørg for at wayvnc lytter på riktig adresse (address=0.0.0.0 for å nås via nettverket/Tailscale) og port (port=5900 som standard).",
+            "Adresse/port: sørg for at wayvnc lytter på den rigtige adresse (address=0.0.0.0 for at kunne nås via netværket/Tailscale) og port (port=5900 som standard).",
+            "Osoite/portti: varmista, että wayvnc kuuntelee oikeaa osoitetta (address=0.0.0.0, jotta se on tavoitettavissa verkon/Tailscalen kautta) ja porttia (port=5900 oletuksena).",
+            "Vistfang/gátt: gakktu úr skugga um að wayvnc hlusti á rétt vistfang (address=0.0.0.0 til að ná til þess um netið/Tailscale) og gátt (port=5900 sjálfgefið).");
+        Add("Help.WayvncAuthBody",
+            "Autentisering: enklast är enable_auth=true tillsammans med enable_pam=true — då loggar du in med samma användarnamn/lösenord som ditt Linux-konto (via PAM), precis vad MyVNC skickar. TLS/kryptering sköts av certificate_file/private_key_file (självsignerat certifikat genereras automatiskt av wayvnc första gången).",
+            "Authentication: the simplest setup is enable_auth=true together with enable_pam=true — then you log in with the same username/password as your Linux account (via PAM), exactly what MyVNC sends. TLS/encryption is handled by certificate_file/private_key_file (wayvnc generates a self-signed certificate automatically the first time).",
+            "Autentisering: den enkleste oppsettet er enable_auth=true sammen med enable_pam=true — da logger du inn med samme brukernavn/passord som Linux-kontoen din (via PAM), nøyaktig det MyVNC sender. TLS/kryptering håndteres av certificate_file/private_key_file (wayvnc genererer et selvsignert sertifikat automatisk første gang).",
+            "Godkendelse: den enkleste opsætning er enable_auth=true sammen med enable_pam=true — så logger du ind med samme brugernavn/adgangskode som din Linux-konto (via PAM), præcis hvad MyVNC sender. TLS/kryptering håndteres af certificate_file/private_key_file (wayvnc genererer automatisk et selvsigneret certifikat første gang).",
+            "Todennus: yksinkertaisin tapa on enable_auth=true yhdessä enable_pam=true kanssa — silloin kirjaudut sisään samalla käyttäjätunnuksella/salasanalla kuin Linux-tilisi (PAM:n kautta), täsmälleen sen MyVNC lähettää. TLS/salauksesta huolehtivat certificate_file/private_key_file (wayvnc luo itse allekirjoitetun varmenteen automaattisesti ensimmäisellä kerralla).",
+            "Auðkenning: einfaldasta uppsetningin er enable_auth=true ásamt enable_pam=true — þá skráir þú þig inn með sama notandanafni/lykilorði og Linux-reikningurinn þinn (í gegnum PAM), nákvæmlega það sem MyVNC sendir. TLS/dulkóðun er séð um af certificate_file/private_key_file (wayvnc býr sjálfkrafa til sjálfundirritað skírteini í fyrsta skipti).");
+        Add("Help.WayvncExampleLabel",
+            "Exempel: ~/.config/wayvnc/config", "Example: ~/.config/wayvnc/config",
+            "Eksempel: ~/.config/wayvnc/config", "Eksempel: ~/.config/wayvnc/config",
+            "Esimerkki: ~/.config/wayvnc/config", "Dæmi: ~/.config/wayvnc/config");
+
+        Add("Help.LimitationsHeader",
+            "Kända begränsningar", "Known limitations", "Kjente begrensninger",
+            "Kendte begrænsninger", "Tunnetut rajoitukset", "Þekktar takmarkanir");
+        Add("Help.LimitationsBody",
+            "Klick på flikar/popup-menyer i statusfält som Waybar eller Quickshell-paneler (t.ex. WiFi- eller batteriikonen) öppnar ibland inget — det beror på en känd begränsning i wlr-virtual-pointer-v1, protokollet wayvnc använder för att skicka muspekaren till kompositorn. Vanlig musrörelse, klick i fönster och tangentbord fungerar som vanligt; det är specifikt att öppna nya popup-ytor (layer-shell) via en syntetisk pekare som inte alltid stöds fullt ut av kompositorn. Detta är inget MyVNC kan åtgärda från klientsidan — lösningen (om någon finns) ligger i en nyare version av wlroots/Hyprland/wayvnc, eller i panelens egna inställningar på fjärrdatorn.",
+            "Clicking flyouts/popups in status bars like Waybar or Quickshell panels (e.g. the WiFi or battery icon) sometimes opens nothing — this is a known limitation of wlr-virtual-pointer-v1, the protocol wayvnc uses to inject the pointer into the compositor. Regular mouse movement, clicking inside windows, and keyboard input all work normally; it's specifically opening new popup surfaces (layer-shell) via a synthetic pointer that isn't always fully supported by the compositor. There's nothing MyVNC can fix client-side for this — any fix would come from a newer wlroots/Hyprland/wayvnc version, or the panel's own settings on the remote machine.",
+            "Klikk på visningsvinduer/popup-menyer i statuslinjer som Waybar eller Quickshell-paneler (f.eks. WiFi- eller batteriikonet) åpner noen ganger ingenting — dette skyldes en kjent begrensning i wlr-virtual-pointer-v1, protokollen wayvnc bruker for å sende pekeren til kompositøren. Vanlig musbevegelse, klikk i vinduer og tastatur fungerer som normalt; det er spesifikt å åpne nye popup-flater (layer-shell) via en syntetisk peker som ikke alltid støttes fullt ut av kompositøren. Dette er ikke noe MyVNC kan fikse på klientsiden — en eventuell løsning ligger i en nyere versjon av wlroots/Hyprland/wayvnc, eller i panelets egne innstillinger på fjernmaskinen.",
+            "Klik på flyouts/popup-menuer i statusbjælker som Waybar eller Quickshell-paneler (f.eks. WiFi- eller batteriikonet) åbner nogle gange ingenting — det skyldes en kendt begrænsning i wlr-virtual-pointer-v1, protokollen wayvnc bruger til at sende markøren til kompositoren. Almindelig musebevægelse, klik i vinduer og tastatur fungerer som normalt; det er specifikt at åbne nye popup-flader (layer-shell) via en syntetisk markør, som ikke altid understøttes fuldt ud af kompositoren. Der er intet MyVNC kan rette på klientsiden her — en eventuel løsning ligger i en nyere version af wlroots/Hyprland/wayvnc, eller i panelets egne indstillinger på fjernmaskinen.",
+            "Tilan avautuvien valikkojen/ponnahdusikkunoiden napsauttaminen tilarivillä (esim. Waybar tai Quickshell-paneelit, kuten WiFi- tai akkukuvake) ei joskus tee mitään — tämä johtuu tunnetusta rajoituksesta wlr-virtual-pointer-v1-protokollassa, jota wayvnc käyttää osoittimen välittämiseen kompositorille. Tavallinen hiiren liike, ikkunoiden napsautus ja näppäimistö toimivat normaalisti; nimenomaan uusien ponnahduspintojen (layer-shell) avaaminen synteettisellä osoittimella ei aina toimi täysin kompositorissa. MyVNC ei voi korjata tätä asiakaspuolella — mahdollinen korjaus tulisi uudemmasta wlroots/Hyprland/wayvnc-versiosta tai paneelin omista asetuksista etäkoneella.",
+            "Að smella á sprettiglugga/valmyndir í stöðuslám eins og Waybar eða Quickshell-spjöldum (t.d. WiFi- eða rafhlöðutáknið) opnar stundum ekkert — þetta er þekkt takmörkun í wlr-virtual-pointer-v1, samskiptareglunni sem wayvnc notar til að senda bendilinn til gluggastjórans. Venjuleg músarhreyfing, smellir í gluggum og lyklaborð virka eðlilega; það er sérstaklega að opna nýja sprettifleti (layer-shell) með gervibendli sem gluggastjórinn styður ekki alltaf að fullu. Þetta er ekkert sem MyVNC getur lagað í biðlaranum — hugsanleg lausn myndi koma frá nýrri útgáfu af wlroots/Hyprland/wayvnc, eða stillingum spjaldsins sjálfs á fjartengdu vélinni.");
     }
 }

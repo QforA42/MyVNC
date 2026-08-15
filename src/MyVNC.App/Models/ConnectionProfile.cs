@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace MyVNC.App.Models;
 
 public sealed class ConnectionProfile
@@ -40,6 +42,11 @@ public sealed class ConnectionProfile
     /// <summary>Starts the session at native 1:1 pixel size instead of fit-to-window (still
     /// togglable live from the session toolbar).</summary>
     public bool ActualSize { get; set; }
+
+    /// <summary>Whether port 22 was last found open on this host — never persisted, re-checked
+    /// each time the dashboard loads or regains focus. Only gates the SSH icon's visibility.</summary>
+    [JsonIgnore]
+    public bool IsSshAvailable { get; set; }
 
     public string GetAddress(AddressKind kind) => kind switch
     {

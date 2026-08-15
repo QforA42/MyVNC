@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -23,6 +22,11 @@ namespace MyVNC.App;
 /// </summary>
 public partial class MainWindow : Window
 {
+    /// <summary>The live dashboard window, so activation requests from a second app launch
+    /// (see <see cref="Services.SingleInstance"/>) always reach whichever instance is actually
+    /// current — a language change replaces this window entirely (see OnLanguageChanged).</summary>
+    public static MainWindow? Current { get; private set; }
+
     private readonly ConnectionStore _store = new();
     private readonly ObservableCollection<ConnectionProfile> _profiles = [];
     private ConnectionProfile? _editingProfile;
@@ -36,6 +40,9 @@ public partial class MainWindow : Window
         Interop.DarkTitleBar.Apply(this);
         Icon = Interop.AppIconFactory.Create();
 
+        Current = this;
+        Closed += (_, _) => { if (Current == this) Current = null; };
+
         ConnectionsList.ItemsSource = _profiles;
         foreach (var p in _store.Load())
             _profiles.Add(p);
@@ -44,10 +51,17 @@ public partial class MainWindow : Window
 
         BuildLanguageList();
         BuildAddressPicker();
+        BuildSshTerminalPicker();
         LoadSettingsIntoUi();
 
         Loc.LanguageChanged += OnLanguageChanged;
         Closed += (_, _) => Loc.LanguageChanged -= OnLanguageChanged;
+
+        // Host reachability changes over time (a machine can suspend, or SSH can get opened in
+        // its firewall after the fact) — re-check whenever the dashboard is loaded or regains
+        // focus, rather than polling continuously.
+        RefreshSshAvailability();
+        Activated += (_, _) => RefreshSshAvailability();
 
         if (openSettings) ShowSettingsOverlay();
 
@@ -58,6 +72,24 @@ public partial class MainWindow : Window
             // not necessarily the profile's configured default.
             if (profile is not null) ConnectToProfile(profile, profile.LastUsedAddress);
         }
+    }
+
+    /// <summary>Called when a second app launch (desktop icon while already running, a taskbar
+    /// jump-list shortcut, Start menu) was forwarded here by <see cref="Services.SingleInstance"/>
+    /// instead of starting its own disconnected process. A "--connect &lt;id&gt;" arg opens that
+    /// session (as a tab or window per Settings, since it's this same running instance); either
+    /// way, bring the dashboard to the foreground so the activation is visible.</summary>
+    public void HandleActivation(string[] args)
+    {
+        var connectFlagIndex = Array.IndexOf(args, "--connect");
+        if (connectFlagIndex >= 0 && connectFlagIndex + 1 < args.Length)
+        {
+            var profile = _profiles.FirstOrDefault(p => p.Id == args[connectFlagIndex + 1]);
+            if (profile is not null) ConnectToProfile(profile, profile.LastUsedAddress);
+        }
+
+        if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+        Activate();
     }
 
     /// <summary>Rebuilds the whole window on a fresh language, since our XAML resolves display
@@ -102,11 +134,27 @@ public partial class MainWindow : Window
     private void ShowSettingsOverlay()
     {
         FormOverlay.Visibility = Visibility.Collapsed;
+        HelpOverlay.Visibility = Visibility.Collapsed;
         SettingsOverlay.Visibility = Visibility.Visible;
     }
 
     private void SettingsOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         => SettingsOverlay.Visibility = Visibility.Collapsed;
+
+    private void HelpButton_Click(object sender, RoutedEventArgs e) => ShowHelpOverlay();
+
+    private void ShowHelpOverlay()
+    {
+        FormOverlay.Visibility = Visibility.Collapsed;
+        SettingsOverlay.Visibility = Visibility.Collapsed;
+        HelpOverlay.Visibility = Visibility.Visible;
+    }
+
+    private void HelpOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        => HelpOverlay.Visibility = Visibility.Collapsed;
+
+    private void CloseHelp_Click(object sender, RoutedEventArgs e)
+        => HelpOverlay.Visibility = Visibility.Collapsed;
 
     private void CloseSettings_Click(object sender, RoutedEventArgs e)
         => SettingsOverlay.Visibility = Visibility.Collapsed;
@@ -124,6 +172,12 @@ public partial class MainWindow : Window
         DefaultAddressComboBox.SelectedIndex = 0;
     }
 
+    private void BuildSshTerminalPicker()
+    {
+        foreach (SshTerminalChoice choice in Enum.GetValues<SshTerminalChoice>())
+            SshTerminalComboBox.Items.Add(new ComboBoxItem { Content = Loc.T(choice.LocKey()), Tag = choice });
+    }
+
     private void LoadSettingsIntoUi()
     {
         _suppressSettingsEvents = true;
@@ -137,6 +191,10 @@ public partial class MainWindow : Window
 
         AutoReconnectToggle.IsChecked = App.Settings.AutoReconnect;
         UpdateAutoReconnectLabel();
+
+        foreach (ComboBoxItem item in SshTerminalComboBox.Items)
+            if ((SshTerminalChoice)item.Tag == App.Settings.SshTerminal)
+                SshTerminalComboBox.SelectedItem = item;
 
         _suppressSettingsEvents = false;
     }
@@ -174,11 +232,49 @@ public partial class MainWindow : Window
         App.SettingsStore.Save(App.Settings);
     }
 
+    private void SshTerminalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_suppressSettingsEvents || SshTerminalComboBox.SelectedItem is not ComboBoxItem item) return;
+        App.Settings.SshTerminal = (SshTerminalChoice)item.Tag;
+        App.SettingsStore.Save(App.Settings);
+    }
+
+    // ----- SSH -----
+
+    /// <summary>Kicks off a background reachability check (port 22) for every saved profile —
+    /// fire-and-forget, each one updates its own card once it resolves. Best-effort only: never
+    /// blocks the UI, and a profile with no reachable SSH port just never shows the icon.</summary>
+    private void RefreshSshAvailability()
+    {
+        foreach (var profile in _profiles)
+            _ = CheckSshAvailabilityAsync(profile);
+    }
+
+    private async Task CheckSshAvailabilityAsync(ConnectionProfile profile)
+    {
+        var address = profile.ResolveAddress(profile.DefaultAddress);
+        var available = await PortProbe.IsOpenAsync(address, 22, 800).ConfigureAwait(true);
+        if (profile.IsSshAvailable == available) return;
+
+        profile.IsSshAvailable = available;
+        var index = _profiles.IndexOf(profile);
+        if (index >= 0) _profiles[index] = profile; // force the card to re-read IsSshAvailable (no INotifyPropertyChanged on the model)
+        ConnectionsList.Items.Refresh();
+    }
+
+    private void OpenSshTerminal_Click(object sender, RoutedEventArgs e)
+    {
+        if (((FrameworkElement)sender).Tag is not ConnectionProfile profile) return;
+        var address = profile.ResolveAddress(profile.DefaultAddress);
+        SshLauncher.Launch(address, profile.Username, App.Settings.SshTerminal);
+    }
+
     // ----- New/edit connection overlay -----
 
     private void NewConnectionButton_Click(object sender, RoutedEventArgs e)
     {
         SettingsOverlay.Visibility = Visibility.Collapsed;
+        HelpOverlay.Visibility = Visibility.Collapsed;
         ExitEditMode();
         ShowOverlay();
         HostBox.Focus();
@@ -223,26 +319,17 @@ public partial class MainWindow : Window
         TestConnectionResultText.Text = Loc.T("Form.TestConnection") + "...";
 
         var sw = Stopwatch.StartNew();
-        try
+        if (await PortProbe.IsOpenAsync(address, port, 3000))
         {
-            using var client = new TcpClient();
-            var connectTask = client.ConnectAsync(address, port);
-            if (await Task.WhenAny(connectTask, Task.Delay(3000)) != connectTask || !client.Connected)
-                throw new TimeoutException();
-            await connectTask;
-
             TestConnectionResultText.Foreground = (Brush)FindResource("SuccessBrush");
             TestConnectionResultText.Text = Loc.T("Form.TestConnectionOk", sw.ElapsedMilliseconds);
         }
-        catch
+        else
         {
             TestConnectionResultText.Foreground = (Brush)FindResource("DangerBrush");
             TestConnectionResultText.Text = Loc.T("Form.TestConnectionFail", address, port);
         }
-        finally
-        {
-            TestConnectionButton.IsEnabled = true;
-        }
+        TestConnectionButton.IsEnabled = true;
     }
 
     // ----- Form -----
@@ -395,6 +482,7 @@ public partial class MainWindow : Window
         if (((FrameworkElement)sender).Tag is not ConnectionProfile profile) return;
 
         SettingsOverlay.Visibility = Visibility.Collapsed;
+        HelpOverlay.Visibility = Visibility.Collapsed;
         _editingProfile = profile;
         NameBox.Text = profile.Name;
         HostBox.Text = profile.Host;

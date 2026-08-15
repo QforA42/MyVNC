@@ -11,6 +11,10 @@
         Background="Transparent"
         WindowStartupLocation="CenterScreen">
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
     <Grid>
 
         <!-- Decorative terminal-themed backdrop behind the dashboard. -->
@@ -29,6 +33,10 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button x:Name="HelpButton" Content="&#xE897;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                            Width="30" Height="30" Style="{StaticResource IconButton}" Padding="0"
+                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"
+                            Click="HelpButton_Click" ToolTip="{loc:Loc Help.Title}"/>
                     <Button x:Name="SettingsButton" Content="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="14"
                             Width="30" Height="30" Style="{StaticResource IconButton}" Padding="0"
                             Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"
@@ -93,7 +101,21 @@
                                                 Tag="{Binding}" Click="EditConnection_Click" ToolTip="{loc:Loc Card.Edit}" Margin="0,0,2,0"/>
                                         <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="11" Style="{StaticResource IconButton}"
                                                 Foreground="{StaticResource TextSecondaryBrush}" Padding="6" Width="26" Height="26"
-                                                Tag="{Binding}" Click="DeleteConnection_Click" ToolTip="{loc:Loc Card.Delete}" Margin="0,0,6,0"/>
+                                                Tag="{Binding}" Click="DeleteConnection_Click" ToolTip="{loc:Loc Card.Delete}" Margin="0,0,2,0"/>
+                                        <Button Content="SSH" FontSize="9" FontWeight="SemiBold" Padding="5,6" Height="26"
+                                                Tag="{Binding}" Click="OpenSshTerminal_Click" ToolTip="{loc:Loc Card.OpenSsh}" Margin="0,0,6,0"
+                                                Visibility="{Binding IsSshAvailable, Converter={StaticResource BoolToVis}}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
+                                                    <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSshAvailable}" Value="True">
+                                                            <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
                                         <Button Content="{loc:Loc Form.Connect}" Style="{StaticResource IconButton}" Padding="12,5" FontSize="12"
                                                 Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold"
                                                 Tag="{Binding}" Click="ConnectCardButton_Click"/>
@@ -217,7 +239,69 @@
                         <ToggleButton x:Name="AutoReconnectToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
                                       Checked="AutoReconnectToggle_Changed" Unchecked="AutoReconnectToggle_Changed"/>
                     </Grid>
+
+                    <TextBlock Text="{loc:Loc Settings.SshTerminal}" Style="{StaticResource LabelText}" Margin="2,16,0,4"/>
+                    <ComboBox x:Name="SshTerminalComboBox" Style="{StaticResource ModernComboBox}"
+                              SelectionChanged="SshTerminalComboBox_SelectionChanged"/>
                 </StackPanel>
+            </Border>
+        </Border>
+
+        <!-- ===================== HELP OVERLAY ===================== -->
+        <Border x:Name="HelpOverlay" Background="#CC0B0D11" Panel.ZIndex="100" Visibility="Collapsed"
+                MouseLeftButtonDown="HelpOverlay_MouseLeftButtonDown">
+            <Border Background="{StaticResource BgElevatedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    CornerRadius="12" Width="320" MaxHeight="620" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    MouseLeftButtonDown="FormCard_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Margin="22,20,22,10">
+                        <TextBlock Text="{loc:Loc Help.Title}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11" Style="{StaticResource IconButton}"
+                                Foreground="{StaticResource TextSecondaryBrush}" Width="24" Height="24" Padding="0"
+                                HorizontalAlignment="Right" Click="CloseHelp_Click" ToolTip="{loc:Loc Session.Close}"/>
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="22,0,22,20">
+
+                            <TextBlock Text="{loc:Loc Help.PasteHeader}" FontWeight="SemiBold" FontSize="13"
+                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Text="{loc:Loc Help.PasteBody}" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+
+                            <TextBlock Text="{loc:Loc Help.HowItWorksHeader}" FontWeight="SemiBold" FontSize="13"
+                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Text="{loc:Loc Help.HowItWorksBody}" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+
+                            <TextBlock Text="{loc:Loc Help.WayvncHeader}" FontWeight="SemiBold" FontSize="13"
+                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Text="{loc:Loc Help.WayvncKeyboardBody}" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{loc:Loc Help.WayvncAddressBody}" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{loc:Loc Help.WayvncAuthBody}" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10"/>
+
+                            <TextBlock Text="{loc:Loc Help.WayvncExampleLabel}" FontSize="11" FontStyle="Italic"
+                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="10,8" Margin="0,0,0,16">
+                                <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}"
+                                           Text="address=0.0.0.0&#x0a;port=5900&#x0a;enable_auth=true&#x0a;enable_pam=true&#x0a;certificate_file=~/.config/wayvnc/certificate.pem&#x0a;private_key_file=~/.config/wayvnc/private_key.pem"/>
+                            </Border>
+
+                            <TextBlock Text="{loc:Loc Help.LimitationsHeader}" FontWeight="SemiBold" FontSize="13"
+                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Text="{loc:Loc Help.LimitationsBody}" FontSize="12" TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextSecondaryBrush}"/>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
             </Border>
         </Border>
 
