@@ -1,0 +1,33 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Palette -->
+    <Color x:Key="BgBaseColor">#F4F5F7</Color>
+    <Color x:Key="BgElevatedColor">#FFFFFF</Color>
+    <Color x:Key="BgCardColor">#FFFFFF</Color>
+    <Color x:Key="BgCardHoverColor">#EDEFF3</Color>
+    <Color x:Key="BorderColor">#DDE1E7</Color>
+    <Color x:Key="AccentColor">#3B6FE0</Color>
+    <Color x:Key="AccentHoverColor">#5B8CFF</Color>
+    <Color x:Key="AccentPressedColor">#2E5BC4</Color>
+    <Color x:Key="TextPrimaryColor">#1A1D23</Color>
+    <Color x:Key="TextSecondaryColor">#666E7C</Color>
+    <Color x:Key="DangerColor">#D9364B</Color>
+    <Color x:Key="SuccessColor">#1FA971</Color>
+
+    <SolidColorBrush x:Key="BgBaseBrush" Color="{StaticResource BgBaseColor}"/>
+    <SolidColorBrush x:Key="BgElevatedBrush" Color="{StaticResource BgElevatedColor}"/>
+    <SolidColorBrush x:Key="BgCardBrush" Color="{StaticResource BgCardColor}"/>
+    <SolidColorBrush x:Key="BgCardHoverBrush" Color="{StaticResource BgCardHoverColor}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}"/>
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="{StaticResource AccentPressedColor}"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
+
+    <FontFamily x:Key="UiFont">Segoe UI Variable, Segoe UI</FontFamily>
+
+</ResourceDictionary>

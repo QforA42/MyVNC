@@ -1,0 +1,9 @@
+﻿<Application x:Class="MyVNC.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:MyVNC.App">
+    <!-- Resources are merged in code (App.xaml.cs OnStartup) instead of here: ControlStyles.xaml's
+         Setters resolve their {StaticResource ...} color references at the moment the dictionary
+         is parsed, so Colors.Dark/Light.xaml must already be merged in before ControlStyles.xaml
+         loads — which a static merge here, happening before OnStartup picks the theme, can't guarantee. -->
+</Application>
