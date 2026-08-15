@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -135,6 +136,7 @@ public partial class MainWindow : Window
     {
         FormOverlay.Visibility = Visibility.Collapsed;
         HelpOverlay.Visibility = Visibility.Collapsed;
+        AboutOverlay.Visibility = Visibility.Collapsed;
         SettingsOverlay.Visibility = Visibility.Visible;
         OpenLogButton.IsEnabled = AppLog.LogFileExists(); // re-check each time, not just at startup
     }
@@ -142,12 +144,41 @@ public partial class MainWindow : Window
     private void SettingsOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         => SettingsOverlay.Visibility = Visibility.Collapsed;
 
+    // ----- About overlay -----
+
+    private void AboutButton_Click(object sender, RoutedEventArgs e)
+    {
+        FormOverlay.Visibility = Visibility.Collapsed;
+        SettingsOverlay.Visibility = Visibility.Collapsed;
+        HelpOverlay.Visibility = Visibility.Collapsed;
+
+        var version = Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        var shortVersion = version?.Split('+')[0] ?? "?";
+        AboutVersionText.Text = Loc.T("About.Version", shortVersion);
+
+        AboutOverlay.Visibility = Visibility.Visible;
+    }
+
+    private void AboutOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        => AboutOverlay.Visibility = Visibility.Collapsed;
+
+    private void CloseAbout_Click(object sender, RoutedEventArgs e)
+        => AboutOverlay.Visibility = Visibility.Collapsed;
+
+    private void AboutLink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        Process.Start(new ProcessStartInfo { FileName = e.Uri.AbsoluteUri, UseShellExecute = true });
+        e.Handled = true;
+    }
+
     private void HelpButton_Click(object sender, RoutedEventArgs e) => ShowHelpOverlay();
 
     private void ShowHelpOverlay()
     {
         FormOverlay.Visibility = Visibility.Collapsed;
         SettingsOverlay.Visibility = Visibility.Collapsed;
+        AboutOverlay.Visibility = Visibility.Collapsed;
         HelpOverlay.Visibility = Visibility.Visible;
     }
 
@@ -293,12 +324,37 @@ public partial class MainWindow : Window
         SshLauncher.Launch(address, profile.Username, App.Settings.SshTerminal);
     }
 
+    // ----- Forget SSH host key -----
+
+    private void ForgetSshHostKeyButton_Click(object sender, RoutedEventArgs e)
+    {
+        var addresses = new[] { HostBox.Text.Trim(), FqdnBox.Text.Trim(), TailscaleIpBox.Text.Trim(), TailscaleFqdnBox.Text.Trim() }
+            .Where(a => !string.IsNullOrWhiteSpace(a))
+            .ToArray();
+
+        ForgetSshHostKeyResultText.Visibility = Visibility.Visible;
+        if (addresses.Length == 0)
+        {
+            ForgetSshHostKeyResultText.Foreground = (Brush)FindResource("DangerBrush");
+            ForgetSshHostKeyResultText.Text = Loc.T("Form.ErrorHost");
+            return;
+        }
+
+        ForgetSshHostKeyButton.IsEnabled = false;
+        var cleared = SshLauncher.ForgetHostKeys(addresses);
+        ForgetSshHostKeyButton.IsEnabled = true;
+
+        ForgetSshHostKeyResultText.Foreground = (Brush)FindResource("SuccessBrush");
+        ForgetSshHostKeyResultText.Text = Loc.T("Form.ForgetSshHostKeyOk", cleared);
+    }
+
     // ----- New/edit connection overlay -----
 
     private void NewConnectionButton_Click(object sender, RoutedEventArgs e)
     {
         SettingsOverlay.Visibility = Visibility.Collapsed;
         HelpOverlay.Visibility = Visibility.Collapsed;
+        AboutOverlay.Visibility = Visibility.Collapsed;
         ExitEditMode();
         ShowOverlay();
         HostBox.Focus();
@@ -507,6 +563,7 @@ public partial class MainWindow : Window
 
         SettingsOverlay.Visibility = Visibility.Collapsed;
         HelpOverlay.Visibility = Visibility.Collapsed;
+        AboutOverlay.Visibility = Visibility.Collapsed;
         _editingProfile = profile;
         NameBox.Text = profile.Name;
         HostBox.Text = profile.Host;
@@ -529,6 +586,7 @@ public partial class MainWindow : Window
         ConnectButton.Content = Loc.T("Form.SaveChanges");
         StartErrorText.Visibility = Visibility.Collapsed;
         TestConnectionResultText.Visibility = Visibility.Collapsed;
+        ForgetSshHostKeyResultText.Visibility = Visibility.Collapsed;
 
         ShowOverlay();
     }
@@ -554,6 +612,7 @@ public partial class MainWindow : Window
         SendClipboardCheck.IsChecked = true;
         StartErrorText.Visibility = Visibility.Collapsed;
         TestConnectionResultText.Visibility = Visibility.Collapsed;
+        ForgetSshHostKeyResultText.Visibility = Visibility.Collapsed;
 
         FormTitleText.Text = Loc.T("Form.NewConnection");
         ConnectButton.Content = Loc.T("Form.Connect");

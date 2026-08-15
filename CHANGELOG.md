@@ -8,6 +8,17 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.6] - 2026-08-15
+
+### Fixed
+- **The actual root cause of "clicking a flyout does nothing", confirmed live**: `RemoteFramebufferControl` was wired to the bubbling `MouseDown`/`MouseUp` events. Debug-log evidence from a live session showed `MouseUp` reliably reaching the control on every click, but `MouseDown` never did — meaning the server was never told a button had gone down, only an already-cleared "up". Switched to the tunneling `PreviewMouseDown`/`PreviewMouseUp` events, which fire top-down before whatever was consuming the bubbling `MouseDown` (observed with a precision touchpad) gets a chance to. Verified end-to-end against a real Quickshell bar icon on <hostname> (Bluetooth flyout) — clicks now work. The beta.4 (modifier-release) and beta.5 (mouse-capture) fixes were both real, legitimate bugs, but neither was actually this one.
+
+### Added
+- "Forget SSH host key" button in the connection form: runs `ssh-keygen -R` for every filled-in
+  address (Host/FQDN/Tailscale IP/Tailscale FQDN) to clear a stale known_hosts entry when a
+  machine's SSH host key legitimately changes (e.g. after a reinstall). Never bypasses
+  verification of whatever key shows up next — it only clears the old one.
+
 ## [0.2.0-beta.5] - 2026-08-15
 
 ### Fixed

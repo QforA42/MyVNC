@@ -80,8 +80,14 @@ public partial class RemoteFramebufferControl : UserControl
         InitializeComponent();
 
         MouseMove += OnMouseMove;
-        MouseDown += OnMouseButton;
-        MouseUp += OnMouseButton;
+        // Tunneling (Preview*), not bubbling MouseDown/MouseUp: logging showed MouseUp reliably
+        // reaching this control but MouseDown never did, for every single click — a known WPF
+        // quirk where the initial contact of a click gets consumed upstream (e.g. by the
+        // ScrollViewer/manipulation machinery on a precision touchpad) before the bubbling
+        // MouseDown ever fires, while the corresponding MouseUp routes normally. Preview events
+        // fire top-down before that can happen.
+        PreviewMouseDown += OnMouseButton;
+        PreviewMouseUp += OnMouseButton;
         MouseWheel += OnMouseWheel;
         PreviewKeyDown += OnPreviewKeyDown;
         PreviewKeyUp += OnPreviewKeyUp;
@@ -234,6 +240,15 @@ public partial class RemoteFramebufferControl : UserControl
         _client.SendPointerEvent(rx, ry, _lastButtonMask);
     }
 
+    // Wired to PreviewMouseDown/PreviewMouseUp (tunneling), not the bubbling MouseDown/MouseUp —
+    // logging during live debugging showed MouseUp reliably reaching this control but MouseDown
+    // never did, for every single click, which meant the server never learned a button had gone
+    // down at all (each click sent only a spurious "up" with the mask already cleared). This is a
+    // known WPF quirk: something upstream (observed with a precision-touchpad tap) can consume
+    // the initial contact before a bubbling MouseDown ever fires, while the matching MouseUp still
+    // routes normally. Preview events fire top-down before that has a chance to happen. This was
+    // the actual root cause of "clicking a flyout does nothing" — the modifier-release and
+    // mouse-capture fixes in earlier betas were both real bugs, but neither was this one.
     private void OnMouseButton(object sender, MouseButtonEventArgs e)
     {
         if (_client is null || !IsConnected) return;
@@ -252,13 +267,9 @@ public partial class RemoteFramebufferControl : UserControl
         if (e.ButtonState == MouseButtonState.Pressed) _lastButtonMask |= bit;
         else _lastButtonMask &= ~bit;
 
-        // Without capture, WPF only routes MouseUp back to this element if the pointer is still
-        // over it at release time — a framebuffer repaint or the auto-hide topbar animating in
-        // mid-click can shift hit-testing and silently drop the up-event, leaving the remote
-        // compositor's view of the button stuck "down" (it never sees a matching release). That
-        // reads as an inert click, or worse, corrupts the next click's down/up pairing entirely —
-        // a very plausible cause of "clicking a flyout does nothing". Capture on the first button
-        // down, release once every button is back up, so the up-event always reaches us.
+        // Cheap extra safety net on top of the Preview-event fix above: without capture, WPF only
+        // guarantees MouseUp routes back to this element if the pointer is still over it at
+        // release time.
         if (_lastButtonMask != 0) CaptureMouse();
         else if (IsMouseCaptured) ReleaseMouseCapture();
 
@@ -268,6 +279,7 @@ public partial class RemoteFramebufferControl : UserControl
         var pos = e.GetPosition(FramebufferImage);
         int rx = (int)((pos.X - offX) / scale);
         int ry = (int)((pos.Y - offY) / scale);
+        AppLog.Write($"Pointer {(e.ButtonState == MouseButtonState.Pressed ? "down" : "up")} bit={bit} mapped=({rx},{ry})");
         _client.SendPointerEvent(rx, ry, _lastButtonMask);
     }
 

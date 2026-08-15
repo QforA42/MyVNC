@@ -33,6 +33,10 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button x:Name="AboutButton" Content="&#xE946;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                            Width="30" Height="30" Style="{StaticResource IconButton}" Padding="0"
+                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"
+                            Click="AboutButton_Click" ToolTip="{loc:Loc About.Title}"/>
                     <Button x:Name="HelpButton" Content="&#xE897;" FontFamily="Segoe MDL2 Assets" FontSize="14"
                             Width="30" Height="30" Style="{StaticResource IconButton}" Padding="0"
                             Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"
@@ -175,6 +179,11 @@
                             <Button x:Name="TestConnectionButton" Content="{loc:Loc Form.TestConnection}" Style="{StaticResource SecondaryButton}"
                                     Click="TestConnectionButton_Click" HorizontalAlignment="Stretch" Margin="0,0,0,4"/>
                             <TextBlock x:Name="TestConnectionResultText" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" Visibility="Collapsed"/>
+
+                            <Button x:Name="ForgetSshHostKeyButton" Content="{loc:Loc Form.ForgetSshHostKey}" Style="{StaticResource SecondaryButton}"
+                                    Click="ForgetSshHostKeyButton_Click" HorizontalAlignment="Stretch" Margin="0,0,0,4"
+                                    ToolTip="{loc:Loc Form.ForgetSshHostKeyTooltip}"/>
+                            <TextBlock x:Name="ForgetSshHostKeyResultText" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" Visibility="Collapsed"/>
 
                             <TextBlock Text="{loc:Loc Form.Username}" Style="{StaticResource LabelText}"/>
                             <TextBox x:Name="UsernameBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
@@ -324,6 +333,37 @@
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
+            </Border>
+        </Border>
+
+        <Border x:Name="AboutOverlay" Background="#CC0B0D11" Panel.ZIndex="100" Visibility="Collapsed"
+                MouseLeftButtonDown="AboutOverlay_MouseLeftButtonDown">
+            <Border Background="{StaticResource BgElevatedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    CornerRadius="12" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    MouseLeftButtonDown="FormCard_MouseLeftButtonDown">
+                <StackPanel Margin="24,22,24,22">
+                    <Grid Margin="0,0,0,14">
+                        <StackPanel Orientation="Horizontal">
+                            <controls:AppLogo Margin="0,0,10,0"/>
+                            <TextBlock Text="MyVNC" FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11" Style="{StaticResource IconButton}"
+                                Foreground="{StaticResource TextSecondaryBrush}" Width="24" Height="24" Padding="0"
+                                HorizontalAlignment="Right" VerticalAlignment="Top" Click="CloseAbout_Click" ToolTip="{loc:Loc Session.Close}"/>
+                    </Grid>
+
+                    <TextBlock x:Name="AboutVersionText" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{loc:Loc About.Description}" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,14"/>
+
+                    <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap">
+                        <Hyperlink NavigateUri="https://github.com/QforA42/MyVNC" RequestNavigate="AboutLink_RequestNavigate">
+                            github.com/QforA42/MyVNC
+                        </Hyperlink>
+                    </TextBlock>
+                </StackPanel>
             </Border>
         </Border>
 
