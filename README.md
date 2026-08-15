@@ -51,7 +51,7 @@ private_key_file=~/.config/wayvnc/private_key.pem
 
 `enable_pam=true` means you log in with your normal Linux account credentials — exactly what MyVNC sends. Keyboard layout usually follows the system's own layout automatically; only set `xkb_layout` explicitly in wayvnc's config if å/ä/ö or similar keys don't work.
 
-## Known limitations with Hyprland
+## Apparent known limitations with Hyprland as of 2026-08-15
 
 **Clicking flyouts/popups in status bars (Waybar, Quickshell panels — e.g. the WiFi or battery icon) sometimes does nothing.** This was traced all the way down to the protocol level: raw RFB clicks sent directly via the library, bypassing MyVNC's UI entirely, reproduce the exact same behavior. It's a known limitation of `wlr-virtual-pointer-v1`, the Wayland protocol wayvnc uses to inject the pointer into the compositor — regular mouse movement, clicking inside windows, and keyboard input all work normally; it's specifically opening a *new* popup surface (layer-shell) via a synthetic pointer that isn't always fully supported by the compositor. There's nothing MyVNC can fix client-side for this — a fix would have to come from a newer wlroots/Hyprland/wayvnc version, or the panel's own configuration on the remote machine.
 
