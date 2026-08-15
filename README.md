@@ -20,6 +20,7 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 - **Per-host connection options** — view-only mode, independent clipboard directions (receive/send), actual-size vs. fit-to-window, a test-connection reachability check.
 - **Auto-reconnect** with exponential backoff after an unexpected drop.
 - **SSH terminal shortcut** — a per-card icon appears once a host's SSH port is confirmed reachable, launching PowerShell/Windows Terminal/WSL with `ssh` pre-filled.
+- **Opt-in debug logging** — off by default, toggle it in Settings. Writes connection lifecycle, security/encoding negotiation, disconnects, and reconnect attempts to `%APPDATA%\MyVNC\myvnc.log`, viewable via the "Open log" button — never credentials, keystrokes, or clipboard contents. A background watchdog also self-monitors memory/CPU and warns (always logged, regardless of the toggle) if the app itself looks like it's misbehaving.
 - **Full localization** — Swedish, English, Norwegian, Danish, Finnish, Icelandic. Follows the OS light/dark theme automatically.
 - **Windows integration** — desktop shortcut, taskbar jump-list (pinned + recent hosts, launches sessions directly), single-instance enforced so a jump-list click joins the already-running window instead of starting a disconnected process.
 - **In-app Help** — paste-key gotcha (Ctrl+Shift+V, not Ctrl+V), how the client works, and wayvnc configuration pointers, all available from the dashboard's `?` button.
