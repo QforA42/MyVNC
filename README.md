@@ -9,10 +9,13 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 | ![Session tab: <hostname>](docs/assets/session1.png) |
 | ![Session tab: <hostname>](docs/assets/session2.png) |
 
+> The tab bar/toolbar shown above isn't always on screen — see **"Hold Right Ctrl to reveal the top bar"** below.
+
 ## Features
 
 - **Own RFB/VNC client** — version handshake 3.3/3.7/3.8, None/VNC-Auth/VeNCrypt security (covers wayvnc's Plain/TLSPlain/X509Plain), Raw/CopyRect/DesktopSize/ZRLE encodings.
-- **Multi-session** — open new connections as separate windows or as tabs in one window, switchable in Settings. Fullscreen and windowed modes behave identically: MyVNC's own chrome is hidden by default, revealed only while holding Right Ctrl at the top edge, so it never covers the remote desktop's own panel.
+- **Multi-session** — open new connections as separate windows or as tabs in one window, switchable in Settings.
+- **Hold Right Ctrl to reveal the top bar** — MyVNC's own chrome (tab bar/toolbar) is hidden by default in both windowed and fullscreen mode. **Hold Right Ctrl and move the pointer to the top edge to reveal it** — this is required, not optional; without it the bar stays hidden so it never covers the remote desktop's own panel.
 - **Four addresses per host** — Host IP, FQDN, Tailscale IP, Tailscale FQDN, with a default per host and a one-off picker on every connect.
 - **Per-host connection options** — view-only mode, independent clipboard directions (receive/send), actual-size vs. fit-to-window, a test-connection reachability check.
 - **Auto-reconnect** with exponential backoff after an unexpected drop.
