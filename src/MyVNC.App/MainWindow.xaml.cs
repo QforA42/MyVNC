@@ -595,6 +595,17 @@ public partial class MainWindow : Window
     private void OpenSession(string host, int port, string username, string password, string displayName,
         bool viewOnly, bool receiveClipboard, bool sendClipboard, bool actualSize)
     {
+        // Only one connection to a given host:port at a time — two simultaneous clients against
+        // the same wayvnc server were directly implicated in a real resource-contention incident
+        // (each one's mouse-move traffic driving the other's framebuffer-update load). Focus the
+        // existing session instead of opening a second one.
+        if (SessionWindow.FindActiveSession(host, port) is { } existing)
+        {
+            AppLog.Write($"Duplicate connect blocked for {host}:{port} — focusing existing session instead");
+            SessionWindow.FocusExistingSession(existing);
+            return;
+        }
+
         AppLog.Write($"Opening session: {host}:{port} (mode={App.Settings.SessionOpenMode}, viewOnly={viewOnly})");
         var options = new RfbConnectionOptions
         {

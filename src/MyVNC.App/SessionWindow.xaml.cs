@@ -24,6 +24,30 @@ public partial class SessionWindow : Window
     /// add new sessions. Null once that window is closed.</summary>
     public static SessionWindow? Shared { get; private set; }
 
+    /// <summary>Every currently open session window (regardless of Settings.SessionOpenMode —
+    /// "one window per session" mode can have several of these at once), so a duplicate connect
+    /// to a host that's already open anywhere can be caught and redirected instead of opening a
+    /// second connection to the same server.</summary>
+    private static readonly List<SessionWindow> AllWindows = [];
+
+    /// <summary>Finds an already-open tab connected to this exact host:port, across every open
+    /// session window. Two simultaneous clients against the same wayvnc server were directly
+    /// implicated in a real resource-contention incident (each one's mouse-move traffic driving
+    /// the other's framebuffer-update load), so MainWindow.OpenSession redirects here instead of
+    /// opening a second connection.</summary>
+    public static SessionTab? FindActiveSession(string host, int port)
+        => AllWindows.SelectMany(w => w.Tabs)
+            .FirstOrDefault(t => string.Equals(t.Options.Host, host, StringComparison.OrdinalIgnoreCase) && t.Options.Port == port);
+
+    public static void FocusExistingSession(SessionTab tab)
+    {
+        var owner = AllWindows.FirstOrDefault(w => w.Tabs.Contains(tab));
+        if (owner is null) return;
+        owner.SelectTab(tab);
+        if (owner.WindowState == WindowState.Minimized) owner.WindowState = WindowState.Normal;
+        owner.Activate();
+    }
+
     public ObservableCollection<SessionTab> Tabs { get; } = [];
 
     private SessionTab? SelectedTab => Tabs.FirstOrDefault(t => t.IsSelected);
@@ -60,6 +84,8 @@ public partial class SessionWindow : Window
         TabDisconnectButton.Content = Loc.T("Session.Disconnect");
         UpdateActualSizeButtons();
 
+        AllWindows.Add(this);
+
         KeyDown += SessionWindow_KeyDown;
         StateChanged += SessionWindow_StateChanged;
         Closed += (_, _) =>
@@ -67,6 +93,7 @@ public partial class SessionWindow : Window
             _clipboardMonitor?.Dispose();
             _keyboardHook.Dispose();
             if (Shared == this) Shared = null;
+            AllWindows.Remove(this);
         };
 
         SourceInitialized += (_, _) =>
