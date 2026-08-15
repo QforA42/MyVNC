@@ -1,0 +1,11 @@
+<Project>
+
+  <!-- Root VERSION is the single canonical version source for every project in the solution
+       (see docs/versioning-releases.md). AssemblyVersion/FileVersion/InformationalVersion are
+       all derived from MSBuild's Version property, so nothing else needs editing when it bumps. -->
+  <PropertyGroup>
+    <VersionFilePath>$(MSBuildThisFileDirectory)VERSION</VersionFilePath>
+    <Version Condition="Exists('$(VersionFilePath)')">$([System.IO.File]::ReadAllText('$(VersionFilePath)').Trim())</Version>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MyVNC.App/MyVNC.App.csproj" />
+    <Project Path="src/MyVNC.Rfb/MyVNC.Rfb.csproj" />
+  </Folder>
+</Solution>
