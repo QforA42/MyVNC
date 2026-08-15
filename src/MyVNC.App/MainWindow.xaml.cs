@@ -136,6 +136,7 @@ public partial class MainWindow : Window
         FormOverlay.Visibility = Visibility.Collapsed;
         HelpOverlay.Visibility = Visibility.Collapsed;
         SettingsOverlay.Visibility = Visibility.Visible;
+        OpenLogButton.IsEnabled = AppLog.LogFileExists(); // re-check each time, not just at startup
     }
 
     private void SettingsOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -196,11 +197,34 @@ public partial class MainWindow : Window
             if ((SshTerminalChoice)item.Tag == App.Settings.SshTerminal)
                 SshTerminalComboBox.SelectedItem = item;
 
+        DebugLoggingToggle.IsChecked = App.Settings.DebugLogging;
+        UpdateDebugLoggingLabel();
+        OpenLogButton.IsEnabled = AppLog.LogFileExists();
+
         _suppressSettingsEvents = false;
     }
 
     private void UpdateSessionModeLabel()
         => SessionModeLabel.Text = Loc.T(App.Settings.SessionOpenMode == SessionOpenMode.Tab ? "Settings.SessionModeTab" : "Settings.SessionModeWindow");
+
+    private void UpdateDebugLoggingLabel()
+        => DebugLoggingLabel.Text = Loc.T(App.Settings.DebugLogging ? "Settings.DebugLoggingOn" : "Settings.DebugLoggingOff");
+
+    private void DebugLoggingToggle_Changed(object sender, RoutedEventArgs e)
+    {
+        UpdateDebugLoggingLabel();
+        if (_suppressSettingsEvents) return;
+        App.Settings.DebugLogging = DebugLoggingToggle.IsChecked == true;
+        App.SettingsStore.Save(App.Settings);
+        AppLog.Enabled = App.Settings.DebugLogging;
+    }
+
+    private void OpenLogButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!AppLog.LogFileExists()) return;
+        try { Process.Start(new ProcessStartInfo { FileName = "notepad.exe", Arguments = $"\"{AppLog.FilePath}\"", UseShellExecute = true }); }
+        catch { /* best-effort — nothing more useful to do if even Notepad won't launch */ }
+    }
 
     private void UpdateAutoReconnectLabel()
         => AutoReconnectLabel.Text = Loc.T(App.Settings.AutoReconnect ? "Settings.AutoReconnectOn" : "Settings.AutoReconnectOff");
@@ -571,6 +595,7 @@ public partial class MainWindow : Window
     private void OpenSession(string host, int port, string username, string password, string displayName,
         bool viewOnly, bool receiveClipboard, bool sendClipboard, bool actualSize)
     {
+        AppLog.Write($"Opening session: {host}:{port} (mode={App.Settings.SessionOpenMode}, viewOnly={viewOnly})");
         var options = new RfbConnectionOptions
         {
             Host = host,

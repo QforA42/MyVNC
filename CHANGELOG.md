@@ -8,6 +8,18 @@ versionen.
 
 ## [Unreleased]
 
+### Added
+- Opt-in debug logging (Settings toggle, off by default) writing protocol/app diagnostics to
+  `%APPDATA%\MyVNC\myvnc.log` — connection lifecycle, security/encoding negotiation, disconnects,
+  reconnect attempts, SSH-launch outcomes, and unhandled exceptions. Never logs credentials,
+  keystrokes, or clipboard contents. A "Öppna logg"/"Open log" button opens it in Notepad when it
+  exists.
+- `ResourceWatchdog`: a dedicated background thread (independent of the WPF dispatcher, so it
+  keeps sampling even if the UI thread itself were the one stuck) watches this process's own
+  memory/CPU and warns + always logs (regardless of the debug-logging toggle) if it looks like
+  MyVNC has gone amok — the exact failure mode a runaway named-pipe retry loop produced earlier
+  in this project's history.
+
 ## [0.2.0-beta.1] - 2026-08-15
 
 ### Added

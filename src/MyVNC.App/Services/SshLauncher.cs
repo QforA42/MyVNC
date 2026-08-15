@@ -40,10 +40,14 @@ public static class SshLauncher
         try
         {
             Process.Start(new ProcessStartInfo { FileName = fileName, Arguments = arguments, UseShellExecute = true });
+            AppLog.Write($"SSH terminal launched: {fileName}");
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            // Not logged as an error — Auto mode deliberately tries Windows Terminal first and
+            // falls back to PowerShell, so a failure here can be the expected "not installed" path.
+            AppLog.Write($"SSH terminal launch failed for {fileName}: {ex.Message}");
             return false;
         }
     }

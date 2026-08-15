@@ -131,6 +131,8 @@ public partial class SessionWindow : Window
 
     private void OnTabConnected(SessionTab tab)
     {
+        if (tab.ReconnectAttempt > 0)
+            AppLog.Write($"Reconnected to {tab.Options.Host}:{tab.Options.Port} after {tab.ReconnectAttempt} attempt(s)");
         tab.ReconnectAttempt = 0;
         tab.ReconnectCts?.Cancel();
         tab.ReconnectCts = null;
@@ -160,6 +162,8 @@ public partial class SessionWindow : Window
     {
         if (error is null) return; // clean disconnect via CloseTabAsync, tab is going away anyway
 
+        AppLog.Write($"Tab disconnected ({tab.Options.Host}:{tab.Options.Port}): {error.Message}");
+
         if (App.Settings.AutoReconnect)
         {
             ScheduleReconnect(tab, error);
@@ -175,6 +179,7 @@ public partial class SessionWindow : Window
     {
         tab.ReconnectAttempt++;
         var delaySeconds = Math.Min(30, 2 * Math.Pow(2, tab.ReconnectAttempt - 1));
+        AppLog.Write($"Scheduling reconnect for {tab.Options.Host}:{tab.Options.Port} in {delaySeconds}s (attempt {tab.ReconnectAttempt})");
         tab.StatusMessage = Loc.T("Session.Reconnecting", error.Message, (int)delaySeconds, tab.ReconnectAttempt);
         tab.IsCloseVisible = true;
         tab.IsStatusVisible = true;

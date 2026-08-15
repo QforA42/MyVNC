@@ -202,48 +202,70 @@
         <Border x:Name="SettingsOverlay" Background="#CC0B0D11" Panel.ZIndex="100" Visibility="Collapsed"
                 MouseLeftButtonDown="SettingsOverlay_MouseLeftButtonDown">
             <Border Background="{StaticResource BgElevatedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                    CornerRadius="12" Width="300" MaxHeight="480" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    CornerRadius="12" Width="300" MaxHeight="560" HorizontalAlignment="Center" VerticalAlignment="Center"
                     MouseLeftButtonDown="FormCard_MouseLeftButtonDown">
-                <StackPanel Margin="22,20,22,20">
-                    <Grid Margin="0,0,0,14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Margin="22,20,22,14">
                         <TextBlock Text="{loc:Loc Settings.Title}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
                         <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11" Style="{StaticResource IconButton}"
                                 Foreground="{StaticResource TextSecondaryBrush}" Width="24" Height="24" Padding="0"
                                 HorizontalAlignment="Right" Click="CloseSettings_Click" ToolTip="{loc:Loc Session.Close}"/>
                     </Grid>
 
-                    <TextBlock Text="{loc:Loc Settings.Language}" Style="{StaticResource LabelText}" Margin="2,0,0,4"/>
-                    <ComboBox x:Name="LanguageComboBox" Style="{StaticResource ModernComboBox}" Margin="0,0,0,16"
-                              SelectionChanged="LanguageComboBox_SelectionChanged"/>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="22,0,22,20">
+                            <TextBlock Text="{loc:Loc Settings.Language}" Style="{StaticResource LabelText}" Margin="2,0,0,4"/>
+                            <ComboBox x:Name="LanguageComboBox" Style="{StaticResource ModernComboBox}" Margin="0,0,0,16"
+                                      SelectionChanged="LanguageComboBox_SelectionChanged"/>
 
-                    <TextBlock Text="{loc:Loc Settings.SessionMode}" Style="{StaticResource LabelText}" Margin="2,0,0,6"/>
-                    <Grid Margin="2,0,2,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="SessionModeLabel" Grid.Column="0" VerticalAlignment="Center"
-                                   Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
-                        <ToggleButton x:Name="SessionModeToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
-                                      Checked="SessionModeToggle_Changed" Unchecked="SessionModeToggle_Changed"/>
-                    </Grid>
+                            <TextBlock Text="{loc:Loc Settings.SessionMode}" Style="{StaticResource LabelText}" Margin="2,0,0,6"/>
+                            <Grid Margin="2,0,2,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="SessionModeLabel" Grid.Column="0" VerticalAlignment="Center"
+                                           Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                                <ToggleButton x:Name="SessionModeToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                              Checked="SessionModeToggle_Changed" Unchecked="SessionModeToggle_Changed"/>
+                            </Grid>
 
-                    <TextBlock Text="{loc:Loc Settings.AutoReconnect}" Style="{StaticResource LabelText}" Margin="2,16,0,6"/>
-                    <Grid Margin="2,0,2,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="AutoReconnectLabel" Grid.Column="0" VerticalAlignment="Center"
-                                   Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
-                        <ToggleButton x:Name="AutoReconnectToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
-                                      Checked="AutoReconnectToggle_Changed" Unchecked="AutoReconnectToggle_Changed"/>
-                    </Grid>
+                            <TextBlock Text="{loc:Loc Settings.AutoReconnect}" Style="{StaticResource LabelText}" Margin="2,16,0,6"/>
+                            <Grid Margin="2,0,2,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="AutoReconnectLabel" Grid.Column="0" VerticalAlignment="Center"
+                                           Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                                <ToggleButton x:Name="AutoReconnectToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                              Checked="AutoReconnectToggle_Changed" Unchecked="AutoReconnectToggle_Changed"/>
+                            </Grid>
 
-                    <TextBlock Text="{loc:Loc Settings.SshTerminal}" Style="{StaticResource LabelText}" Margin="2,16,0,4"/>
-                    <ComboBox x:Name="SshTerminalComboBox" Style="{StaticResource ModernComboBox}"
-                              SelectionChanged="SshTerminalComboBox_SelectionChanged"/>
-                </StackPanel>
+                            <TextBlock Text="{loc:Loc Settings.SshTerminal}" Style="{StaticResource LabelText}" Margin="2,16,0,4"/>
+                            <ComboBox x:Name="SshTerminalComboBox" Style="{StaticResource ModernComboBox}" Margin="0,0,0,16"
+                                      SelectionChanged="SshTerminalComboBox_SelectionChanged"/>
+
+                            <TextBlock Text="{loc:Loc Settings.DebugLogging}" Style="{StaticResource LabelText}" Margin="2,0,0,6"/>
+                            <Grid Margin="2,0,2,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="DebugLoggingLabel" Grid.Column="0" VerticalAlignment="Center"
+                                           Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                                <ToggleButton x:Name="DebugLoggingToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                              Checked="DebugLoggingToggle_Changed" Unchecked="DebugLoggingToggle_Changed"/>
+                            </Grid>
+                            <Button x:Name="OpenLogButton" Content="{loc:Loc Settings.OpenLog}" Style="{StaticResource SecondaryButton}"
+                                    Click="OpenLogButton_Click" HorizontalAlignment="Stretch" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
             </Border>
         </Border>
 

@@ -12,4 +12,9 @@ public sealed class AppSettings
     /// <summary>Terminal app launched by a connection card's SSH icon (only shown once that
     /// host's port 22 is confirmed reachable).</summary>
     public SshTerminalChoice SshTerminal { get; set; } = SshTerminalChoice.Auto;
+
+    /// <summary>Off by default — writes protocol/app diagnostics (never credentials, keystrokes,
+    /// or clipboard contents) to %APPDATA%\MyVNC\myvnc.log, so a problem can be debugged from
+    /// the log alone. See Services.AppLog.</summary>
+    public bool DebugLogging { get; set; }
 }

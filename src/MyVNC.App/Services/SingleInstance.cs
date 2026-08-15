@@ -55,15 +55,19 @@ public static class SingleInstance
                 using var reader = new StreamReader(server, Encoding.UTF8);
                 var line = reader.ReadLine();
                 var args = string.IsNullOrEmpty(line) ? [] : line.Split(ArgSeparator);
+                AppLog.Write($"Activation received: {(args.Length > 0 ? string.Join(' ', args) : "(none)")}");
                 onActivationReceived(args);
             }
-            catch
+            catch (Exception ex)
             {
                 // Keep listening — one failed connection shouldn't stop future activations. But
                 // if pipe creation itself is what's failing (e.g. this pipe name is somehow
                 // already owned elsewhere), retrying with no backoff turns into a tight infinite
                 // loop that pegs a CPU core and allocates as fast as it can spin — a real
-                // multi-GB-in-seconds runaway was traced back to exactly this. Pace retries.
+                // multi-GB-in-seconds runaway was traced back to exactly this. Pace retries, and
+                // log unconditionally (not gated by Settings.DebugLogging) since this exact spot
+                // is the one that already caused a real incident once.
+                AppLog.WriteAlways($"SingleInstance pipe listener failed, retrying in 1s: {ex.Message}");
                 Thread.Sleep(1000);
             }
         }

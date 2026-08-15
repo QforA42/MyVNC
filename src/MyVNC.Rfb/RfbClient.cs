@@ -47,14 +47,26 @@ public sealed class RfbClient : IAsyncDisposable
     /// </summary>
     public async Task ConnectAsync(RfbConnectionOptions options, CancellationToken ct = default)
     {
-        State = RfbConnectionState.Connecting;
-        _tcp = new TcpClient { NoDelay = true };
-        await _tcp.ConnectAsync(options.Host, options.Port, ct).ConfigureAwait(false);
-        _stream = _tcp.GetStream();
+        // Never log options.Username/Password — only connection metadata that's actually useful
+        // for reproducing a protocol-level problem without needing the credentials themselves.
+        RfbLog.Write($"Connecting to {options.Host}:{options.Port}...");
+        try
+        {
+            State = RfbConnectionState.Connecting;
+            _tcp = new TcpClient { NoDelay = true };
+            await _tcp.ConnectAsync(options.Host, options.Port, ct).ConfigureAwait(false);
+            _stream = _tcp.GetStream();
 
-        await DoHandshakeAsync(options, ct).ConfigureAwait(false);
+            await DoHandshakeAsync(options, ct).ConfigureAwait(false);
 
-        State = RfbConnectionState.Connected;
+            State = RfbConnectionState.Connected;
+            RfbLog.Write($"Connected: {Width}x{Height} desktop='{DesktopName}'");
+        }
+        catch (Exception ex)
+        {
+            RfbLog.Write($"Connect failed for {options.Host}:{options.Port}: {ex}");
+            throw;
+        }
     }
 
     /// <summary>Starts the receive loop and requests the first full-screen update. See <see cref="ConnectAsync"/>.</summary>
@@ -106,6 +118,8 @@ public sealed class RfbClient : IAsyncDisposable
 
             stream.WriteU8((byte)chosen);
         }
+
+        RfbLog.Write($"Server version '{versionStr}', security type: {chosen}");
 
         if (chosen == RfbSecurityType.VncAuth)
         {
@@ -185,6 +199,8 @@ public sealed class RfbClient : IAsyncDisposable
             : subtypes.Contains(VeNCryptSubType.X509Plain) ? VeNCryptSubType.X509Plain
             : subtypes.Contains(VeNCryptSubType.TLSPlain) ? VeNCryptSubType.TLSPlain
             : throw new NotSupportedException("Servern kräver en VeNCrypt-underttyp som inte stöds (endast användarnamn/lösenord stöds).");
+
+        RfbLog.Write($"VeNCrypt subtype: {chosenSubtype}");
 
         stream.WriteU32((uint)chosenSubtype);
         await stream.FlushAsync(ct).ConfigureAwait(false);
@@ -364,6 +380,7 @@ public sealed class RfbClient : IAsyncDisposable
         }
         catch (Exception ex)
         {
+            RfbLog.Write($"Connection lost ({_tcp?.Client?.RemoteEndPoint}): {ex}");
             State = RfbConnectionState.Failed;
             ConnectionLost?.Invoke(this, ex);
         }

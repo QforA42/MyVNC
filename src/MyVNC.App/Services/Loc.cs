@@ -291,5 +291,27 @@ public static class Loc
             "Klik på flyouts/popup-menuer i statusbjælker som Waybar eller Quickshell-paneler (f.eks. WiFi- eller batteriikonet) åbner nogle gange ingenting — det skyldes en kendt begrænsning i wlr-virtual-pointer-v1, protokollen wayvnc bruger til at sende markøren til kompositoren. Almindelig musebevægelse, klik i vinduer og tastatur fungerer som normalt; det er specifikt at åbne nye popup-flader (layer-shell) via en syntetisk markør, som ikke altid understøttes fuldt ud af kompositoren. Der er intet MyVNC kan rette på klientsiden her — en eventuel løsning ligger i en nyere version af wlroots/Hyprland/wayvnc, eller i panelets egne indstillinger på fjernmaskinen.",
             "Tilan avautuvien valikkojen/ponnahdusikkunoiden napsauttaminen tilarivillä (esim. Waybar tai Quickshell-paneelit, kuten WiFi- tai akkukuvake) ei joskus tee mitään — tämä johtuu tunnetusta rajoituksesta wlr-virtual-pointer-v1-protokollassa, jota wayvnc käyttää osoittimen välittämiseen kompositorille. Tavallinen hiiren liike, ikkunoiden napsautus ja näppäimistö toimivat normaalisti; nimenomaan uusien ponnahduspintojen (layer-shell) avaaminen synteettisellä osoittimella ei aina toimi täysin kompositorissa. MyVNC ei voi korjata tätä asiakaspuolella — mahdollinen korjaus tulisi uudemmasta wlroots/Hyprland/wayvnc-versiosta tai paneelin omista asetuksista etäkoneella.",
             "Að smella á sprettiglugga/valmyndir í stöðuslám eins og Waybar eða Quickshell-spjöldum (t.d. WiFi- eða rafhlöðutáknið) opnar stundum ekkert — þetta er þekkt takmörkun í wlr-virtual-pointer-v1, samskiptareglunni sem wayvnc notar til að senda bendilinn til gluggastjórans. Venjuleg músarhreyfing, smellir í gluggum og lyklaborð virka eðlilega; það er sérstaklega að opna nýja sprettifleti (layer-shell) með gervibendli sem gluggastjórinn styður ekki alltaf að fullu. Þetta er ekkert sem MyVNC getur lagað í biðlaranum — hugsanleg lausn myndi koma frá nýrri útgáfu af wlroots/Hyprland/wayvnc, eða stillingum spjaldsins sjálfs á fjartengdu vélinni.");
+
+        Add("Settings.DebugLogging",
+            "FELSÖKNINGSLOGG", "DEBUG LOGGING", "FEILSØKINGSLOGG", "FEJLFINDINGSLOG", "VIANMÄÄRITYSLOKI", "VILLULEIT-ANNÁLL");
+        Add("Settings.DebugLoggingOn",
+            "Loggar till myvnc.log", "Logging to myvnc.log", "Logger til myvnc.log",
+            "Logger til myvnc.log", "Kirjaa lokiin myvnc.log", "Skráir í myvnc.log");
+        Add("Settings.DebugLoggingOff",
+            "Av", "Off", "Av", "Fra", "Pois", "Af");
+        Add("Settings.OpenLog",
+            "Öppna logg", "Open log", "Åpne logg", "Åbn log", "Avaa loki", "Opna annál");
+
+        Add("Watchdog.Title",
+            "MyVNC använder ovanligt mycket resurser", "MyVNC is using unusually high resources",
+            "MyVNC bruker uvanlig mye ressurser", "MyVNC bruger usædvanligt mange ressourcer",
+            "MyVNC käyttää poikkeuksellisen paljon resursseja", "MyVNC notar óvenju mikið af tilföngum");
+        Add("Watchdog.Message",
+            "MyVNC har använt ovanligt mycket minne ({0} MB) eller processor (~{1}% av en kärna) en längre stund — det kan tyda på ett fel i appen. Detaljer har loggats till myvnc.log. Överväg att starta om appen; hör gärna av dig med loggen om detta händer igen.",
+            "MyVNC has been using unusually high memory ({0} MB) or CPU (~{1}% of one core) for a while — this may indicate a bug in the app. Details were logged to myvnc.log. Consider restarting the app; please share the log if this happens again.",
+            "MyVNC har brukt uvanlig mye minne ({0} MB) eller prosessor (~{1}% av én kjerne) en stund — dette kan tyde på en feil i appen. Detaljer er logget til myvnc.log. Vurder å starte appen på nytt; del gjerne loggen hvis dette skjer igjen.",
+            "MyVNC har brugt usædvanligt meget hukommelse ({0} MB) eller CPU (~{1}% af én kerne) et stykke tid — det kan tyde på en fejl i appen. Detaljer er logget til myvnc.log. Overvej at genstarte appen; del gerne loggen hvis dette sker igen.",
+            "MyVNC on käyttänyt poikkeuksellisen paljon muistia ({0} Mt) tai suoritinta (~{1}% yhdestä ytimestä) jonkin aikaa — tämä voi viitata sovelluksen virheeseen. Tiedot kirjattiin tiedostoon myvnc.log. Harkitse sovelluksen uudelleenkäynnistystä; jaa loki, jos tämä toistuu.",
+            "MyVNC hefur notað óvenju mikið minni ({0} MB) eða örgjörva (~{1}% af einum kjarna) um hríð — það gæti bent til villu í forritinu. Nánari upplýsingar voru skráðar í myvnc.log. Íhugaðu að endurræsa forritið; deildu gjarnan annálnum ef þetta gerist aftur.");
     }
 }

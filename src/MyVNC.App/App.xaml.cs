@@ -1,6 +1,7 @@
 using System.Windows;
 using MyVNC.App.Models;
 using MyVNC.App.Services;
+using MyVNC.Rfb;
 
 namespace MyVNC.App;
 
@@ -15,6 +16,17 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // Logged only when Settings.DebugLogging is on (see AppLog) — catches exactly the
+        // moments a problem is otherwise impossible to diagnose without hands-on access: an
+        // unhandled crash on the UI thread, a background thread, or an unobserved Task fault.
+        DispatcherUnhandledException += (_, args) => AppLog.WriteException("Unhandled UI exception", args.Exception);
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            if (args.ExceptionObject is Exception ex) AppLog.WriteException("Unhandled exception", ex);
+        };
+        TaskScheduler.UnobservedTaskException += (_, args) => AppLog.WriteException("Unobserved task exception", args.Exception);
+        RfbLog.Sink = AppLog.Write;
 
         // Only one MyVNC process may run at a time — a second launch (desktop icon, a taskbar
         // jump-list shortcut) would otherwise get its own empty SessionWindow.Shared and could
@@ -45,6 +57,7 @@ public partial class App : Application
         }
 
         Settings = SettingsStore.Load();
+        AppLog.Enabled = Settings.DebugLogging;
         Loc.SetLanguage(Settings.Language);
         ResolvedTheme = Interop.OsTheme.Detect();
         ApplyTheme(ResolvedTheme);
@@ -54,6 +67,8 @@ public partial class App : Application
         var connectFlagIndex = Array.IndexOf(e.Args, "--connect");
         if (connectFlagIndex >= 0 && connectFlagIndex + 1 < e.Args.Length)
             autoConnectId = e.Args[connectFlagIndex + 1];
+
+        ResourceWatchdog.Start();
 
         new MainWindow(openSettings: false, autoConnectId).Show();
 
