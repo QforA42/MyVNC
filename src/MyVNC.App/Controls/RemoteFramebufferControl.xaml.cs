@@ -172,9 +172,25 @@ public partial class RemoteFramebufferControl : UserControl
 
     private int _lastButtonMask;
 
+    // WPF can raise MouseMove far faster than any VNC session needs (a high-poll-rate mouse can
+    // exceed 100Hz), and each send is a synchronous network write+flush — over a TLS-wrapped
+    // VeNCrypt connection that's real per-call overhead. Worse, if the remote compositor draws
+    // its cursor into the framebuffer, an unthrottled flood of position updates becomes a
+    // feedback loop: every move we send triggers a redraw the server sends back, which we then
+    // have to decode and render. A real, reproduced incident (sustained 70-145% CPU of one core)
+    // traced back to exactly this. ~60Hz is smooth for a remote desktop and matches what other
+    // VNC clients throttle to; button/wheel events are never throttled since they're discrete
+    // and low-frequency.
+    private static readonly TimeSpan PointerMoveThrottle = TimeSpan.FromMilliseconds(16);
+    private DateTime _lastPointerMoveSentAt = DateTime.MinValue;
+
     private void OnMouseMove(object sender, MouseEventArgs e)
     {
         if (_client is null || !IsConnected || ViewOnly) return;
+        var now = DateTime.UtcNow;
+        if (now - _lastPointerMoveSentAt < PointerMoveThrottle) return;
+        _lastPointerMoveSentAt = now;
+
         var mapping = GetMapping();
         if (mapping is null) return;
         var (scale, offX, offY) = mapping.Value;
