@@ -8,6 +8,23 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.4] - 2026-08-15
+
+### Fixed
+- Stopped sending unpaired modifier-release keysyms on every keyboard-focus change.
+  `ReleaseAllModifiers` unconditionally sent an up-event for a fixed list of 8 modifiers
+  regardless of whether any had actually been pressed, corrupting the remote compositor's
+  global modifier state — evidenced by repeated "Alt_R" entries in wayvnc's own log, and traced
+  (via an independent test confirming TigerVNC clicks the same flyouts fine against the same
+  server) as the real cause of a symptom previously misdiagnosed as a `wlr-virtual-pointer-v1`
+  protocol limitation. All key sends now route through a tracked-down-keys helper that only
+  releases what's actually down.
+
+### Docs
+- Corrected README.md and the in-app Help's "known limitations" text: the click-flyout issue
+  was a MyVNC bug (see above), not a Wayland/wlroots limitation as previously stated. Flagged
+  as fixed-but-not-yet-re-verified end-to-end against a real Waybar/Quickshell session.
+
 ## [0.2.0-beta.3] - 2026-08-15
 
 ### Fixed
