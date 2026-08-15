@@ -88,7 +88,10 @@ public partial class RemoteFramebufferControl : UserControl
         // fire top-down before that can happen.
         PreviewMouseDown += OnMouseButton;
         PreviewMouseUp += OnMouseButton;
-        MouseWheel += OnMouseWheel;
+        // Same reasoning as the Preview mouse-button switch above: ScrollHost (the ScrollViewer
+        // wrapping the framebuffer) consumes MouseWheel for its own scrolling and marks it
+        // Handled before the bubbling MouseWheel event ever reaches this control.
+        PreviewMouseWheel += OnMouseWheel;
         PreviewKeyDown += OnPreviewKeyDown;
         PreviewKeyUp += OnPreviewKeyUp;
         TextInput += OnTextInput;
@@ -296,6 +299,11 @@ public partial class RemoteFramebufferControl : UserControl
         int bit = e.Delta > 0 ? 1 << 3 : 1 << 4;
         _client.SendPointerEvent(rx, ry, _lastButtonMask | bit);
         _client.SendPointerEvent(rx, ry, _lastButtonMask);
+
+        // Now that we're on PreviewMouseWheel (tunneling), the event would otherwise still reach
+        // ScrollHost afterward and scroll the local view too (visible when ActualSize is on) —
+        // the wheel should only ever act on the remote desktop, never locally.
+        e.Handled = true;
     }
 
     // ----- Keyboard input -----

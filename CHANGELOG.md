@@ -8,6 +8,15 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.7] - 2026-08-15
+
+### Fixed
+- Mouse wheel scrolling did nothing in a session. Same class of bug as the beta.6 click fix:
+  `RemoteFramebufferControl` was wired to the bubbling `MouseWheel` event, but `ScrollHost` (the
+  `ScrollViewer` wrapping the framebuffer) consumes `MouseWheel` for its own scrolling and marks
+  it handled before it ever bubbles up. Switched to `PreviewMouseWheel` (tunneling), and marks the
+  event handled afterward so the local view never double-scrolls in ActualSize mode. Verified live.
+
 ## [0.2.0-beta.6] - 2026-08-15
 
 ### Fixed
