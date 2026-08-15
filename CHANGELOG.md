@@ -8,6 +8,22 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.5] - 2026-08-15
+
+### Fixed
+- Captured the mouse on button-down in `RemoteFramebufferControl` and released it once every
+  button is back up. Without capture, WPF only guarantees `MouseUp` routes back to the element
+  that received `MouseDown` if the pointer is still over it at release time — a framebuffer
+  repaint or the auto-hide topbar animating in mid-click can shift hit-testing and silently drop
+  the up-event, leaving the remote compositor's view of the button stuck "down" with no matching
+  release. Compared directly against TigerVNC's viewport code (which captures the pointer for its
+  whole window implicitly via FLTK) — this is the concrete difference the previous beta.4 fix
+  (modifier-key corruption) didn't address, and is a much better match for "clicking a flyout
+  does nothing" than a compositor-side protocol limitation ever was. Also added a
+  `LostMouseCapture` handler that force-sends a button-release if capture is stolen mid-click
+  (e.g. a dialog popping up), mirroring the existing `ReleaseAllModifiers`-on-focus-loss fix, so a
+  stuck-down button can't persist past whatever interrupted the click.
+
 ## [0.2.0-beta.4] - 2026-08-15
 
 ### Fixed

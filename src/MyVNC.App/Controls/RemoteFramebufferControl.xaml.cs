@@ -5,6 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using MyVNC.App.Input;
+using MyVNC.App.Services;
 using MyVNC.Rfb;
 
 namespace MyVNC.App.Controls;
@@ -86,6 +87,25 @@ public partial class RemoteFramebufferControl : UserControl
         PreviewKeyUp += OnPreviewKeyUp;
         TextInput += OnTextInput;
         LostKeyboardFocus += (_, _) => ReleaseAllModifiers();
+        LostMouseCapture += (_, _) => ReleaseAllButtons();
+    }
+
+    // Mirrors ReleaseAllModifiers: if capture is lost mid-click (another window/dialog steals
+    // it), force-release whatever buttons we still think are down so the remote compositor never
+    // sees a button stuck "down" from a lost up-event.
+    private void ReleaseAllButtons()
+    {
+        if (_client is null || !IsConnected || _lastButtonMask == 0) return;
+        var pos = _lastButtonMask;
+        _lastButtonMask = 0;
+        AppLog.Write($"Mouse capture lost with buttons still down (mask={pos}) — forcing release");
+        var mapping = GetMapping();
+        if (mapping is null) return;
+        var (scale, offX, offY) = mapping.Value;
+        var mousePos = Mouse.GetPosition(FramebufferImage);
+        int rx = (int)((mousePos.X - offX) / scale);
+        int ry = (int)((mousePos.Y - offY) / scale);
+        _client.SendPointerEvent(rx, ry, 0);
     }
 
     public async Task ConnectAsync(RfbConnectionOptions options)
@@ -231,6 +251,16 @@ public partial class RemoteFramebufferControl : UserControl
 
         if (e.ButtonState == MouseButtonState.Pressed) _lastButtonMask |= bit;
         else _lastButtonMask &= ~bit;
+
+        // Without capture, WPF only routes MouseUp back to this element if the pointer is still
+        // over it at release time — a framebuffer repaint or the auto-hide topbar animating in
+        // mid-click can shift hit-testing and silently drop the up-event, leaving the remote
+        // compositor's view of the button stuck "down" (it never sees a matching release). That
+        // reads as an inert click, or worse, corrupts the next click's down/up pairing entirely —
+        // a very plausible cause of "clicking a flyout does nothing". Capture on the first button
+        // down, release once every button is back up, so the up-event always reaches us.
+        if (_lastButtonMask != 0) CaptureMouse();
+        else if (IsMouseCaptured) ReleaseMouseCapture();
 
         var mapping = GetMapping();
         if (mapping is null) return;
