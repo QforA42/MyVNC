@@ -10,9 +10,39 @@ public partial class App : Application
     public static AppSettings Settings { get; private set; } = new();
     public static AppTheme ResolvedTheme { get; private set; } = AppTheme.Dark;
 
+    private Mutex? _singleInstanceMutex;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // Only one MyVNC process may run at a time — a second launch (desktop icon, a taskbar
+        // jump-list shortcut) would otherwise get its own empty SessionWindow.Shared and could
+        // never join the already-running window's tabs, no matter what Settings.SessionOpenMode
+        // says. The second process forwards its args to the first and exits immediately.
+        //
+        // "Global\" (not "Local\") because the mutex must be visible across logon
+        // sessions/integrity levels too — a "Local\" mutex is isolated per session, so a launch
+        // from a differently-elevated or differently-sessioned context could pass the "am I
+        // first?" check even though a real instance is already running, and both would then
+        // fight over the same named pipe in SingleInstance.ListenLoop with no backoff, spinning
+        // into a multi-GB-in-seconds runaway — exactly what happened here. Falls back to
+        // session-local scope if creating a global kernel object is ever denied.
+        bool isFirstInstance;
+        try
+        {
+            _singleInstanceMutex = new Mutex(initiallyOwned: true, "Global\\MyVNC-SingleInstance", out isFirstInstance);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            _singleInstanceMutex = new Mutex(initiallyOwned: true, "Local\\MyVNC-SingleInstance", out isFirstInstance);
+        }
+        if (!isFirstInstance)
+        {
+            SingleInstance.ForwardToRunningInstance(e.Args);
+            Shutdown();
+            return;
+        }
 
         Settings = SettingsStore.Load();
         Loc.SetLanguage(Settings.Language);
@@ -26,6 +56,18 @@ public partial class App : Application
             autoConnectId = e.Args[connectFlagIndex + 1];
 
         new MainWindow(openSettings: false, autoConnectId).Show();
+
+        // MyVNC.App.MainWindow.Current, not a captured reference — a language change replaces
+        // the whole window (see MainWindow.OnLanguageChanged), and activation must reach
+        // whichever instance is actually alive when it arrives. (Fully qualified because
+        // Application.MainWindow — the inherited property — would otherwise shadow our class.)
+        SingleInstance.StartListening(args => Dispatcher.Invoke(() => MyVNC.App.MainWindow.Current?.HandleActivation(args)));
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        _singleInstanceMutex?.Dispose();
+        base.OnExit(e);
     }
 
     /// <summary>Colors.Dark/Light.xaml supplies every brush ControlStyles.xaml's templates
