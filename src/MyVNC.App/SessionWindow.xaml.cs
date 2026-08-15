@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -33,13 +34,15 @@ public partial class SessionWindow : Window
     private bool _isFullscreen;
 
     private readonly DispatcherTimer _toolbarHideTimer;
-    private bool _toolbarVisible;
     private const double ToolbarHiddenOffset = -48;
 
-    // Generous since the reveal is gated behind holding Right Ctrl (see RootGrid_MouseMove) —
-    // plain mouse movement near the top can't steal clicks from the remote desktop's own top
-    // bar/panel (e.g. Waybar on Hyprland).
-    private const double ToolbarHotZone = 48;
+    // Polled rather than driven by routed KeyDown/KeyUp events, because RemoteFramebufferControl
+    // forwards most keys to the remote via PreviewKeyDown and marks them Handled — which stops
+    // the paired bubbling KeyDown from ever reaching this window while the framebuffer has focus.
+    // Keyboard.IsKeyDown reflects WPF's low-level input state regardless of routing, so a short
+    // poll picks up Right Ctrl reliably even without any mouse movement.
+    private readonly DispatcherTimer _rightCtrlPollTimer;
+    private bool _rightCtrlWasDown;
 
     private Interop.ClipboardMonitor? _clipboardMonitor;
     private readonly Interop.GlobalKeyboardHook _keyboardHook = new();
@@ -81,7 +84,17 @@ public partial class SessionWindow : Window
         _keyboardHook.Install();
 
         _toolbarHideTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(600) };
-        _toolbarHideTimer.Tick += (_, _) => { _toolbarHideTimer.Stop(); HideBar(Tabs.Count > 1 ? TabBarTransform : ToolbarTransform); };
+        _toolbarHideTimer.Tick += (_, _) =>
+        {
+            _toolbarHideTimer.Stop();
+            var (bar, transform) = Tabs.Count > 1 ? (TabBar, TabBarTransform) : (ToolbarOverlay, ToolbarTransform);
+            HideBar(bar, transform);
+        };
+
+        _rightCtrlPollTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(60) };
+        _rightCtrlPollTimer.Tick += (_, _) => PollRightCtrl();
+        _rightCtrlPollTimer.Start();
+        Closed += (_, _) => _rightCtrlPollTimer.Stop();
 
         Shared = this;
         AddTab(options);
@@ -132,7 +145,7 @@ public partial class SessionWindow : Window
         if (Tabs.Count <= 1)
         {
             // Briefly reveal the toolbar so the user notices it, then let it auto-hide.
-            ShowBar(ToolbarTransform);
+            ShowBar(ToolbarOverlay, ToolbarTransform);
             _toolbarHideTimer.Stop();
             _toolbarHideTimer.Start();
         }
@@ -243,58 +256,49 @@ public partial class SessionWindow : Window
         UpdateTopBarMode();
     }
 
-    /// <summary>Decides which top bar is shown and how, whenever the tab count or fullscreen
-    /// state changes. Single tab: the auto-hide toolbar (unchanged, always gesture-gated).
-    /// Multiple tabs, windowed: the tab bar is pinned — it's the only way to switch/close
-    /// sessions. Multiple tabs, fullscreen: the tab bar switches to the exact same
-    /// Right-Ctrl-plus-top-edge auto-hide behavior, so it doesn't permanently cover the remote
-    /// desktop's own top bar/panel.</summary>
+    /// <summary>Decides which top bar is shown, whenever the tab count changes. Both bars behave
+    /// identically either way — hidden by default, revealed only while Right Ctrl is held (see
+    /// PollRightCtrl) — so the remote desktop's own top bar/panel is never covered, resized, or
+    /// offset by MyVNC's own chrome, in windowed mode or fullscreen.</summary>
     private void UpdateTopBarMode()
     {
         var multiTab = Tabs.Count > 1;
         TabBar.Visibility = multiTab ? Visibility.Visible : Visibility.Collapsed;
         ToolbarOverlay.Visibility = multiTab ? Visibility.Collapsed : Visibility.Visible;
 
-        if (!multiTab) return; // single-session toolbar manages its own show/hide elsewhere
-
+        var (bar, transform) = multiTab ? (TabBar, TabBarTransform) : (ToolbarOverlay, ToolbarTransform);
         _toolbarHideTimer.Stop();
-        TabBarTransform.BeginAnimation(TranslateTransform.YProperty, null);
-        _toolbarVisible = !_isFullscreen;
-        TabBarTransform.Y = _isFullscreen ? ToolbarHiddenOffset : 0;
+        transform.BeginAnimation(TranslateTransform.YProperty, null);
+        transform.Y = ToolbarHiddenOffset;
+        bar.IsHitTestVisible = false;
     }
 
-    private void RootGrid_MouseMove(object sender, MouseEventArgs e)
+    private void PollRightCtrl()
     {
-        var multiTab = Tabs.Count > 1;
-        if (multiTab && !_isFullscreen) return; // tab bar is pinned; no gesture needed
+        var isDown = Keyboard.IsKeyDown(Key.RightCtrl);
+        if (isDown == _rightCtrlWasDown) return;
+        _rightCtrlWasDown = isDown;
 
-        var transform = multiTab ? TabBarTransform : ToolbarTransform;
-        var y = e.GetPosition(RootGrid).Y;
-        // Gated behind Right Ctrl so plain mouse movement near the top never steals clicks
-        // from the remote desktop's own top bar/panel (e.g. Waybar on Hyprland) — only a
-        // deliberate "hold Right Ctrl + go to the top edge" reveals the bar.
-        if (Keyboard.IsKeyDown(Key.RightCtrl) && y <= ToolbarHotZone)
-        {
-            _toolbarHideTimer.Stop();
-            ShowBar(transform);
-        }
-        else if (_toolbarVisible)
-        {
-            _toolbarHideTimer.Stop();
-            _toolbarHideTimer.Start();
-        }
+        var (bar, transform) = Tabs.Count > 1 ? (TabBar, TabBarTransform) : (ToolbarOverlay, ToolbarTransform);
+        _toolbarHideTimer.Stop();
+        if (isDown) ShowBar(bar, transform);
+        else _toolbarHideTimer.Start();
     }
 
-    private void ShowBar(TranslateTransform transform)
+    private void ShowBar(Border bar, TranslateTransform transform)
     {
-        _toolbarVisible = true;
+        bar.IsHitTestVisible = true;
         transform.BeginAnimation(TranslateTransform.YProperty,
             new DoubleAnimation(0, TimeSpan.FromMilliseconds(140)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
     }
 
-    private void HideBar(TranslateTransform transform)
+    /// <summary>Disables hit-testing immediately (not just once the slide-up animation finishes)
+    /// so a rendered-height mismatch against the fixed ToolbarHiddenOffset can never leave a
+    /// sliver of the bar still clickable — which was silently swallowing clicks aimed at the
+    /// remote desktop's own top bar/panel right underneath it.</summary>
+    private void HideBar(Border bar, TranslateTransform transform)
     {
-        _toolbarVisible = false;
+        bar.IsHitTestVisible = false;
         transform.BeginAnimation(TranslateTransform.YProperty,
             new DoubleAnimation(ToolbarHiddenOffset, TimeSpan.FromMilliseconds(140)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn } });
     }

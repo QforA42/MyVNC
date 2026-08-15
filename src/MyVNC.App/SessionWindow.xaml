@@ -66,7 +66,7 @@
         </DataTemplate>
     </Window.Resources>
 
-    <Grid x:Name="RootGrid" MouseMove="RootGrid_MouseMove">
+    <Grid x:Name="RootGrid">
 
         <controls:TerminalCanvasBackground IsHitTestVisible="False"/>
 
@@ -78,10 +78,10 @@
             </ItemsControl.ItemsPanel>
         </ItemsControl>
 
-        <!-- Tab bar: shown once a second session joins this window. Windowed: pinned in place
-             (tabs need to stay reachable). Fullscreen: behaves exactly like the single-session
-             toolbar below — hidden until Right Ctrl + the pointer is at the very top edge — so
-             it doesn't permanently cover the remote desktop's own top bar/panel. -->
+        <!-- Tab bar: shown once a second session joins this window. Hidden by default in both
+             windowed and fullscreen mode — revealed only via Right Ctrl + the pointer at the
+             very top edge (see RootGrid_MouseMove) — so it never covers, resizes, or offsets the
+             remote desktop's own top bar/panel underneath it. -->
         <Border x:Name="TabBar" VerticalAlignment="Top" Panel.ZIndex="10" Visibility="Collapsed"
                 Background="{StaticResource BgBaseBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
             <Border.RenderTransform>
