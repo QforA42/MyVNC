@@ -18,13 +18,15 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 
 ## Installing
 
-**Installer (recommended for casual use):** build one with:
+**Download the installer:** [MyVNC-Setup-0.2.0-beta.1.exe](https://github.com/QforA42/MyVNC/releases/download/v0.2.0-beta.1/MyVNC-Setup-0.2.0-beta.1.exe) (or browse all [releases](https://github.com/QforA42/MyVNC/releases)) — per-user install, no admin rights or UAC prompt required.
+
+**Build your own installer instead:**
 
 ```powershell
 installer\build-installer.ps1
 ```
 
-This publishes a self-contained Release build and produces `installer\output\MyVNC-Setup-<version>.exe` — per-user install, no admin rights or UAC prompt required. See [installer/](installer/).
+This publishes a self-contained Release build and produces `installer\output\MyVNC-Setup-<version>.exe`. See [installer/](installer/).
 
 **From source:**
 
