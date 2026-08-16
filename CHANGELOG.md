@@ -8,6 +8,27 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.10] - 2026-08-16
+
+### Fixed
+- `RfbClient` always requested the next framebuffer update as incremental, even immediately after
+  a `DesktopSize` pseudo-encoding rectangle (a resolution change). `HandleDesktopResize` correctly
+  reallocates the local framebuffer to the new dimensions, but an incremental request only asks
+  the server for what changed from *its* point of view — it has no idea the client's buffer is now
+  blank, so parts of the newly-sized framebuffer could go unpainted (server-side "nothing changed
+  there" vs. client-side "I have nothing there at all"). Now requests a full (non-incremental)
+  update whenever a resize rectangle was seen in the batch, which forces the server to resend
+  everything. Prompted by a report of a gray/blank screen after a server-side output switch on a
+  different custom RFB client, checked against MyVNC's own code as a precaution.
+
+### Changed
+- `RemoteFramebufferControl`'s root background is permanently transparent instead of opaque black.
+  The remote framebuffer image only ever fills the actual desktop's aspect ratio — fit-to-window
+  mode leaves letterbox bars around it, and there's no image at all before a session connects —
+  and both cases were hiding the session window's decorative canvas backdrop behind solid black
+  instead of letting it show through, which it's never actually done since the project's first
+  commit.
+
 ## [0.2.0-beta.9] - 2026-08-15
 
 ### Fixed

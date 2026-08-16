@@ -3,7 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Focusable="True"
              FocusVisualStyle="{x:Null}"
-             Background="Black">
+             Background="Transparent">
+    <!-- Always transparent (not opaque black): the remote framebuffer image only fills the
+         actual desktop's aspect ratio, so in fit-to-window mode there are letterbox bars around
+         it, and while connecting there's no image at all — both cases should show the session
+         window's decorative canvas backdrop through, not hide it behind solid black. -->
     <Grid x:Name="RootGrid" ClipToBounds="True">
         <ScrollViewer x:Name="ScrollHost" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
             <Image x:Name="FramebufferImage"

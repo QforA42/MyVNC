@@ -391,6 +391,7 @@ public sealed class RfbClient : IAsyncDisposable
         var stream = _stream!;
         _ = await stream.ReadU8Async(ct).ConfigureAwait(false); // padding
         var numRects = await stream.ReadU16Async(ct).ConfigureAwait(false);
+        var didResize = false;
 
         for (int i = 0; i < numRects; i++)
         {
@@ -413,13 +414,20 @@ public sealed class RfbClient : IAsyncDisposable
                     break;
                 case EncodingDesktopSize:
                     HandleDesktopResize(w, h);
+                    didResize = true;
                     break;
                 default:
                     throw new IOException($"Servern skickade en okänd kodning ({encoding}).");
             }
         }
 
-        RequestFramebufferUpdate(incremental: true);
+        // An incremental request only asks for what changed from the server's point of view —
+        // it has no idea the client just reallocated a blank framebuffer for the new dimensions
+        // in HandleDesktopResize. Requesting incremental right after a resize can leave parts of
+        // the new framebuffer never painted (server-side "nothing changed there" vs. client-side
+        // "I have nothing there at all"), which reads as a gray/blank screen after a resolution
+        // change. A full (non-incremental) request forces the server to resend everything.
+        RequestFramebufferUpdate(incremental: !didResize);
     }
 
     private async Task HandleRawRectAsync(int x, int y, int w, int h, CancellationToken ct)
