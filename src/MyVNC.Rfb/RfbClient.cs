@@ -280,33 +280,54 @@ public sealed class RfbClient : IAsyncDisposable
         stream.Flush();
     }
 
+    // All four send methods below can race a connection that's dying or just died: the receive
+    // loop detects a drop asynchronously and raises ConnectionLost, but a send can already be
+    // in-flight when the socket goes away, throwing IOException/SocketException. That's not
+    // actionable by the caller — the receive loop's disconnect handling is the correct, only
+    // authoritative path for "this connection is dead" — so catch and log rather than let it
+    // propagate. Unhandled, this previously crashed the whole app from inside a raw Win32
+    // clipboard-change callback with no surrounding try/catch of its own.
     public void RequestFramebufferUpdate(bool incremental)
     {
         if (_stream is null) return;
-        lock (_fbLock)
+        try
         {
-            var stream = _stream;
-            stream.WriteU8(3); // message-type: FramebufferUpdateRequest
-            stream.WriteU8((byte)(incremental ? 1 : 0));
-            stream.WriteU16(0);
-            stream.WriteU16(0);
-            stream.WriteU16((ushort)Width);
-            stream.WriteU16((ushort)Height);
-            stream.Flush();
+            lock (_fbLock)
+            {
+                var stream = _stream;
+                stream.WriteU8(3); // message-type: FramebufferUpdateRequest
+                stream.WriteU8((byte)(incremental ? 1 : 0));
+                stream.WriteU16(0);
+                stream.WriteU16(0);
+                stream.WriteU16((ushort)Width);
+                stream.WriteU16((ushort)Height);
+                stream.Flush();
+            }
+        }
+        catch (Exception ex)
+        {
+            RfbLog.Write($"RequestFramebufferUpdate failed (connection likely closing): {ex.Message}");
         }
     }
 
     public void SendKeyEvent(uint keysym, bool down)
     {
         if (_stream is null) return;
-        lock (_fbLock)
+        try
         {
-            var stream = _stream;
-            stream.WriteU8(4); // message-type: KeyEvent
-            stream.WriteU8((byte)(down ? 1 : 0));
-            stream.WriteU16(0); // padding
-            stream.WriteU32(keysym);
-            stream.Flush();
+            lock (_fbLock)
+            {
+                var stream = _stream;
+                stream.WriteU8(4); // message-type: KeyEvent
+                stream.WriteU8((byte)(down ? 1 : 0));
+                stream.WriteU16(0); // padding
+                stream.WriteU32(keysym);
+                stream.Flush();
+            }
+        }
+        catch (Exception ex)
+        {
+            RfbLog.Write($"SendKeyEvent failed (connection likely closing): {ex.Message}");
         }
     }
 
@@ -315,29 +336,43 @@ public sealed class RfbClient : IAsyncDisposable
         if (_stream is null) return;
         x = Math.Clamp(x, 0, Math.Max(0, Width - 1));
         y = Math.Clamp(y, 0, Math.Max(0, Height - 1));
-        lock (_fbLock)
+        try
         {
-            var stream = _stream;
-            stream.WriteU8(5); // message-type: PointerEvent
-            stream.WriteU8((byte)buttonMask);
-            stream.WriteU16((ushort)x);
-            stream.WriteU16((ushort)y);
-            stream.Flush();
+            lock (_fbLock)
+            {
+                var stream = _stream;
+                stream.WriteU8(5); // message-type: PointerEvent
+                stream.WriteU8((byte)buttonMask);
+                stream.WriteU16((ushort)x);
+                stream.WriteU16((ushort)y);
+                stream.Flush();
+            }
+        }
+        catch (Exception ex)
+        {
+            RfbLog.Write($"SendPointerEvent failed (connection likely closing): {ex.Message}");
         }
     }
 
     public void SendClientCutText(string text)
     {
         if (_stream is null) return;
-        var bytes = Encoding.Latin1.GetBytes(text.Replace("\r\n", "\n"));
-        lock (_fbLock)
+        try
         {
-            var stream = _stream;
-            stream.WriteU8(6); // message-type: ClientCutText
-            stream.WriteU8(0); stream.WriteU8(0); stream.WriteU8(0); // padding
-            stream.WriteU32((uint)bytes.Length);
-            stream.Write(bytes);
-            stream.Flush();
+            var bytes = Encoding.Latin1.GetBytes(text.Replace("\r\n", "\n"));
+            lock (_fbLock)
+            {
+                var stream = _stream;
+                stream.WriteU8(6); // message-type: ClientCutText
+                stream.WriteU8(0); stream.WriteU8(0); stream.WriteU8(0); // padding
+                stream.WriteU32((uint)bytes.Length);
+                stream.Write(bytes);
+                stream.Flush();
+            }
+        }
+        catch (Exception ex)
+        {
+            RfbLog.Write($"SendClientCutText failed (connection likely closing): {ex.Message}");
         }
     }
 

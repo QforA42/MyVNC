@@ -8,6 +8,23 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.16] - 2026-08-17
+
+### Fixed
+- Found the actual cause of a reported "hang": a real crash, not a freeze. When a connection
+  drops, an in-flight clipboard sync can still try to write to the now-dead socket
+  (`RfbClient.SendClientCutText`, called from `ClipboardMonitor`'s raw Win32 `WndProc` with no
+  surrounding try/catch), throwing an unhandled `IOException` that propagated all the way up and
+  killed the whole process — confirmed live via the beta.15 diagnostic logging added for a
+  different, still-unexplained incident. `SendKeyEvent`, `SendPointerEvent`,
+  `RequestFramebufferUpdate`, and `SendClientCutText` all had this same vulnerability (send racing
+  a connection that's dying or just died) and are now fixed uniformly: log and continue instead of
+  throwing, since the receive loop's own disconnect handling is the only authoritative signal for
+  "this connection is dead" — a failed outbound write on top of that isn't actionable by the
+  caller. Also made the top-level UI exception handler actually prevent a crash (it logged but
+  never marked the exception handled, so the default WPF behavior terminated the process anyway)
+  as a defense-in-depth safety net against whatever's next.
+
 ## [0.2.0-beta.15] - 2026-08-17
 
 ### Investigating

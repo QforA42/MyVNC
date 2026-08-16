@@ -20,7 +20,18 @@ public partial class App : Application
         // Logged only when Settings.DebugLogging is on (see AppLog) — catches exactly the
         // moments a problem is otherwise impossible to diagnose without hands-on access: an
         // unhandled crash on the UI thread, a background thread, or an unobserved Task fault.
-        DispatcherUnhandledException += (_, args) => AppLog.WriteException("Unhandled UI exception", args.Exception);
+        //
+        // Handled = true as a defense-in-depth safety net: a real incident showed a send on an
+        // already-dead RFB connection (clipboard sync, from inside a raw Win32 WndProc callback
+        // with no try/catch of its own) throwing an IOException that propagated all the way up
+        // and killed the whole process. The specific send methods now catch their own failures
+        // (see RfbClient), but this app should never just vanish from one unanticipated
+        // exception on the UI thread if logging-and-continuing is at all viable instead.
+        DispatcherUnhandledException += (_, args) =>
+        {
+            AppLog.WriteException("Unhandled UI exception", args.Exception);
+            args.Handled = true;
+        };
         AppDomain.CurrentDomain.UnhandledException += (_, args) =>
         {
             if (args.ExceptionObject is Exception ex) AppLog.WriteException("Unhandled exception", ex);
