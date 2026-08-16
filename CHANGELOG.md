@@ -8,6 +8,16 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.13] - 2026-08-16
+
+### Fixed
+- Editing a connection made its SSH-terminal icon (and, since beta.11, its "already connected"
+  disabled Connect-button state) disappear immediately, reappearing only once the dashboard next
+  regained focus. Saving an edit replaces the profile with a brand-new `ConnectionProfile`
+  instance, and both flags are `[JsonIgnore]`/runtime-only, so they silently reset to `false` on
+  every edit instead of carrying over. Now copied across, plus an immediate re-check right after
+  saving in case the edit actually changed an address (so a stale copied-over value can't linger).
+
 ## [0.2.0-beta.12] - 2026-08-16
 
 ### Added

@@ -488,11 +488,21 @@ public partial class MainWindow : Window
                 ActualSize = actualSize,
                 ReceiveClipboard = receiveClipboard,
                 SendClipboard = sendClipboard,
+                // Both [JsonIgnore]/runtime-only — carry them over so editing a profile doesn't
+                // make its SSH icon and "already connected" Connect-button state flicker off
+                // until the next natural refresh (e.g. the window regaining focus) sets them again.
+                IsSshAvailable = _editingProfile.IsSshAvailable,
+                IsSessionActive = _editingProfile.IsSessionActive,
             };
             var index = _profiles.IndexOf(_editingProfile);
             if (index >= 0) _profiles[index] = updated;
             PersistProfiles();
             HideOverlay();
+            // The carried-over IsSshAvailable/IsSessionActive above are only a stopgap against the
+            // icon/button flickering off — if an address actually changed they could now be stale,
+            // so re-check immediately rather than waiting for the window to next regain focus.
+            RefreshSshAvailability();
+            RefreshSessionActiveState();
             return;
         }
 
