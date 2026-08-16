@@ -8,6 +8,16 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.14] - 2026-08-17
+
+### Fixed
+- Auto-reconnect retried forever with no way to stop it short of noticing and manually closing
+  the tab. Reproduced live: a tab pointed at a dead address (wrong port, nothing listening) was
+  still retrying after 55+ attempts and well over an hour, and — still unexplained — a second,
+  independent retry sequence for the same tab was running in parallel (two different attempt
+  counters climbing simultaneously in the log). Now gives up and closes the tab automatically
+  after 3 failed reconnect attempts, capping the damage regardless of the underlying cause.
+
 ## [0.2.0-beta.13] - 2026-08-16
 
 ### Fixed

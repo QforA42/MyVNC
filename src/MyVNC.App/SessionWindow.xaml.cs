@@ -69,6 +69,12 @@ public partial class SessionWindow : Window
     private readonly DispatcherTimer _toolbarHideTimer;
     private const double ToolbarHiddenOffset = -48;
 
+    /// <summary>Give up and close the tab after this many failed reconnect attempts, rather than
+    /// retrying forever — a host that's genuinely gone (wrong port, powered off for good, etc.)
+    /// would otherwise sit retrying indefinitely with no way out except manually noticing and
+    /// closing it.</summary>
+    private const int MaxReconnectAttempts = 3;
+
     // Polled rather than driven by routed KeyDown/KeyUp events, because RemoteFramebufferControl
     // forwards most keys to the remote via PreviewKeyDown and marks them Handled — which stops
     // the paired bubbling KeyDown from ever reaching this window while the framebuffer has focus.
@@ -211,9 +217,16 @@ public partial class SessionWindow : Window
         tab.IsStatusVisible = true;
     }
 
-    private void ScheduleReconnect(SessionTab tab, Exception error)
+    private async void ScheduleReconnect(SessionTab tab, Exception error)
     {
         tab.ReconnectAttempt++;
+        if (tab.ReconnectAttempt > MaxReconnectAttempts)
+        {
+            AppLog.Write($"Giving up on {tab.Options.Host}:{tab.Options.Port} after {MaxReconnectAttempts} failed reconnect attempts — closing tab");
+            await CloseTabAsync(tab).ConfigureAwait(true);
+            return;
+        }
+
         var delaySeconds = Math.Min(30, 2 * Math.Pow(2, tab.ReconnectAttempt - 1));
         AppLog.Write($"Scheduling reconnect for {tab.Options.Host}:{tab.Options.Port} in {delaySeconds}s (attempt {tab.ReconnectAttempt})");
         tab.StatusMessage = Loc.T("Session.Reconnecting", error.Message, (int)delaySeconds, tab.ReconnectAttempt);
