@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyVNC.Rfb\MyVNC.Rfb.csproj" />
+    <PackageReference Include="SSH.NET" Version="2026.0.0" />
   </ItemGroup>
 
   <PropertyGroup>

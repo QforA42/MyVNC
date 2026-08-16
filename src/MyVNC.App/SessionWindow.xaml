@@ -41,7 +41,8 @@
              All tabs are stacked in the same cell; only the selected one is visible. -->
         <DataTemplate x:Key="TabContentTemplate" DataType="{x:Type local:SessionTab}">
             <Grid Visibility="Collapsed" x:Name="Root">
-                <ContentControl Content="{Binding Framebuffer}" Focusable="False"/>
+                <ContentControl Content="{Binding Framebuffer}" Focusable="False"
+                                AllowDrop="True" DragOver="SessionContent_DragOver" Drop="SessionContent_Drop"/>
                 <Border Background="#DD0F1115" Panel.ZIndex="20" x:Name="Status">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420">
                         <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextPrimaryBrush}"
@@ -98,6 +99,10 @@
                     </ItemsControl>
                 </ScrollViewer>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Content="{loc:Loc Session.SendFile}" Style="{StaticResource SecondaryButton}" FontSize="11" Padding="8,5" Margin="0,0,6,0"
+                            Click="SendFile_Click" ToolTip="{loc:Loc Session.SendFileTooltip}"/>
+                    <Button Content="{loc:Loc Session.ReceiveFile}" Style="{StaticResource SecondaryButton}" FontSize="11" Padding="8,5" Margin="0,0,6,0"
+                            Click="ReceiveFile_Click" ToolTip="{loc:Loc Session.ReceiveFileTooltip}"/>
                     <Button Content="{loc:Loc Session.Wake}" Style="{StaticResource SecondaryButton}" FontSize="11" Padding="8,5" Margin="0,0,6,0"
                             Click="Wake_Click" ToolTip="{loc:Loc Session.WakeTooltip}"/>
                     <Button Content="Ctrl+Alt+Del" Style="{StaticResource SecondaryButton}" FontSize="11" Padding="8,5" Margin="0,0,6,0"
@@ -128,6 +133,10 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="{loc:Loc Session.SendFile}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"
+                            Click="SendFile_Click" ToolTip="{loc:Loc Session.SendFileTooltip}"/>
+                    <Button Content="{loc:Loc Session.ReceiveFile}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"
+                            Click="ReceiveFile_Click" ToolTip="{loc:Loc Session.ReceiveFileTooltip}"/>
                     <Button Content="{loc:Loc Session.Wake}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"
                             Click="Wake_Click" ToolTip="{loc:Loc Session.WakeTooltip}"/>
                     <Button Content="Ctrl+Alt+Del" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0" Click="CtrlAltDel_Click"/>
@@ -136,6 +145,52 @@
                     <Button x:Name="DisconnectButton" Style="{StaticResource SecondaryButton}" Click="Disconnect_Click"/>
                 </StackPanel>
             </Grid>
+        </Border>
+
+        <Border x:Name="RemoteFilesOverlay" Background="#CC0B0D11" Panel.ZIndex="100" Visibility="Collapsed"
+                MouseLeftButtonDown="RemoteFilesOverlay_MouseLeftButtonDown">
+            <Border Background="{StaticResource BgElevatedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                    CornerRadius="12" Width="380" MaxHeight="500" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    MouseLeftButtonDown="RemoteFilesCard_MouseLeftButtonDown">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Margin="22,20,22,10">
+                        <TextBlock Text="{loc:Loc Session.ReceiveFile}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11" Style="{StaticResource IconButton}"
+                                Foreground="{StaticResource TextSecondaryBrush}" Width="24" Height="24" Padding="0"
+                                HorizontalAlignment="Right" Click="CloseRemoteFiles_Click" ToolTip="{loc:Loc Session.Close}"/>
+                    </Grid>
+
+                    <Grid Grid.Row="1" Margin="22,0,22,10">
+                        <TextBlock x:Name="RemoteFilesStatusText" Foreground="{StaticResource TextSecondaryBrush}"
+                                   FontSize="12" TextWrapping="Wrap" Visibility="Collapsed"/>
+                        <ListBox x:Name="RemoteFilesList" SelectionMode="Extended" Background="Transparent" BorderThickness="0"
+                                 MaxHeight="320" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 SelectionChanged="RemoteFilesList_SelectionChanged">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,4">
+                                        <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextPrimaryBrush}"
+                                                   FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding SizeBytes, StringFormat={}{0:N0} bytes}"
+                                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="10"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="22,0,22,20">
+                        <Button x:Name="DownloadSelectedFilesButton" Content="{loc:Loc Session.ReceiveFileDownload}" Style="{StaticResource PrimaryButton}"
+                                Click="DownloadSelectedFiles_Click" IsEnabled="False"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </Border>
 
     </Grid>

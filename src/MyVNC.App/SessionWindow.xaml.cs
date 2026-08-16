@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -6,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using MyVNC.App.Services;
 using MyVNC.Rfb;
 
@@ -350,6 +352,125 @@ public partial class SessionWindow : Window
     private void CtrlAltDel_Click(object sender, RoutedEventArgs e) => SelectedTab?.Framebuffer.SendCtrlAltDelete();
 
     private void Wake_Click(object sender, RoutedEventArgs e) => SelectedTab?.Framebuffer.SendWakeNudge();
+
+    // ----- Send file (SFTP, since RFB/VNC has no file-transfer capability) -----
+
+    private async void SendFile_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedTab is not { } tab) return;
+        var dialog = new OpenFileDialog { Multiselect = true, Title = Loc.T("Session.SendFile") };
+        if (dialog.ShowDialog(this) != true) return;
+        await UploadFilesAsync(tab, dialog.FileNames);
+    }
+
+    private void SessionContent_DragOver(object sender, DragEventArgs e)
+    {
+        e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private async void SessionContent_Drop(object sender, DragEventArgs e)
+    {
+        if (((FrameworkElement)sender).DataContext is not SessionTab tab) return;
+        if (e.Data.GetData(DataFormats.FileDrop) is not string[] paths) return;
+        await UploadFilesAsync(tab, paths);
+    }
+
+    private async Task UploadFilesAsync(SessionTab tab, IReadOnlyList<string> localPaths)
+    {
+        var files = localPaths.Where(File.Exists).ToList(); // skip directories — single-file transfer only
+        if (files.Count == 0) return;
+
+        var results = new List<FileTransferResult>();
+        foreach (var path in files)
+            results.Add(await FileTransferService.UploadFileAsync(tab.Options.Host, tab.Options.Username, tab.Options.Password, path));
+
+        var succeeded = results.Where(r => r.Success).ToList();
+        var failed = results.Where(r => !r.Success).ToList();
+
+        var lines = new List<string>();
+        if (succeeded.Count > 0) lines.Add(Loc.T("Session.SendFileOk", succeeded.Count));
+        if (failed.Count > 0) lines.Add(Loc.T("Session.SendFileFail", string.Join(", ", failed.Select(f => f.FileName))));
+
+        MessageBox.Show(this, string.Join("\n", lines), Loc.T("Session.SendFile"), MessageBoxButton.OK,
+            failed.Count > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
+    }
+
+    // ----- Receive file (browse + download from ~/myvnc-shared) -----
+
+    private SessionTab? _remoteFilesTab;
+
+    private async void ReceiveFile_Click(object sender, RoutedEventArgs e)
+    {
+        if (SelectedTab is not { } tab) return;
+        _remoteFilesTab = tab;
+
+        RemoteFilesList.ItemsSource = null;
+        RemoteFilesList.Visibility = Visibility.Collapsed;
+        DownloadSelectedFilesButton.IsEnabled = false;
+        RemoteFilesStatusText.Visibility = Visibility.Visible;
+        RemoteFilesStatusText.Text = Loc.T("Session.ReceiveFileLoading");
+        RemoteFilesOverlay.Visibility = Visibility.Visible;
+
+        IReadOnlyList<RemoteFile> files;
+        try
+        {
+            files = await FileTransferService.ListSharedFilesAsync(tab.Options.Host, tab.Options.Username, tab.Options.Password);
+        }
+        catch (Exception ex)
+        {
+            RemoteFilesStatusText.Text = Loc.T("Session.ReceiveFileError", ex.Message);
+            return;
+        }
+
+        if (_remoteFilesTab != tab || RemoteFilesOverlay.Visibility != Visibility.Visible) return; // closed/switched while loading
+
+        if (files.Count == 0)
+        {
+            RemoteFilesStatusText.Text = Loc.T("Session.ReceiveFileEmpty");
+            return;
+        }
+
+        RemoteFilesStatusText.Visibility = Visibility.Collapsed;
+        RemoteFilesList.Visibility = Visibility.Visible;
+        RemoteFilesList.ItemsSource = files;
+    }
+
+    private void RemoteFilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        => DownloadSelectedFilesButton.IsEnabled = RemoteFilesList.SelectedItems.Count > 0;
+
+    private async void DownloadSelectedFiles_Click(object sender, RoutedEventArgs e)
+    {
+        if (_remoteFilesTab is not { } tab) return;
+        var selected = RemoteFilesList.SelectedItems.Cast<RemoteFile>().ToList();
+        if (selected.Count == 0) return;
+
+        var folderDialog = new OpenFolderDialog { Title = Loc.T("Session.ReceiveFileChooseFolder") };
+        if (folderDialog.ShowDialog(this) != true) return;
+
+        var results = new List<FileTransferResult>();
+        foreach (var file in selected)
+            results.Add(await FileTransferService.DownloadFileAsync(tab.Options.Host, tab.Options.Username, tab.Options.Password, file.Name, folderDialog.FolderName));
+
+        RemoteFilesOverlay.Visibility = Visibility.Collapsed;
+
+        var succeeded = results.Where(r => r.Success).ToList();
+        var failed = results.Where(r => !r.Success).ToList();
+
+        var lines = new List<string>();
+        if (succeeded.Count > 0) lines.Add(Loc.T("Session.ReceiveFileOk", succeeded.Count, folderDialog.FolderName));
+        if (failed.Count > 0) lines.Add(Loc.T("Session.SendFileFail", string.Join(", ", failed.Select(f => f.FileName))));
+
+        MessageBox.Show(this, string.Join("\n", lines), Loc.T("Session.ReceiveFile"), MessageBoxButton.OK,
+            failed.Count > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
+    }
+
+    private void RemoteFilesOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        => RemoteFilesOverlay.Visibility = Visibility.Collapsed;
+
+    private void RemoteFilesCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => e.Handled = true;
+
+    private void CloseRemoteFiles_Click(object sender, RoutedEventArgs e) => RemoteFilesOverlay.Visibility = Visibility.Collapsed;
 
     private void ActualSize_Click(object sender, RoutedEventArgs e)
     {

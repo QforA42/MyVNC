@@ -140,6 +140,48 @@ public static class Loc
             "Sender et harmløst Shift-tryk for at vække en DPMS-slukket skærm. Virker, når et almindeligt klik ikke gør det, fordi wlroots-baserede kompositorer (f.eks. Hyprland) helt holder op med at levere musehændelser, mens skærmen er DPMS-slukket — kun tastaturinput slipper igennem.",
             "Lähettää harmittoman Shift-painalluksen herättääkseen DPMS-sammutetun näytön. Toimii, kun tavallinen napsautus ei toimi, koska wlroots-pohjaiset kompositorit (esim. Hyprland) lakkaavat toimittamasta hiiritapahtumia kokonaan näytön ollessa DPMS-sammutettuna — vain näppäimistösyöte pääsee läpi.",
             "Sendir meinlaust Shift-slag til að vekja DPMS-slökktan skjá. Virkar þegar venjulegur smellur gerir það ekki, því wlroots-byggðir gluggastjórar (t.d. Hyprland) hætta alveg að skila músarbendilsviðburðum á meðan skjárinn er DPMS-slökktur — aðeins lyklaborðsinntak kemst í gegn.");
+        Add("Session.SendFile",
+            "Skicka fil…", "Send file…", "Send fil…", "Send fil…", "Lähetä tiedosto…", "Senda skrá…");
+        Add("Session.SendFileTooltip",
+            "Skickar en eller flera filer till fjärrdatorn via SFTP (SSH, port 22) — hamnar i ~/myvnc-shared. Kräver att samma användarnamn/lösenord som anslutningen fungerar för SSH-inloggning (stämmer normalt om wayvnc är konfigurerad med enable_pam=true). Dra och släpp filer på sessionen fungerar också.",
+            "Sends one or more files to the remote host via SFTP (SSH, port 22) — lands in ~/myvnc-shared. Requires the same username/password as the connection to also work for SSH login (true by default if wayvnc is configured with enable_pam=true). Drag and drop files onto the session works too.",
+            "Sender en eller flere filer til fjernmaskinen via SFTP (SSH, port 22) — havner i ~/myvnc-shared. Krever at samme brukernavn/passord som tilkoblingen også fungerer for SSH-innlogging (stemmer vanligvis hvis wayvnc er konfigurert med enable_pam=true). Dra og slipp filer på økten fungerer også.",
+            "Sender en eller flere filer til fjernmaskinen via SFTP (SSH, port 22) — havner i ~/myvnc-shared. Kræver, at samme brugernavn/adgangskode som forbindelsen også virker til SSH-login (er normalt tilfældet, hvis wayvnc er konfigureret med enable_pam=true). Træk og slip filer på sessionen virker også.",
+            "Lähettää yhden tai useamman tiedoston etäkoneelle SFTP:n kautta (SSH, portti 22) — päätyy kansioon ~/myvnc-shared. Vaatii, että sama käyttäjätunnus/salasana kuin yhteydessä toimii myös SSH-kirjautumiseen (näin on yleensä, jos wayvnc on määritetty enable_pam=true-asetuksella). Tiedostojen raahaaminen istunnon päälle toimii myös.",
+            "Sendir eina eða fleiri skrár á fjartengdu vélina í gegnum SFTP (SSH, gátt 22) — lendir í ~/myvnc-shared. Krefst þess að sama notandanafn/lykilorð og tengingin virki líka fyrir SSH-innskráningu (er venjulega raunin ef wayvnc er stillt með enable_pam=true). Að draga og sleppa skrám á setuna virkar líka.");
+        Add("Session.SendFileOk",
+            "{0} fil(er) skickade till ~/myvnc-shared", "{0} file(s) sent to ~/myvnc-shared",
+            "{0} fil(er) sendt til ~/myvnc-shared", "{0} fil(er) sendt til ~/myvnc-shared",
+            "{0} tiedosto(a) lähetetty kansioon ~/myvnc-shared", "{0} skrá/skrár sendar í ~/myvnc-shared");
+        Add("Session.SendFileFail",
+            "Misslyckades: {0}", "Failed: {0}", "Mislyktes: {0}", "Mislykkedes: {0}", "Epäonnistui: {0}", "Mistókst: {0}");
+        Add("Session.ReceiveFile",
+            "Hämta fil…", "Receive file…", "Hent fil…", "Hent fil…", "Nouda tiedosto…", "Sækja skrá…");
+        Add("Session.ReceiveFileTooltip",
+            "Bläddra i ~/myvnc-shared på fjärrdatorn och hämta filer därifrån via SFTP (SSH, port 22).",
+            "Browse ~/myvnc-shared on the remote host and download files from it via SFTP (SSH, port 22).",
+            "Bla gjennom ~/myvnc-shared på fjernmaskinen og hent filer derfra via SFTP (SSH, port 22).",
+            "Gennemse ~/myvnc-shared på fjernmaskinen og hent filer derfra via SFTP (SSH, port 22).",
+            "Selaa etäkoneen kansiota ~/myvnc-shared ja nouda tiedostoja sieltä SFTP:n kautta (SSH, portti 22).",
+            "Flettu í gegnum ~/myvnc-shared á fjartengdu vélinni og sæktu skrár þaðan í gegnum SFTP (SSH, gátt 22).");
+        Add("Session.ReceiveFileLoading",
+            "Hämtar fillista…", "Loading file list…", "Henter fillliste…", "Henter fil-liste…", "Ladataan tiedostolistaa…", "Sæki skráalista…");
+        Add("Session.ReceiveFileEmpty",
+            "Inga filer i ~/myvnc-shared på fjärrdatorn.", "No files in ~/myvnc-shared on the remote host.",
+            "Ingen filer i ~/myvnc-shared på fjernmaskinen.", "Ingen filer i ~/myvnc-shared på fjernmaskinen.",
+            "Ei tiedostoja etäkoneen kansiossa ~/myvnc-shared.", "Engar skrár í ~/myvnc-shared á fjartengdu vélinni.");
+        Add("Session.ReceiveFileError",
+            "Kunde inte lista filer: {0}", "Couldn't list files: {0}", "Kunne ikke liste filer: {0}",
+            "Kunne ikke liste filer: {0}", "Tiedostoja ei voitu listata: {0}", "Ekki tókst að skrá skrár: {0}");
+        Add("Session.ReceiveFileChooseFolder",
+            "Välj mapp att spara i", "Choose a folder to save into", "Velg en mappe å lagre i",
+            "Vælg en mappe at gemme i", "Valitse tallennuskansio", "Veldu möppu til að vista í");
+        Add("Session.ReceiveFileDownload",
+            "Hämta valda", "Download selected", "Hent valgte", "Hent valgte", "Nouda valitut", "Sækja valdar");
+        Add("Session.ReceiveFileOk",
+            "{0} fil(er) hämtade till {1}", "{0} file(s) downloaded to {1}",
+            "{0} fil(er) hentet til {1}", "{0} fil(er) hentet til {1}",
+            "{0} tiedosto(a) ladattu kansioon {1}", "{0} skrá/skrár sóttar í {1}");
 
         Add("Form.ChooseAddress",
             "Välj adress", "Choose address", "Velg adresse", "Vælg adresse", "Valitse osoite", "Veldu vistfang");

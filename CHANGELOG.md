@@ -8,6 +8,26 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.12] - 2026-08-16
+
+### Added
+- Send/receive files over SFTP (SSH, port 22), since RFB/VNC has no file-transfer capability of
+  its own and wayvnc doesn't implement any of the vendor extensions (TightVNC/UltraVNC) that add
+  one. "Skicka fil…"/"Send file…" (button or drag-and-drop onto the session) uploads into a fixed
+  `~/myvnc-shared` folder on the host; "Hämta fil…"/"Receive file…" lists what's currently in that
+  folder and downloads selected files to a local folder you pick. Reuses the same username/
+  password already stored for the VNC connection — works automatically when wayvnc is configured
+  with `enable_pam=true`, since that's then the same as the host's Linux login.
+
+### Documentation
+- Noted in the README that the existing SSH terminal shortcut also covers unlocking a host that's
+  still sitting at boot behind full-disk encryption (`dropbear-initramfs` or similar) — that
+  listens on the same port 22 well before wayvnc is up. Live-tested end-to-end against a real
+  reboot: SSH'd into the initramfs environment with a one-off identity file, ran the unlock, and
+  confirmed MyVNC's auto-reconnect picked the session up automatically the moment wayvnc came up
+  afterward (8 reconnect attempts with clean exponential backoff, then success) — no code changes
+  needed, this already worked.
+
 ## [0.2.0-beta.11] - 2026-08-16
 
 ### Fixed
