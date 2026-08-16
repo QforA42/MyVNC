@@ -49,6 +49,12 @@ public partial class App : Application
         {
             _singleInstanceMutex = new Mutex(initiallyOwned: true, "Local\\MyVNC-SingleInstance", out isFirstInstance);
         }
+        // Always logged (not gated by Settings.DebugLogging, and regardless of which branch
+        // below runs) so two "primary" starts with no forwarding in between — evidence of the
+        // mutex check itself failing to catch a real second process — would leave a trail even
+        // if debug logging happened to be off at the time. Cheap: one line per process launch.
+        AppLog.WriteAlways($"MyVNC starting: pid={Environment.ProcessId} isFirstInstance={isFirstInstance}");
+
         if (!isFirstInstance)
         {
             SingleInstance.ForwardToRunningInstance(e.Args);

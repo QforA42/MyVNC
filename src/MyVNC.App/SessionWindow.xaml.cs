@@ -44,8 +44,16 @@ public partial class SessionWindow : Window
     public static SessionTab? FindActiveSession(IEnumerable<string> candidateAddresses, int port)
     {
         var addresses = new HashSet<string>(candidateAddresses, StringComparer.OrdinalIgnoreCase);
-        return AllWindows.SelectMany(w => w.Tabs)
-            .FirstOrDefault(t => addresses.Contains(t.Options.Host) && t.Options.Port == port);
+        var openTabs = AllWindows.SelectMany(w => w.Tabs).ToList();
+        // Temporary diagnostic: a real incident showed the same address opened twice within one
+        // process's lifetime with no "Duplicate connect blocked" log line, meaning this check
+        // somehow didn't match an existing, still-connected tab. Logging both sides of the
+        // comparison here (candidates vs. what's actually open) turns the next occurrence into
+        // hard evidence instead of another guessing round.
+        AppLog.Write($"FindActiveSession: port={port} candidates=[{string.Join(",", addresses)}] " +
+            $"openTabs=[{string.Join(",", openTabs.Select(t => $"{t.Options.Host}:{t.Options.Port}(connected={t.Framebuffer.IsConnected})"))}] " +
+            $"windows={AllWindows.Count}");
+        return openTabs.FirstOrDefault(t => addresses.Contains(t.Options.Host) && t.Options.Port == port);
     }
 
     public static void FocusExistingSession(SessionTab tab)

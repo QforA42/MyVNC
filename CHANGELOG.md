@@ -8,6 +8,20 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.15] - 2026-08-17
+
+### Investigating
+- Reproduced live: memory grew to 4.6GB+ (up from the usual 150-700MB range) while connected to
+  <hostname>. The log shows `<tailscale-ip>:5900` opened via "Opening session" twice within the same
+  process's lifetime — once at a point where the beta.11 duplicate-connection guard should have
+  blocked the second attempt (the first tab was confirmed still connected, having just
+  auto-reconnected 9 seconds earlier) — but no "Duplicate connect blocked" line appears for
+  either. Root cause not yet found; code review of `FindActiveSession`/`OpenSession` didn't turn
+  up an obvious bug. Added diagnostic logging (`FindActiveSession` now logs its candidate
+  addresses against every currently-open tab on every call, and app startup always logs its PID
+  and whether the single-instance mutex considered it the first instance) so the next occurrence
+  produces hard evidence instead of another guessing round.
+
 ## [0.2.0-beta.14] - 2026-08-17
 
 ### Fixed
