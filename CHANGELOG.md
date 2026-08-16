@@ -8,6 +8,23 @@ versionen.
 
 ## [Unreleased]
 
+## [0.2.0-beta.11] - 2026-08-16
+
+### Fixed
+- The duplicate-connection guard only compared the exact address string used for the current
+  connection attempt, so the same physical machine reached via two different addresses (e.g. LAN
+  IP vs Tailscale IP for the same saved profile) could end up with two simultaneous tabs open to
+  it — reproduced live: both connections dropped and reconnected in lockstep, doubling every
+  reconnect/decode/render cost, driving memory up continuously and making the app sluggish enough
+  to look hung. Now checks every address a profile is known by (Host IP, FQDN, Tailscale IP,
+  Tailscale FQDN), not just the one being used for this specific connection attempt.
+
+### Added
+- The dashboard's Connect button (and address-picker dropdown) now disables itself, with a
+  tooltip, for any profile that already has a session open — so a duplicate connection attempt is
+  visibly prevented up front instead of only being caught (and silently redirected) after
+  clicking. The card itself stays clickable and still switches to the existing session.
+
 ## [0.2.0-beta.10] - 2026-08-16
 
 ### Fixed

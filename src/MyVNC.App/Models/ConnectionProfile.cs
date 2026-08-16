@@ -48,6 +48,13 @@ public sealed class ConnectionProfile
     [JsonIgnore]
     public bool IsSshAvailable { get; set; }
 
+    /// <summary>Whether a session to this profile (via any of its known addresses) is already
+    /// open somewhere — never persisted, re-checked each time the dashboard loads or regains
+    /// focus. Disables the Connect button so it's obvious at a glance rather than only finding
+    /// out after clicking and getting redirected to the existing session.</summary>
+    [JsonIgnore]
+    public bool IsSessionActive { get; set; }
+
     public string GetAddress(AddressKind kind) => kind switch
     {
         AddressKind.Fqdn => Fqdn,

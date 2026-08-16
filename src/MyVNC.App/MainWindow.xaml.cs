@@ -64,6 +64,12 @@ public partial class MainWindow : Window
         RefreshSshAvailability();
         Activated += (_, _) => RefreshSshAvailability();
 
+        // Same idea for session-active state: cheap to recompute (no I/O, just checks in-memory
+        // open tabs), so just re-check whenever the dashboard regains focus rather than wiring up
+        // cross-window notifications for every tab open/close/disconnect.
+        RefreshSessionActiveState();
+        Activated += (_, _) => RefreshSessionActiveState();
+
         if (openSettings) ShowSettingsOverlay();
 
         if (autoConnectProfileId is not null)
@@ -324,6 +330,25 @@ public partial class MainWindow : Window
         SshLauncher.Launch(address, profile.Username, App.Settings.SshTerminal);
     }
 
+    /// <summary>Cheap, synchronous (no I/O — just checks already-open tabs), so unlike SSH
+    /// reachability this can just be recomputed outright rather than diffed per-profile.</summary>
+    private void RefreshSessionActiveState()
+    {
+        var changed = false;
+        for (var i = 0; i < _profiles.Count; i++)
+        {
+            var profile = _profiles[i];
+            var addresses = profile.AvailableAddresses().Select(a => a.Value);
+            var active = SessionWindow.FindActiveSession(addresses, profile.Port) is not null;
+            if (profile.IsSessionActive == active) continue;
+
+            profile.IsSessionActive = active;
+            _profiles[i] = profile; // force the card to re-read IsSessionActive (no INotifyPropertyChanged on the model)
+            changed = true;
+        }
+        if (changed) ConnectionsList.Items.Refresh();
+    }
+
     // ----- Forget SSH host key -----
 
     private void ForgetSshHostKeyButton_Click(object sender, RoutedEventArgs e)
@@ -495,7 +520,7 @@ public partial class MainWindow : Window
         }
 
         OpenSession(ResolveAddress(host, fqdn, tailscaleIp, tailscaleFqdn, defaultAddress), port, username, password, name,
-            viewOnly, receiveClipboard, sendClipboard, actualSize);
+            viewOnly, receiveClipboard, sendClipboard, actualSize, [host, fqdn, tailscaleIp, tailscaleFqdn]);
         HideOverlay();
     }
 
@@ -554,7 +579,8 @@ public partial class MainWindow : Window
         profile.LastUsedAddress = addressKind;
         PersistProfiles();
         OpenSession(address, profile.Port, profile.Username, password, profile.DisplayTitle,
-            profile.ViewOnly, profile.ReceiveClipboard, profile.SendClipboard, profile.ActualSize);
+            profile.ViewOnly, profile.ReceiveClipboard, profile.SendClipboard, profile.ActualSize,
+            profile.AvailableAddresses().Select(a => a.Value));
     }
 
     private void EditConnection_Click(object sender, RoutedEventArgs e)
@@ -652,13 +678,17 @@ public partial class MainWindow : Window
     /// <summary>Opens a new session — either as a fresh top-level window, or as a tab in the
     /// already-open session window, depending on Settings.</summary>
     private void OpenSession(string host, int port, string username, string password, string displayName,
-        bool viewOnly, bool receiveClipboard, bool sendClipboard, bool actualSize)
+        bool viewOnly, bool receiveClipboard, bool sendClipboard, bool actualSize, IEnumerable<string> knownAddresses)
     {
-        // Only one connection to a given host:port at a time — two simultaneous clients against
+        // Only one connection to a given host at a time, no matter which of its known addresses
+        // (Host IP, FQDN, Tailscale IP, Tailscale FQDN) is used — two simultaneous clients against
         // the same wayvnc server were directly implicated in a real resource-contention incident
-        // (each one's mouse-move traffic driving the other's framebuffer-update load). Focus the
-        // existing session instead of opening a second one.
-        if (SessionWindow.FindActiveSession(host, port) is { } existing)
+        // (each one's mouse-move traffic driving the other's framebuffer-update load), and a real
+        // follow-up incident showed it happening via two *different* addresses for the same
+        // machine, which a single-address comparison couldn't catch. Focus the existing session
+        // instead of opening a second one.
+        var candidates = knownAddresses.Where(a => !string.IsNullOrWhiteSpace(a)).Append(host);
+        if (SessionWindow.FindActiveSession(candidates, port) is { } existing)
         {
             AppLog.Write($"Duplicate connect blocked for {host}:{port} — focusing existing session instead");
             SessionWindow.FocusExistingSession(existing);
@@ -684,9 +714,11 @@ public partial class MainWindow : Window
             shared.AddTab(options);
             if (shared.WindowState == WindowState.Minimized) shared.WindowState = WindowState.Normal;
             shared.Activate();
+            RefreshSessionActiveState();
             return;
         }
 
         new SessionWindow(options).Show();
+        RefreshSessionActiveState();
     }
 }

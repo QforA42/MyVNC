@@ -30,14 +30,21 @@ public partial class SessionWindow : Window
     /// second connection to the same server.</summary>
     private static readonly List<SessionWindow> AllWindows = [];
 
-    /// <summary>Finds an already-open tab connected to this exact host:port, across every open
-    /// session window. Two simultaneous clients against the same wayvnc server were directly
-    /// implicated in a real resource-contention incident (each one's mouse-move traffic driving
-    /// the other's framebuffer-update load), so MainWindow.OpenSession redirects here instead of
-    /// opening a second connection.</summary>
-    public static SessionTab? FindActiveSession(string host, int port)
-        => AllWindows.SelectMany(w => w.Tabs)
-            .FirstOrDefault(t => string.Equals(t.Options.Host, host, StringComparison.OrdinalIgnoreCase) && t.Options.Port == port);
+    /// <summary>Finds an already-open tab connected to any of these candidate addresses at this
+    /// port, across every open session window. Takes every address a profile is known by (Host
+    /// IP, FQDN, Tailscale IP, Tailscale FQDN), not just the one being used for this connection
+    /// attempt — a real incident showed two tabs open to the same physical machine simultaneously
+    /// (one via LAN IP, one via Tailscale IP), which a single-address comparison can't catch, and
+    /// which doubled every reconnect/decode/render cost. Two simultaneous clients against the
+    /// same wayvnc server were directly implicated in the original resource-contention incident
+    /// this guard exists for, so MainWindow.OpenSession redirects here instead of opening a
+    /// second connection.</summary>
+    public static SessionTab? FindActiveSession(IEnumerable<string> candidateAddresses, int port)
+    {
+        var addresses = new HashSet<string>(candidateAddresses, StringComparer.OrdinalIgnoreCase);
+        return AllWindows.SelectMany(w => w.Tabs)
+            .FirstOrDefault(t => addresses.Contains(t.Options.Host) && t.Options.Port == port);
+    }
 
     public static void FocusExistingSession(SessionTab tab)
     {

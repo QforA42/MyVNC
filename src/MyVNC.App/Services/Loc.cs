@@ -178,6 +178,10 @@ public static class Loc
         Add("Card.OpenSsh",
             "Öppna SSH-terminal", "Open SSH terminal", "Åpne SSH-terminal",
             "Åbn SSH-terminal", "Avaa SSH-pääte", "Opna SSH-flugstöð");
+        Add("Card.AlreadyConnected",
+            "Redan ansluten — klicka på kortet för att växla dit", "Already connected — click the card to switch to it",
+            "Allerede tilkoblet — klikk på kortet for å bytte dit", "Allerede forbundet — klik på kortet for at skifte dertil",
+            "Jo yhdistetty — siirry sinne napsauttamalla korttia", "Þegar tengt — smelltu á kortið til að skipta þangað");
 
         Add("JumpList.Pinned",
             "Fästa", "Pinned", "Festet", "Fastgjort", "Kiinnitetyt", "Fest");

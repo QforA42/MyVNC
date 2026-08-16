@@ -13,6 +13,7 @@
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <loc:InverseBoolConverter x:Key="InverseBoolConverter"/>
     </Window.Resources>
 
     <Grid>
@@ -120,12 +121,24 @@
                                                 </Style>
                                             </Button.Style>
                                         </Button>
-                                        <Button Content="{loc:Loc Form.Connect}" Style="{StaticResource IconButton}" Padding="12,5" FontSize="12"
+                                        <Button Content="{loc:Loc Form.Connect}" Padding="12,5" FontSize="12"
                                                 Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold"
-                                                Tag="{Binding}" Click="ConnectCardButton_Click"/>
+                                                Tag="{Binding}" Click="ConnectCardButton_Click" IsEnabled="{Binding IsSessionActive, Converter={StaticResource InverseBoolConverter}}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
+                                                    <Setter Property="ToolTip" Value="{x:Null}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSessionActive}" Value="True">
+                                                            <Setter Property="ToolTip" Value="{loc:Loc Card.AlreadyConnected}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
                                         <Button Content="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="8" Style="{StaticResource IconButton}"
                                                 Foreground="{StaticResource AccentBrush}" Width="18" Height="26" Padding="0" Margin="0"
-                                                Tag="{Binding}" Click="ConnectDropdown_Click" ToolTip="{loc:Loc Form.ChooseAddress}"/>
+                                                Tag="{Binding}" Click="ConnectDropdown_Click" ToolTip="{loc:Loc Form.ChooseAddress}"
+                                                IsEnabled="{Binding IsSessionActive, Converter={StaticResource InverseBoolConverter}}"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
