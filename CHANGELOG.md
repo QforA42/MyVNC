@@ -8,6 +8,16 @@ versionen.
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-08-18
+
+### Fixed
+- The reconnect status overlay's centered "Close" button was visible throughout an in-progress
+  auto-reconnect retry, not just after it gave up — inviting a click that aborted a reconnect
+  that was about to succeed on its own. Reproduced against <hostname>: the Wake button's DPMS
+  nudge drops the connection, the 2s auto-retry recovers it unassisted, but the overlay's Close
+  button was there to be clicked instead, closing the session window. The button now only
+  appears once auto-reconnect is disabled or has exhausted its attempts.
+
 ## [0.8.1] - 2026-08-18
 
 ### Fixed
