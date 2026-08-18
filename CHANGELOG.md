@@ -8,6 +8,37 @@ versionen.
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-08-18
+
+### Fixed
+- Serialized `RemoteFramebufferControl.ConnectAsync`/`DisconnectAsync` against each other with a
+  semaphore, and gave `ConnectAsync` a `CancellationToken` so closing a tab mid-connect cancels
+  the in-flight attempt outright instead of racing `DisconnectAsync` over the same `RfbClient`
+  field. A reconnect also now disposes the previous client before replacing it, instead of
+  leaking its socket.
+- Moved clipboard reads off the UI thread: `Clipboard.GetText()` can block for a second or more
+  under contention, and it was being called synchronously from `ClipboardMonitor`'s raw Win32
+  `WndProc` hook, freezing the whole app — confirmed live via a process dump showing the UI
+  thread stuck exactly there.
+
+### Added
+- Left Ctrl triple-tap (within 600ms) pins the session topbar/tab bar visible, toggling back off
+  on the next triple-tap — an alternative to holding Right Ctrl, for keyboards without a
+  comfortable key to hold down or KVM/remote setups missing one entirely.
+- Replaced the About/Help/Settings/New-Connection modal overlays with full-page views sharing the
+  dashboard's own surface and margins, each with a back arrow instead of an X-to-close (Settings
+  and the connection form also get a save icon).
+- Help now opens with a keyboard-shortcuts table, and gained a "two common wayvnc setups" section
+  (external-monitor headless output vs. built-in-screen capture watchdog) documented from
+  <hostname>/<hostname>'s actual configs. Its "known limitations" text was rewritten from a long
+  historical postmortem into a short, current bullet list. About gained a header quote.
+
+### Documentation
+- README's Features list now covers fullscreen (F11), the topbar-pin gesture, connection
+  search/pin, the duplicate-connection guard, auto-reconnect's 3-attempt cap, and the Wake/
+  Ctrl+Alt+Del buttons — all previously shipped but undocumented. Its "known limitations" section
+  now matches the trimmed in-app Help text instead of the old bug postmortem.
+
 ## [0.2.0-beta.16] - 2026-08-17
 
 ### Fixed
