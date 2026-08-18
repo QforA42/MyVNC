@@ -258,7 +258,12 @@ public partial class SessionWindow : Window
         var delaySeconds = Math.Min(30, 2 * Math.Pow(2, tab.ReconnectAttempt - 1));
         AppLog.Write($"Scheduling reconnect for {tab.Options.Host}:{tab.Options.Port} in {delaySeconds}s (attempt {tab.ReconnectAttempt})");
         tab.StatusMessage = Loc.T("Session.Reconnecting", error.Message, (int)delaySeconds, tab.ReconnectAttempt);
-        tab.IsCloseVisible = true;
+        // No close button while a retry is already in flight — it auto-recovers (or auto-closes
+        // after MaxReconnectAttempts) on its own within a few seconds. A prominent centered
+        // "Close" button here tempted users into aborting an about-to-succeed reconnect (seen on
+        // <hostname>: DPMS wake nudge drops the connection, the 2s auto-retry would have recovered
+        // it, but the overlay's Close button got clicked instead, closing the window entirely).
+        tab.IsCloseVisible = false;
         tab.IsStatusVisible = true;
 
         tab.ReconnectCts?.Cancel();
