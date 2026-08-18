@@ -15,11 +15,12 @@ using MyVNC.Rfb;
 namespace MyVNC.App;
 
 /// <summary>
-/// The connection launcher: a compact saved-connections list. The new/edit-connection form and
-/// the settings page both live in dismissable overlays (opened via the + / gear buttons, closed
-/// by clicking outside them) rather than taking up permanent screen space. Stays open so the
-/// user can start any number of simultaneous sessions — each "Anslut" opens its own
-/// <see cref="SessionWindow"/> rather than taking over this window.
+/// The connection launcher: a compact saved-connections list. The new/edit-connection form,
+/// settings, help and about all live in full-page views that swap in over the dashboard (opened
+/// via the top-bar icons, closed via each page's back arrow) rather than floating dialogs, so
+/// every screen shares the same surface as the host list. Stays open so the user can start any
+/// number of simultaneous sessions — each "Anslut" opens its own <see cref="SessionWindow"/>
+/// rather than taking over this window.
 /// </summary>
 public partial class MainWindow : Window
 {
@@ -70,7 +71,7 @@ public partial class MainWindow : Window
         RefreshSessionActiveState();
         Activated += (_, _) => RefreshSessionActiveState();
 
-        if (openSettings) ShowSettingsOverlay();
+        if (openSettings) ShowPage(SettingsPage);
 
         if (autoConnectProfileId is not null)
         {
@@ -103,9 +104,30 @@ public partial class MainWindow : Window
     /// text once (via the loc: markup extension) rather than through live bindings.</summary>
     private void OnLanguageChanged()
     {
-        var wasSettingsOpen = SettingsOverlay.Visibility == Visibility.Visible;
+        var wasSettingsOpen = SettingsPage.Visibility == Visibility.Visible;
         new MainWindow(wasSettingsOpen).Show();
         Close();
+    }
+
+    /// <summary>Swaps the dashboard out for one full-page view (settings, help, about, the
+    /// new/edit-connection form) — mutually exclusive with the dashboard and every other page.</summary>
+    private void ShowPage(UIElement page)
+    {
+        DashboardView.Visibility = Visibility.Collapsed;
+        FormPage.Visibility = Visibility.Collapsed;
+        SettingsPage.Visibility = Visibility.Collapsed;
+        HelpPage.Visibility = Visibility.Collapsed;
+        AboutPage.Visibility = Visibility.Collapsed;
+        page.Visibility = Visibility.Visible;
+    }
+
+    private void ShowDashboard()
+    {
+        FormPage.Visibility = Visibility.Collapsed;
+        SettingsPage.Visibility = Visibility.Collapsed;
+        HelpPage.Visibility = Visibility.Collapsed;
+        AboutPage.Visibility = Visibility.Collapsed;
+        DashboardView.Visibility = Visibility.Visible;
     }
 
     private void UpdateEmptyState()
@@ -134,43 +156,27 @@ public partial class MainWindow : Window
         }
     }
 
-    // ----- Settings overlay -----
+    // ----- Settings page -----
 
-    private void SettingsButton_Click(object sender, RoutedEventArgs e) => ShowSettingsOverlay();
-
-    private void ShowSettingsOverlay()
+    private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
-        FormOverlay.Visibility = Visibility.Collapsed;
-        HelpOverlay.Visibility = Visibility.Collapsed;
-        AboutOverlay.Visibility = Visibility.Collapsed;
-        SettingsOverlay.Visibility = Visibility.Visible;
+        ShowPage(SettingsPage);
         OpenLogButton.IsEnabled = AppLog.LogFileExists(); // re-check each time, not just at startup
     }
 
-    private void SettingsOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        => SettingsOverlay.Visibility = Visibility.Collapsed;
-
-    // ----- About overlay -----
+    // ----- About page -----
 
     private void AboutButton_Click(object sender, RoutedEventArgs e)
     {
-        FormOverlay.Visibility = Visibility.Collapsed;
-        SettingsOverlay.Visibility = Visibility.Collapsed;
-        HelpOverlay.Visibility = Visibility.Collapsed;
-
         var version = Assembly.GetExecutingAssembly()
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
         var shortVersion = version?.Split('+')[0] ?? "?";
         AboutVersionText.Text = Loc.T("About.Version", shortVersion);
 
-        AboutOverlay.Visibility = Visibility.Visible;
+        ShowPage(AboutPage);
     }
 
-    private void AboutOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        => AboutOverlay.Visibility = Visibility.Collapsed;
-
-    private void CloseAbout_Click(object sender, RoutedEventArgs e)
-        => AboutOverlay.Visibility = Visibility.Collapsed;
+    private void CloseAbout_Click(object sender, RoutedEventArgs e) => ShowDashboard();
 
     private void AboutLink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
     {
@@ -178,24 +184,11 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
-    private void HelpButton_Click(object sender, RoutedEventArgs e) => ShowHelpOverlay();
+    private void HelpButton_Click(object sender, RoutedEventArgs e) => ShowPage(HelpPage);
 
-    private void ShowHelpOverlay()
-    {
-        FormOverlay.Visibility = Visibility.Collapsed;
-        SettingsOverlay.Visibility = Visibility.Collapsed;
-        AboutOverlay.Visibility = Visibility.Collapsed;
-        HelpOverlay.Visibility = Visibility.Visible;
-    }
+    private void CloseHelp_Click(object sender, RoutedEventArgs e) => ShowDashboard();
 
-    private void HelpOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        => HelpOverlay.Visibility = Visibility.Collapsed;
-
-    private void CloseHelp_Click(object sender, RoutedEventArgs e)
-        => HelpOverlay.Visibility = Visibility.Collapsed;
-
-    private void CloseSettings_Click(object sender, RoutedEventArgs e)
-        => SettingsOverlay.Visibility = Visibility.Collapsed;
+    private void CloseSettings_Click(object sender, RoutedEventArgs e) => ShowDashboard();
 
     private void BuildLanguageList()
     {
@@ -373,29 +366,18 @@ public partial class MainWindow : Window
         ForgetSshHostKeyResultText.Text = Loc.T("Form.ForgetSshHostKeyOk", cleared);
     }
 
-    // ----- New/edit connection overlay -----
+    // ----- New/edit connection page -----
 
     private void NewConnectionButton_Click(object sender, RoutedEventArgs e)
     {
-        SettingsOverlay.Visibility = Visibility.Collapsed;
-        HelpOverlay.Visibility = Visibility.Collapsed;
-        AboutOverlay.Visibility = Visibility.Collapsed;
         ExitEditMode();
-        ShowOverlay();
+        ShowPage(FormPage);
         HostBox.Focus();
     }
 
-    private void FormOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => HideOverlay();
-
-    /// <summary>Swallows clicks on the form/settings card itself so they don't bubble to the
-    /// backdrop and dismiss the overlay the user is actively interacting with.</summary>
-    private void FormCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) => e.Handled = true;
-
-    private void ShowOverlay() => FormOverlay.Visibility = Visibility.Visible;
-
     private void HideOverlay()
     {
-        FormOverlay.Visibility = Visibility.Collapsed;
+        ShowDashboard();
         ExitEditMode();
     }
 
@@ -467,6 +449,21 @@ public partial class MainWindow : Window
         var receiveClipboard = ReceiveClipboardCheck.IsChecked == true;
         var sendClipboard = SendClipboardCheck.IsChecked == true;
 
+        // Two profiles sharing an address (e.g. one saved by LAN IP, another by Tailscale FQDN
+        // for the same physical host) defeats SessionWindow.FindActiveSession's duplicate-connect
+        // guard, since that only dedups against a *single* profile's own candidate addresses —
+        // letting the same server accumulate multiple live client connections and, per the
+        // gray-screen investigation, plausibly serve a confused framebuffer. Block it at save time.
+        if (RememberCheck.IsChecked == true || _editingProfile is not null)
+        {
+            var duplicate = FindDuplicateAddressProfile(host, fqdn, tailscaleIp, tailscaleFqdn, excluding: _editingProfile);
+            if (duplicate is not null)
+            {
+                ShowStartError(Loc.T("Form.ErrorDuplicateAddress", duplicate.Value.Profile.Name, duplicate.Value.Address));
+                return;
+            }
+        }
+
         if (_editingProfile is not null)
         {
             var updated = new ConnectionProfile
@@ -534,6 +531,33 @@ public partial class MainWindow : Window
         HideOverlay();
     }
 
+    /// <summary>Checks the given candidate addresses against every other saved profile's own
+    /// addresses (case-insensitive) and returns the first collision, or null if none. <paramref
+    /// name="excluding"/> is the profile being edited (skip it — comparing it against itself would
+    /// always "collide").</summary>
+    private (ConnectionProfile Profile, string Address)? FindDuplicateAddressProfile(
+        string host, string fqdn, string tailscaleIp, string tailscaleFqdn, ConnectionProfile? excluding)
+    {
+        var candidates = new[] { host, fqdn, tailscaleIp, tailscaleFqdn }
+            .Where(a => !string.IsNullOrWhiteSpace(a))
+            .ToList();
+        if (candidates.Count == 0) return null;
+
+        foreach (var other in _profiles)
+        {
+            if (ReferenceEquals(other, excluding)) continue;
+            foreach (var (_, otherAddress) in other.AvailableAddresses())
+            {
+                foreach (var candidate in candidates)
+                {
+                    if (string.Equals(candidate, otherAddress, StringComparison.OrdinalIgnoreCase))
+                        return (other, otherAddress);
+                }
+            }
+        }
+        return null;
+    }
+
     private static string ResolveAddress(string host, string fqdn, string tailscaleIp, string tailscaleFqdn, AddressKind kind)
     {
         var address = kind switch
@@ -597,9 +621,6 @@ public partial class MainWindow : Window
     {
         if (((FrameworkElement)sender).Tag is not ConnectionProfile profile) return;
 
-        SettingsOverlay.Visibility = Visibility.Collapsed;
-        HelpOverlay.Visibility = Visibility.Collapsed;
-        AboutOverlay.Visibility = Visibility.Collapsed;
         _editingProfile = profile;
         NameBox.Text = profile.Name;
         HostBox.Text = profile.Host;
@@ -624,7 +645,7 @@ public partial class MainWindow : Window
         TestConnectionResultText.Visibility = Visibility.Collapsed;
         ForgetSshHostKeyResultText.Visibility = Visibility.Collapsed;
 
-        ShowOverlay();
+        ShowPage(FormPage);
     }
 
     private void CancelEdit_Click(object sender, RoutedEventArgs e) => HideOverlay();

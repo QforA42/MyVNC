@@ -58,6 +58,11 @@ public static class Loc
             "Ei vielä tallennettuja yhteyksiä. Napauta + lisätäksesi yhden.",
             "Engar vistaðar tengingar ennþá. Ýttu á + til að bæta við einni.");
 
+        Add("Common.Back",
+            "Tillbaka", "Back", "Tilbake", "Tilbage", "Takaisin", "Til baka");
+        Add("Common.Save",
+            "Spara", "Save", "Lagre", "Gem", "Tallenna", "Vista");
+
         Add("Form.NewConnection",
             "Ny anslutning", "New connection", "Ny tilkobling", "Ny forbindelse", "Uusi yhteys", "Ný tenging");
         Add("Form.EditConnection",
@@ -208,6 +213,10 @@ public static class Loc
         Add("Form.ErrorConnect",
             "Kunde inte ansluta: {0}", "Couldn't connect: {0}", "Kunne ikke koble til: {0}",
             "Kunne ikke forbinde: {0}", "Yhteyden muodostaminen epäonnistui: {0}", "Ekki tókst að tengjast: {0}");
+        Add("Form.ErrorDuplicateAddress",
+            "\"{1}\" används redan av anslutningen \"{0}\".", "\"{1}\" is already used by the connection \"{0}\".",
+            "\"{1}\" brukes allerede av tilkoblingen \"{0}\".", "\"{1}\" bruges allerede af forbindelsen \"{0}\".",
+            "\"{1}\" on jo käytössä yhteydessä \"{0}\".", "\"{1}\" er þegar notað af tengingunni \"{0}\".");
 
         Add("Card.Edit",
             "Redigera", "Edit", "Rediger", "Rediger", "Muokkaa", "Breyta");
@@ -300,6 +309,13 @@ public static class Loc
             "Om MyVNC", "About MyVNC", "Om MyVNC", "Om MyVNC", "Tietoja MyVNC:stä", "Um MyVNC");
         Add("About.Version",
             "Version {0}", "Version {0}", "Versjon {0}", "Version {0}", "Versio {0}", "Útgáfa {0}");
+        Add("About.Quote",
+            "“Deliberated this VNC app notwithstanding a total absence of requirements”",
+            "“Deliberated this VNC app notwithstanding a total absence of requirements”",
+            "“Deliberated this VNC app notwithstanding a total absence of requirements”",
+            "“Deliberated this VNC app notwithstanding a total absence of requirements”",
+            "“Deliberated this VNC app notwithstanding a total absence of requirements”",
+            "“Deliberated this VNC app notwithstanding a total absence of requirements”");
         Add("About.Description",
             "En egenbyggd VNC-klient för Windows, gjord för att ansluta rent till Hyprland/omarchy-maskiner som kör wayvnc. Byggd från grunden — egen RFB-protokollimplementation, inget medföljande VNC-bibliotek.",
             "A custom-built VNC client for Windows, made to connect cleanly to Hyprland/omarchy machines running wayvnc. Built from scratch — own RFB protocol implementation, no bundled VNC library.",
@@ -309,6 +325,25 @@ public static class Loc
             "Sérsmíðaður VNC-biðlari fyrir Windows, gerður til að tengjast Hyprland/omarchy-vélum sem keyra wayvnc á hreinan hátt. Byggður frá grunni — eigin RFB-samskiptareglur, ekkert meðfylgjandi VNC-bókasafn.");
         Add("Help.Title",
             "Hjälp", "Help", "Hjelp", "Hjælp", "Ohje", "Hjálp");
+        Add("Help.ShortcutsHeader",
+            "Tangentbordsgenvägar", "Keyboard shortcuts", "Tastatursnarveier", "Tastaturgenveje", "Pikanäppäimet", "Flýtileiðir á lyklaborði");
+        Add("Help.ShortcutFullscreen",
+            "Växla helskärm", "Toggle fullscreen", "Veksle fullskjerm", "Skift til fuld skærm", "Vaihda koko näyttöön", "Skipta um fylliskjá");
+        Add("Help.KeyToolbar",
+            "Höger Ctrl (håll in)", "Right Ctrl (hold)", "Høyre Ctrl (hold inne)", "Højre Ctrl (hold nede)",
+            "Oikea Ctrl (pidä pohjassa)", "Hægri Ctrl (halda niðri)");
+        Add("Help.ShortcutToolbar",
+            "Visa verktygsfältet tillfälligt", "Show the toolbar temporarily", "Vis verktøylinjen midlertidig",
+            "Vis værktøjslinjen midlertidigt", "Näytä työkalurivi tilapäisesti", "Sýna tækjastikuna tímabundið");
+        Add("Help.KeyPinToolbar",
+            "Vänster Ctrl × 3", "Left Ctrl × 3", "Venstre Ctrl × 3", "Venstre Ctrl × 3", "Vasen Ctrl × 3", "Vinstri Ctrl × 3");
+        Add("Help.ShortcutPinToolbar",
+            "Fäst/lossa verktygsfältet", "Pin/unpin the toolbar", "Fest/løsne verktøylinjen", "Fastgør/frigør værktøjslinjen",
+            "Kiinnitä/irrota työkalurivi", "Festa/losa tækjastikuna");
+        Add("Help.ShortcutPaste",
+            "Klistra in i terminalen/Vim på fjärrdatorn", "Paste into the remote's terminal/Vim",
+            "Lim inn i terminalen/Vim på fjernmaskinen", "Indsæt i terminalen/Vim på fjernmaskinen",
+            "Liitä etäkoneen päätteeseen/Vimiin", "Líma inn í flugstöðina/Vim á fjartengdu vélinni");
         Add("Help.PasteHeader",
             "Klistra in text", "Pasting text", "Lime inn tekst", "Indsæt tekst",
             "Tekstin liittäminen", "Líma inn texta");
@@ -361,16 +396,41 @@ public static class Loc
             "Eksempel: ~/.config/wayvnc/config", "Eksempel: ~/.config/wayvnc/config",
             "Esimerkki: ~/.config/wayvnc/config", "Dæmi: ~/.config/wayvnc/config");
 
+        Add("Help.WayvncSetupsHeader",
+            "Två vanliga wayvnc-upplägg", "Two common wayvnc setups", "To vanlige wayvnc-oppsett",
+            "To almindelige wayvnc-opsætninger", "Kaksi yleistä wayvnc-asetusta", "Tvö algeng wayvnc-uppsetningar");
+
+        Add("Help.WayvncExternalHeader",
+            "Extern skärm (kan kopplas ur)", "External monitor (can be unplugged)", "Ekstern skjerm (kan kobles fra)",
+            "Ekstern skærm (kan frakobles)", "Ulkoinen näyttö (voidaan irrottaa)", "Ytri skjár (hægt að aftengja)");
+        Add("Help.WayvncExternalBody",
+            "Om fjärrdatorn har en extern skärm som ibland kopplas ur, skapa en headless virtuell utgång som matchar dess upplösning och peka wayvnc mot den (-o <namn>) i en ExecStartPre-hook — annars tappar wayvnc sin källa så fort skärmen kopplas ur.",
+            "If the remote machine has an external monitor that sometimes gets unplugged, create a headless virtual output matching its resolution and point wayvnc at it (-o <name>) via an ExecStartPre hook — otherwise wayvnc loses its source the moment the monitor is unplugged.",
+            "Hvis fjernmaskinen har en ekstern skjerm som noen ganger kobles fra, opprett en hodeløs virtuell utgang som matcher oppløsningen og pek wayvnc mot den (-o <navn>) via en ExecStartPre-hook — ellers mister wayvnc kilden sin så snart skjermen kobles fra.",
+            "Hvis fjernmaskinen har en ekstern skærm, der nogle gange frakobles, så opret en hovedløs virtuel udgang, der matcher dens opløsning, og peg wayvnc mod den (-o <navn>) via et ExecStartPre-hook — ellers mister wayvnc sin kilde, så snart skærmen frakobles.",
+            "Jos etäkoneessa on ulkoinen näyttö, joka toisinaan irrotetaan, luo pääasematon virtuaalilähtö, joka vastaa sen resoluutiota, ja ohjaa wayvnc siihen (-o <nimi>) ExecStartPre-koukun kautta — muuten wayvnc menettää lähteensä heti kun näyttö irrotetaan.",
+            "Ef fjartengda vélin er með ytri skjá sem er stundum aftengdur, búðu til höfuðlausa sýndarúttak sem passar við upplausn hans og beindu wayvnc að því (-o <nafn>) með ExecStartPre-krók — annars missir wayvnc uppsprettu sína um leið og skjárinn er aftengdur.");
+
+        Add("Help.WayvncBuiltinHeader",
+            "Inbyggd skärm", "Built-in screen", "Innebygd skjerm", "Indbygget skærm", "Sisäänrakennettu näyttö", "Innbyggður skjár");
+        Add("Help.WayvncBuiltinBody",
+            "Med en inbyggd skärm räcker vanlig wayvnc utan -o. Lägg till en liten watchdog-tjänst som startar om wayvnc automatiskt om fångst-pipelinen fastnar (t.ex. efter suspend/resume) — den kan annars sluta uppdatera bilden tyst.",
+            "With a built-in screen, plain wayvnc without -o is enough. Add a small watchdog service that restarts wayvnc automatically if the capture pipeline gets stuck (e.g. after suspend/resume) — it can otherwise silently stop updating the picture.",
+            "Med en innebygd skjerm holder det med vanlig wayvnc uten -o. Legg til en liten overvåkningstjeneste som starter wayvnc på nytt automatisk hvis fangst-pipelinen henger seg opp (f.eks. etter suspend/resume) — ellers kan den slutte å oppdatere bildet stille.",
+            "Med en indbygget skærm er almindelig wayvnc uden -o nok. Tilføj en lille watchdog-tjeneste, der automatisk genstarter wayvnc, hvis capture-pipelinen sætter sig fast (f.eks. efter suspend/resume) — ellers kan den stille holde op med at opdatere billedet.",
+            "Sisäänrakennetulla näytöllä pelkkä wayvnc ilman -o riittää. Lisää pieni vahtikoira-palvelu, joka käynnistää wayvnc:n automaattisesti uudelleen, jos kaappausputki jumittuu (esim. lepotilasta herätessä) — muuten se voi hiljaa lakata päivittämästä kuvaa.",
+            "Með innbyggðum skjá dugar venjulegt wayvnc án -o. Bættu við litlum eftirlitsþjónusti sem endurræsir wayvnc sjálfkrafa ef upptökupípan festist (t.d. eftir svefn/vakningu) — annars getur hún hljóðlega hætt að uppfæra myndina.");
+
         Add("Help.LimitationsHeader",
-            "Kända begränsningar (och åtgärdade missförstånd)", "Known limitations (and corrected misdiagnoses)", "Kjente begrensninger (og rettede feildiagnoser)",
-            "Kendte begrænsninger (og rettede fejldiagnoser)", "Tunnetut rajoitukset (ja korjatut virhediagnoosit)", "Þekktar takmarkanir (og leiðréttar rangar greiningar)");
-        Add("Help.LimitationsBody",
-            "Tidigare stod det här att klick på flikar/popup-menyer i statusfält (Waybar/Quickshell) ibland inte fungerade p.g.a. en begränsning i wlr-virtual-pointer-v1. Det var fel — tre MyVNC-buggar bidrog, hittade i tur och ordning: (1) MyVNC skickade ett upplösningsevent för en fast lista av 8 modifierartangenter varje gång tangentbordsfokus ändrades, oavsett om de faktiskt var nedtryckta (samma orsak som \"Alt_R\"-loggspammet nedan) — åtgärdat i 0.2.0-beta.3. (2) MyVNC anropade aldrig CaptureMouse() vid nedtryckning, så WPF kunde tappa uppsläppseventet mitt i klicket — en verklig bugg, åtgärdad i 0.2.0-beta.5, men ett liveomtest mot en riktig Quickshell-flik visade att klick fortfarande inte fungerade, så detta var inte hela historien. (3) Den faktiska orsaken: MyVNC prenumererade på de bubblande MouseDown/MouseUp-händelserna. Felsökningsloggning av ett riktigt klick visade att MouseUp alltid nådde kontrollen men MouseDown aldrig gjorde det — servern fick aldrig veta att en knapp gått ner. Bytte till de tunnlande PreviewMouseDown/PreviewMouseUp-händelserna. Åtgärdat i 0.2.0-beta.6 och den här gången bekräftat: klick på en Quickshell-bar-ikon öppnar nu dess flyout korrekt.",
-            "This used to say clicking flyouts/popups in status bars (Waybar/Quickshell) sometimes didn't work due to a wlr-virtual-pointer-v1 limitation. That was wrong — three MyVNC bugs contributed, found in turn: (1) MyVNC sent a release event for a fixed list of 8 modifier keys on every keyboard-focus change, regardless of whether they'd actually been pressed (the same cause behind the \"Alt_R\" log spam below) — fixed in 0.2.0-beta.3. (2) MyVNC never called CaptureMouse() on button-down, so WPF could drop the up-event mid-click — a real bug, fixed in 0.2.0-beta.5, but a live retest against a real Quickshell bar showed clicks still didn't work, so this wasn't the whole story. (3) The actual cause: MyVNC was wired to the bubbling MouseDown/MouseUp events. Debug logging of a real click showed MouseUp reliably reaching the control but MouseDown never did — the server was never told a button had gone down at all. Switched to the tunneling PreviewMouseDown/PreviewMouseUp events. Fixed in 0.2.0-beta.6, and this time confirmed: clicking a Quickshell bar icon now opens its flyout correctly.",
-            "Dette pleide å si at klikk på visningsvinduer/popup-menyer i statuslinjer (Waybar/Quickshell) noen ganger ikke fungerte pga. en begrensning i wlr-virtual-pointer-v1. Det var feil — tre MyVNC-feil bidro, funnet i tur: (1) MyVNC sendte en løsne-hendelse for en fast liste med 8 modifikatortaster ved hver endring av tastaturfokus, uavhengig av om de faktisk var trykket ned (samme årsak som \"Alt_R\"-loggspammet under) — rettet i 0.2.0-beta.3. (2) MyVNC kalte aldri CaptureMouse() ved nedtrykking, så WPF kunne miste slipp-hendelsen midt i klikket — en reell feil, rettet i 0.2.0-beta.5, men en live-nytest mot en ekte Quickshell-bar viste at klikk fortsatt ikke fungerte, så dette var ikke hele historien. (3) Den faktiske årsaken: MyVNC var koblet til de boblende MouseDown/MouseUp-hendelsene. Feilsøkingslogging av et ekte klikk viste at MouseUp alltid nådde kontrollen, men MouseDown gjorde det aldri — serveren fikk aldri vite at en knapp var trykket ned. Byttet til de tunnelerende PreviewMouseDown/PreviewMouseUp-hendelsene. Rettet i 0.2.0-beta.6, og denne gangen bekreftet: klikk på et Quickshell-bar-ikon åpner nå flyouten korrekt.",
-            "Dette plejede at sige, at klik på flyouts/popup-menuer i statusbjælker (Waybar/Quickshell) nogle gange ikke virkede pga. en begrænsning i wlr-virtual-pointer-v1. Det var forkert — tre MyVNC-fejl bidrog, fundet i rækkefølge: (1) MyVNC sendte en løsne-hændelse for en fast liste med 8 modifikatortaster ved hver ændring af tastaturfokus, uanset om de rent faktisk var trykket ned (samme årsag som \"Alt_R\"-logspammet nedenfor) — rettet i 0.2.0-beta.3. (2) MyVNC kaldte aldrig CaptureMouse() ved nedtrykning, så WPF kunne tabe slip-hændelsen midt i klikket — en reel fejl, rettet i 0.2.0-beta.5, men en live-gentest mod en rigtig Quickshell-bjælke viste, at klik stadig ikke virkede, så dette var ikke hele historien. (3) Den faktiske årsag: MyVNC var forbundet til de boblende MouseDown/MouseUp-hændelser. Fejlfindingslogning af et rigtigt klik viste, at MouseUp altid nåede kontrollen, men MouseDown gjorde det aldrig — serveren fik aldrig at vide, at en knap var trykket ned. Skiftede til de tunnelerende PreviewMouseDown/PreviewMouseUp-hændelser. Rettet i 0.2.0-beta.6, og denne gang bekræftet: klik på et Quickshell-bjælke-ikon åbner nu dets flyout korrekt.",
-            "Tässä luki aiemmin, että tilarivien (Waybar/Quickshell) ponnahdusvalikkojen napsauttaminen ei joskus toiminut wlr-virtual-pointer-v1-rajoituksen vuoksi. Se oli väärin — kolme MyVNC-vikaa vaikutti asiaan, löydetty järjestyksessä: (1) MyVNC lähetti vapautustapahtuman kiinteälle 8 muunnosnäppäimen listalle jokaisella näppäimistön kohdistuksen muutoksella riippumatta siitä, oliko niitä todella painettu (sama syy alla olevaan \"Alt_R\"-lokispammiin) — korjattu versiossa 0.2.0-beta.3. (2) MyVNC ei koskaan kutsunut CaptureMouse()-metodia painalluksen yhteydessä, joten WPF saattoi hukata vapautustapahtuman kesken napsautuksen — todellinen vika, korjattu versiossa 0.2.0-beta.5, mutta live-uusintatesti oikeaa Quickshell-riviä vastaan osoitti, että napsautukset eivät silti toimineet, joten tämä ei ollut koko tarina. (3) Todellinen syy: MyVNC oli kytketty kuplivat MouseDown/MouseUp-tapahtumat. Oikean napsautuksen vianetsintäloki osoitti, että MouseUp saavutti kontrollin aina, mutta MouseDown ei koskaan — palvelin ei koskaan saanut tietää, että painike oli painettu alas. Vaihdettiin tunneloiviin PreviewMouseDown/PreviewMouseUp-tapahtumiin. Korjattu versiossa 0.2.0-beta.6, ja tällä kertaa vahvistettu: Quickshell-rivin kuvakkeen napsauttaminen avaa nyt sen ponnahdusvalikon oikein.",
-            "Hér stóð áður að smellir á sprettiglugga/valmyndir í stöðuslám (Waybar/Quickshell) virkuðu stundum ekki vegna takmörkunar í wlr-virtual-pointer-v1. Það var rangt — þrjár MyVNC-villur áttu þátt í því, fundnar í röð: (1) MyVNC sendi losunarviðburð fyrir fastan lista af 8 breytitökkum í hvert sinn sem lyklaborðsfókus breyttist, óháð því hvort þeir hefðu í raun verið niðurþrýstir (sama orsök og \"Alt_R\"-annálarusliðið hér að neðan) — lagað í 0.2.0-beta.3. (2) MyVNC kallaði aldrei á CaptureMouse() við niðurþrýstingu, svo WPF gat misst losunarviðburðinn mitt í smellinum — raunveruleg villa, lagað í 0.2.0-beta.5, en endurprófun í beinni gegn alvöru Quickshell-slá sýndi að smellir virkuðu enn ekki, svo þetta var ekki öll sagan. (3) Raunveruleg orsök: MyVNC var tengt við kúlandi MouseDown/MouseUp-viðburðina. Villuleitarannáll af alvöru smelli sýndi að MouseUp náði alltaf til stjórnandans en MouseDown gerði það aldrei — netþjónninn fékk aldrei að vita að hnappur hefði verið þrýstur niður. Skipt yfir í göngóttu PreviewMouseDown/PreviewMouseUp-viðburðina. Lagað í 0.2.0-beta.6 og að þessu sinni staðfest: að smella á Quickshell-slártákn opnar nú sprettiglugga þess rétt.");
+            "Kända begränsningar", "Known limitations", "Kjente begrensninger",
+            "Kendte begrænsninger", "Tunnetut rajoitukset", "Þekktar takmarkanir");
+        Add("Help.LimitationSuspend",
+            "En fjärrdator som är helt avstängd/suspenderad (inte bara låst eller skärmavstängd) kan inte väckas via tangentbord/mus över VNC — den har ingen nätverksstack kvar att skicka till. Kontrollera med ping: går den att nå men reagerar inte, är det ett Hyprland/kompositor-problem (t.ex. fastnat låsskärm); går den inte att nå alls, kolla maskinens vilo-/suspend-inställningar (hypridle, systemd-logind) istället.",
+            "A remote machine that's fully suspended (not just locked or screen-blanked) can't be woken via keyboard/mouse over VNC — it has no running network stack left to receive input on. Check with ping first: reachable but unresponsive points at a Hyprland/compositor issue (e.g. a stuck lock screen); unreachable means check the machine's suspend settings (hypridle, systemd-logind) instead.",
+            "En fjernmaskin som er helt suspendert (ikke bare låst eller skjermavslått) kan ikke vekkes via tastatur/mus over VNC — den har ingen nettverksstack igjen å motta input på. Sjekk med ping først: nåbar men uresponsiv peker på et Hyprland/kompositør-problem (f.eks. en fastlåst skjerm); ikke nåbar betyr at du bør sjekke maskinens hvilemodusinnstillinger (hypridle, systemd-logind) i stedet.",
+            "En fjernmaskine, der er helt suspenderet (ikke bare låst eller med slukket skærm), kan ikke vækkes via tastatur/mus over VNC — den har ingen kørende netværksstack tilbage til at modtage input på. Tjek med ping først: kan nås, men reagerer ikke, peger på et Hyprland/kompositør-problem (f.eks. en fastlåst skærm); kan ikke nås betyder, at du bør tjekke maskinens suspend-indstillinger (hypridle, systemd-logind) i stedet.",
+            "Etäkonetta, joka on täysin lepotilassa (ei vain lukittu tai näyttö sammunut), ei voi herättää näppäimistöllä/hiirellä VNC:n yli — sillä ei ole enää käynnissä olevaa verkkopinoa, joka voisi vastaanottaa syötteitä. Tarkista ensin pingillä: jos kone on tavoitettavissa mutta ei reagoi, kyseessä on Hyprland/kompositorin ongelma (esim. jumittunut lukitusruutu); jos konetta ei tavoiteta lainkaan, tarkista sen sijaan koneen lepotila-asetukset (hypridle, systemd-logind).",
+            "Fjartengd vél sem er algjörlega í svefnstillingu (ekki bara læst eða með slökktan skjá) er ekki hægt að vekja með lyklaborði/mús yfir VNC — hún hefur ekkert keyrandi netkerfi eftir til að taka á móti inntaki. Athugaðu fyrst með ping: næst en svarar ekki bendir á Hyprland/samsetningarvanda (t.d. fastan læsingarskjá); næst ekki þýðir að athuga ætti svefnstillingar vélarinnar (hypridle, systemd-logind) í staðinn.");
 
         Add("Settings.DebugLogging",
             "FELSÖKNINGSLOGG", "DEBUG LOGGING", "FEILSØKINGSLOGG", "FEJLFINDINGSLOG", "VIANMÄÄRITYSLOKI", "VILLULEIT-ANNÁLL");

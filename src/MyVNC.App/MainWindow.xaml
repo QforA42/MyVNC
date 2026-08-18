@@ -22,7 +22,7 @@
         <controls:TerminalCanvasBackground IsHitTestVisible="False"/>
 
         <!-- ===================== DASHBOARD ===================== -->
-        <DockPanel Margin="22,20,22,20">
+        <DockPanel x:Name="DashboardView" Margin="22,20,22,20">
 
             <Grid DockPanel.Dock="Top" Margin="0,0,0,18">
                 <StackPanel Orientation="Horizontal">
@@ -148,223 +148,278 @@
             </ScrollViewer>
         </DockPanel>
 
-        <!-- ===================== NEW / EDIT CONNECTION OVERLAY ===================== -->
-        <Border x:Name="FormOverlay" Background="#CC0B0D11" Panel.ZIndex="100" Visibility="Collapsed"
-                MouseLeftButtonDown="FormOverlay_MouseLeftButtonDown">
-            <Border Background="{StaticResource BgElevatedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                    CornerRadius="12" Width="300" MaxHeight="560" HorizontalAlignment="Center" VerticalAlignment="Center"
-                    MouseLeftButtonDown="FormCard_MouseLeftButtonDown">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid Margin="22,20,22,10">
-                        <TextBlock x:Name="FormTitleText" Text="{loc:Loc Form.NewConnection}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11" Style="{StaticResource IconButton}"
-                                Foreground="{StaticResource TextSecondaryBrush}" Width="24" Height="24" Padding="0"
-                                HorizontalAlignment="Right" Click="CancelEdit_Click" ToolTip="{loc:Loc Session.Close}"/>
+        <!-- ===================== NEW / EDIT CONNECTION PAGE ===================== -->
+        <DockPanel x:Name="FormPage" Margin="22,20,22,20" Visibility="Collapsed">
+            <Grid DockPanel.Dock="Top" Margin="0,0,0,18">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="&#xE72B;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                            Width="30" Height="30" Style="{StaticResource IconButton}" Padding="0"
+                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,10,0"
+                            Click="CancelEdit_Click" ToolTip="{loc:Loc Common.Back}"/>
+                    <TextBlock x:Name="FormTitleText" Text="{loc:Loc Form.NewConnection}" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+                <Button Content="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                        Width="30" Height="30" Style="{StaticResource IconButton}" Padding="0"
+                        Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Click="ConnectButton_Click" ToolTip="{loc:Loc Common.Save}"/>
+            </Grid>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,0,0,20" MaxWidth="360" HorizontalAlignment="Left">
+                    <TextBlock Text="{loc:Loc Form.Name}" Style="{StaticResource LabelText}"/>
+                    <TextBox x:Name="NameBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{loc:Loc Form.Host}" Style="{StaticResource LabelText}"/>
+                    <TextBox x:Name="HostBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{loc:Loc Form.Fqdn}" Style="{StaticResource LabelText}"/>
+                    <TextBox x:Name="FqdnBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{loc:Loc Form.TailscaleIp}" Style="{StaticResource LabelText}"/>
+                    <TextBox x:Name="TailscaleIpBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{loc:Loc Form.TailscaleFqdn}" Style="{StaticResource LabelText}"/>
+                    <TextBox x:Name="TailscaleFqdnBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{loc:Loc Form.DefaultAddress}" Style="{StaticResource LabelText}"/>
+                    <ComboBox x:Name="DefaultAddressComboBox" Style="{StaticResource ModernComboBox}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{loc:Loc Form.Port}" Style="{StaticResource LabelText}"/>
+                    <TextBox x:Name="PortBox" Style="{StaticResource ModernTextBox}" Text="5900" Margin="0,0,0,8"/>
+
+                    <Button x:Name="TestConnectionButton" Content="{loc:Loc Form.TestConnection}" Style="{StaticResource SecondaryButton}"
+                            Click="TestConnectionButton_Click" HorizontalAlignment="Stretch" Margin="0,0,0,4"/>
+                    <TextBlock x:Name="TestConnectionResultText" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" Visibility="Collapsed"/>
+
+                    <Button x:Name="ForgetSshHostKeyButton" Content="{loc:Loc Form.ForgetSshHostKey}" Style="{StaticResource SecondaryButton}"
+                            Click="ForgetSshHostKeyButton_Click" HorizontalAlignment="Stretch" Margin="0,0,0,4"
+                            ToolTip="{loc:Loc Form.ForgetSshHostKeyTooltip}"/>
+                    <TextBlock x:Name="ForgetSshHostKeyResultText" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" Visibility="Collapsed"/>
+
+                    <TextBlock Text="{loc:Loc Form.Username}" Style="{StaticResource LabelText}"/>
+                    <TextBox x:Name="UsernameBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{loc:Loc Form.Password}" Style="{StaticResource LabelText}"/>
+                    <PasswordBox x:Name="PasswordBox" Style="{StaticResource ModernPasswordBox}" Margin="0,0,0,14"/>
+
+                    <CheckBox x:Name="ViewOnlyCheck" Content="{loc:Loc Form.ViewOnly}" Style="{StaticResource CheckBoxModern}" Margin="0,0,0,8"/>
+                    <CheckBox x:Name="ActualSizeCheck" Content="{loc:Loc Form.ActualSizeDefault}" Style="{StaticResource CheckBoxModern}" Margin="0,0,0,8"/>
+                    <CheckBox x:Name="ReceiveClipboardCheck" Content="{loc:Loc Form.ReceiveClipboard}" Style="{StaticResource CheckBoxModern}" Margin="0,0,0,8" IsChecked="True"/>
+                    <CheckBox x:Name="SendClipboardCheck" Content="{loc:Loc Form.SendClipboard}" Style="{StaticResource CheckBoxModern}" Margin="0,0,0,14" IsChecked="True"/>
+
+                    <CheckBox x:Name="RememberCheck" Content="{loc:Loc Form.Remember}" Style="{StaticResource CheckBoxModern}" Margin="0,0,0,18" IsChecked="True"/>
+
+                    <Button x:Name="ConnectButton" Content="{loc:Loc Form.Connect}" Style="{StaticResource PrimaryButton}" Click="ConnectButton_Click" HorizontalAlignment="Stretch"/>
+
+                    <TextBlock x:Name="StartErrorText" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" Margin="0,12,0,0" FontSize="11" Visibility="Collapsed"/>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+
+        <!-- ===================== SETTINGS PAGE ===================== -->
+        <DockPanel x:Name="SettingsPage" Margin="22,20,22,20" Visibility="Collapsed">
+            <Grid DockPanel.Dock="Top" Margin="0,0,0,18">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="&#xE72B;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                            Width="30" Height="30" Style="{StaticResource IconButton}" Padding="0"
+                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,10,0"
+                            Click="CloseSettings_Click" ToolTip="{loc:Loc Common.Back}"/>
+                    <TextBlock Text="{loc:Loc Settings.Title}" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+                <Button Content="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                        Width="30" Height="30" Style="{StaticResource IconButton}" Padding="0"
+                        Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Click="CloseSettings_Click" ToolTip="{loc:Loc Common.Save}"/>
+            </Grid>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,0,0,20" MaxWidth="360" HorizontalAlignment="Left">
+                    <TextBlock Text="{loc:Loc Settings.Language}" Style="{StaticResource LabelText}" Margin="2,0,0,4"/>
+                    <ComboBox x:Name="LanguageComboBox" Style="{StaticResource ModernComboBox}" Margin="0,0,0,16"
+                              SelectionChanged="LanguageComboBox_SelectionChanged"/>
+
+                    <TextBlock Text="{loc:Loc Settings.SessionMode}" Style="{StaticResource LabelText}" Margin="2,0,0,6"/>
+                    <Grid Margin="2,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="SessionModeLabel" Grid.Column="0" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                        <ToggleButton x:Name="SessionModeToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                      Checked="SessionModeToggle_Changed" Unchecked="SessionModeToggle_Changed"/>
                     </Grid>
 
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="22,0,22,20">
-                            <TextBlock Text="{loc:Loc Form.Name}" Style="{StaticResource LabelText}"/>
-                            <TextBox x:Name="NameBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
-
-                            <TextBlock Text="{loc:Loc Form.Host}" Style="{StaticResource LabelText}"/>
-                            <TextBox x:Name="HostBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
-
-                            <TextBlock Text="{loc:Loc Form.Fqdn}" Style="{StaticResource LabelText}"/>
-                            <TextBox x:Name="FqdnBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
-
-                            <TextBlock Text="{loc:Loc Form.TailscaleIp}" Style="{StaticResource LabelText}"/>
-                            <TextBox x:Name="TailscaleIpBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
-
-                            <TextBlock Text="{loc:Loc Form.TailscaleFqdn}" Style="{StaticResource LabelText}"/>
-                            <TextBox x:Name="TailscaleFqdnBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
-
-                            <TextBlock Text="{loc:Loc Form.DefaultAddress}" Style="{StaticResource LabelText}"/>
-                            <ComboBox x:Name="DefaultAddressComboBox" Style="{StaticResource ModernComboBox}" Margin="0,0,0,12"/>
-
-                            <TextBlock Text="{loc:Loc Form.Port}" Style="{StaticResource LabelText}"/>
-                            <TextBox x:Name="PortBox" Style="{StaticResource ModernTextBox}" Text="5900" Margin="0,0,0,8"/>
-
-                            <Button x:Name="TestConnectionButton" Content="{loc:Loc Form.TestConnection}" Style="{StaticResource SecondaryButton}"
-                                    Click="TestConnectionButton_Click" HorizontalAlignment="Stretch" Margin="0,0,0,4"/>
-                            <TextBlock x:Name="TestConnectionResultText" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" Visibility="Collapsed"/>
-
-                            <Button x:Name="ForgetSshHostKeyButton" Content="{loc:Loc Form.ForgetSshHostKey}" Style="{StaticResource SecondaryButton}"
-                                    Click="ForgetSshHostKeyButton_Click" HorizontalAlignment="Stretch" Margin="0,0,0,4"
-                                    ToolTip="{loc:Loc Form.ForgetSshHostKeyTooltip}"/>
-                            <TextBlock x:Name="ForgetSshHostKeyResultText" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12" Visibility="Collapsed"/>
-
-                            <TextBlock Text="{loc:Loc Form.Username}" Style="{StaticResource LabelText}"/>
-                            <TextBox x:Name="UsernameBox" Style="{StaticResource ModernTextBox}" Margin="0,0,0,12"/>
-
-                            <TextBlock Text="{loc:Loc Form.Password}" Style="{StaticResource LabelText}"/>
-                            <PasswordBox x:Name="PasswordBox" Style="{StaticResource ModernPasswordBox}" Margin="0,0,0,14"/>
-
-                            <CheckBox x:Name="ViewOnlyCheck" Content="{loc:Loc Form.ViewOnly}" Style="{StaticResource CheckBoxModern}" Margin="0,0,0,8"/>
-                            <CheckBox x:Name="ActualSizeCheck" Content="{loc:Loc Form.ActualSizeDefault}" Style="{StaticResource CheckBoxModern}" Margin="0,0,0,8"/>
-                            <CheckBox x:Name="ReceiveClipboardCheck" Content="{loc:Loc Form.ReceiveClipboard}" Style="{StaticResource CheckBoxModern}" Margin="0,0,0,8" IsChecked="True"/>
-                            <CheckBox x:Name="SendClipboardCheck" Content="{loc:Loc Form.SendClipboard}" Style="{StaticResource CheckBoxModern}" Margin="0,0,0,14" IsChecked="True"/>
-
-                            <CheckBox x:Name="RememberCheck" Content="{loc:Loc Form.Remember}" Style="{StaticResource CheckBoxModern}" Margin="0,0,0,18" IsChecked="True"/>
-
-                            <Button x:Name="ConnectButton" Content="{loc:Loc Form.Connect}" Style="{StaticResource PrimaryButton}" Click="ConnectButton_Click" HorizontalAlignment="Stretch"/>
-
-                            <TextBlock x:Name="StartErrorText" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" Margin="0,12,0,0" FontSize="11" Visibility="Collapsed"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-        </Border>
-
-        <!-- ===================== SETTINGS OVERLAY ===================== -->
-        <Border x:Name="SettingsOverlay" Background="#CC0B0D11" Panel.ZIndex="100" Visibility="Collapsed"
-                MouseLeftButtonDown="SettingsOverlay_MouseLeftButtonDown">
-            <Border Background="{StaticResource BgElevatedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                    CornerRadius="12" Width="300" MaxHeight="560" HorizontalAlignment="Center" VerticalAlignment="Center"
-                    MouseLeftButtonDown="FormCard_MouseLeftButtonDown">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid Margin="22,20,22,14">
-                        <TextBlock Text="{loc:Loc Settings.Title}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11" Style="{StaticResource IconButton}"
-                                Foreground="{StaticResource TextSecondaryBrush}" Width="24" Height="24" Padding="0"
-                                HorizontalAlignment="Right" Click="CloseSettings_Click" ToolTip="{loc:Loc Session.Close}"/>
+                    <TextBlock Text="{loc:Loc Settings.AutoReconnect}" Style="{StaticResource LabelText}" Margin="2,16,0,6"/>
+                    <Grid Margin="2,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="AutoReconnectLabel" Grid.Column="0" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                        <ToggleButton x:Name="AutoReconnectToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                      Checked="AutoReconnectToggle_Changed" Unchecked="AutoReconnectToggle_Changed"/>
                     </Grid>
 
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="22,0,22,20">
-                            <TextBlock Text="{loc:Loc Settings.Language}" Style="{StaticResource LabelText}" Margin="2,0,0,4"/>
-                            <ComboBox x:Name="LanguageComboBox" Style="{StaticResource ModernComboBox}" Margin="0,0,0,16"
-                                      SelectionChanged="LanguageComboBox_SelectionChanged"/>
+                    <TextBlock Text="{loc:Loc Settings.SshTerminal}" Style="{StaticResource LabelText}" Margin="2,16,0,4"/>
+                    <ComboBox x:Name="SshTerminalComboBox" Style="{StaticResource ModernComboBox}" Margin="0,0,0,16"
+                              SelectionChanged="SshTerminalComboBox_SelectionChanged"/>
 
-                            <TextBlock Text="{loc:Loc Settings.SessionMode}" Style="{StaticResource LabelText}" Margin="2,0,0,6"/>
-                            <Grid Margin="2,0,2,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="SessionModeLabel" Grid.Column="0" VerticalAlignment="Center"
-                                           Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
-                                <ToggleButton x:Name="SessionModeToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
-                                              Checked="SessionModeToggle_Changed" Unchecked="SessionModeToggle_Changed"/>
-                            </Grid>
+                    <TextBlock Text="{loc:Loc Settings.DebugLogging}" Style="{StaticResource LabelText}" Margin="2,0,0,6"/>
+                    <Grid Margin="2,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="DebugLoggingLabel" Grid.Column="0" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
+                        <ToggleButton x:Name="DebugLoggingToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                      Checked="DebugLoggingToggle_Changed" Unchecked="DebugLoggingToggle_Changed"/>
+                    </Grid>
+                    <Button x:Name="OpenLogButton" Content="{loc:Loc Settings.OpenLog}" Style="{StaticResource SecondaryButton}"
+                            Click="OpenLogButton_Click" HorizontalAlignment="Stretch" Margin="0,10,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
 
-                            <TextBlock Text="{loc:Loc Settings.AutoReconnect}" Style="{StaticResource LabelText}" Margin="2,16,0,6"/>
-                            <Grid Margin="2,0,2,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="AutoReconnectLabel" Grid.Column="0" VerticalAlignment="Center"
-                                           Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
-                                <ToggleButton x:Name="AutoReconnectToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
-                                              Checked="AutoReconnectToggle_Changed" Unchecked="AutoReconnectToggle_Changed"/>
-                            </Grid>
+        <!-- ===================== HELP PAGE ===================== -->
+        <DockPanel x:Name="HelpPage" Margin="22,20,22,20" Visibility="Collapsed">
+            <Grid DockPanel.Dock="Top" Margin="0,0,0,18">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="&#xE72B;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                            Width="30" Height="30" Style="{StaticResource IconButton}" Padding="0"
+                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,10,0"
+                            Click="CloseHelp_Click" ToolTip="{loc:Loc Common.Back}"/>
+                    <TextBlock Text="{loc:Loc Help.Title}" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
 
-                            <TextBlock Text="{loc:Loc Settings.SshTerminal}" Style="{StaticResource LabelText}" Margin="2,16,0,4"/>
-                            <ComboBox x:Name="SshTerminalComboBox" Style="{StaticResource ModernComboBox}" Margin="0,0,0,16"
-                                      SelectionChanged="SshTerminalComboBox_SelectionChanged"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,0,0,20" MaxWidth="440" HorizontalAlignment="Left">
 
-                            <TextBlock Text="{loc:Loc Settings.DebugLogging}" Style="{StaticResource LabelText}" Margin="2,0,0,6"/>
-                            <Grid Margin="2,0,2,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock x:Name="DebugLoggingLabel" Grid.Column="0" VerticalAlignment="Center"
-                                           Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"/>
-                                <ToggleButton x:Name="DebugLoggingToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
-                                              Checked="DebugLoggingToggle_Changed" Unchecked="DebugLoggingToggle_Changed"/>
-                            </Grid>
-                            <Button x:Name="OpenLogButton" Content="{loc:Loc Settings.OpenLog}" Style="{StaticResource SecondaryButton}"
-                                    Click="OpenLogButton_Click" HorizontalAlignment="Stretch" Margin="0,10,0,0"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-        </Border>
+                    <TextBlock Text="{loc:Loc Help.ShortcutsHeader}" FontWeight="SemiBold" FontSize="13"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <Border Background="{StaticResource BgCardBrush}" CornerRadius="8" Padding="12,10" Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" MinWidth="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
 
-        <!-- ===================== HELP OVERLAY ===================== -->
-        <Border x:Name="HelpOverlay" Background="#CC0B0D11" Panel.ZIndex="100" Visibility="Collapsed"
-                MouseLeftButtonDown="HelpOverlay_MouseLeftButtonDown">
-            <Border Background="{StaticResource BgElevatedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                    CornerRadius="12" Width="320" MaxHeight="620" HorizontalAlignment="Center" VerticalAlignment="Center"
-                    MouseLeftButtonDown="FormCard_MouseLeftButtonDown">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid Margin="22,20,22,10">
-                        <TextBlock Text="{loc:Loc Help.Title}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
-                        <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11" Style="{StaticResource IconButton}"
-                                Foreground="{StaticResource TextSecondaryBrush}" Width="24" Height="24" Padding="0"
-                                HorizontalAlignment="Right" Click="CloseHelp_Click" ToolTip="{loc:Loc Session.Close}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="F11" FontFamily="Consolas" FontSize="12"
+                                       Foreground="{StaticResource AccentBrush}" VerticalAlignment="Top" Margin="0,0,10,8"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{loc:Loc Help.ShortcutFullscreen}" FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{loc:Loc Help.KeyToolbar}" FontFamily="Consolas" FontSize="12"
+                                       Foreground="{StaticResource AccentBrush}" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,0,10,8"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{loc:Loc Help.ShortcutToolbar}" FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{loc:Loc Help.KeyPinToolbar}" FontFamily="Consolas" FontSize="12"
+                                       Foreground="{StaticResource AccentBrush}" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,0,10,8"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{loc:Loc Help.ShortcutPinToolbar}" FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Ctrl+Shift+V" FontFamily="Consolas" FontSize="12"
+                                       Foreground="{StaticResource AccentBrush}" VerticalAlignment="Top" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{loc:Loc Help.ShortcutPaste}" FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                        </Grid>
+                    </Border>
+
+                    <TextBlock Text="{loc:Loc Help.PasteHeader}" FontWeight="SemiBold" FontSize="13"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{loc:Loc Help.PasteBody}" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="{loc:Loc Help.HowItWorksHeader}" FontWeight="SemiBold" FontSize="13"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{loc:Loc Help.HowItWorksBody}" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="{loc:Loc Help.WayvncHeader}" FontWeight="SemiBold" FontSize="13"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{loc:Loc Help.WayvncKeyboardBody}" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <TextBlock Text="{loc:Loc Help.WayvncAddressBody}" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <TextBlock Text="{loc:Loc Help.WayvncAuthBody}" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="{loc:Loc Help.WayvncExampleLabel}" FontSize="11" FontStyle="Italic"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="10,8" Margin="0,0,0,16">
+                        <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}"
+                                   Text="address=0.0.0.0&#x0a;port=5900&#x0a;enable_auth=true&#x0a;enable_pam=true&#x0a;certificate_file=~/.config/wayvnc/certificate.pem&#x0a;private_key_file=~/.config/wayvnc/private_key.pem"/>
+                    </Border>
+
+                    <TextBlock Text="{loc:Loc Help.WayvncSetupsHeader}" FontWeight="SemiBold" FontSize="13"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+
+                    <TextBlock Text="{loc:Loc Help.WayvncExternalHeader}" FontWeight="SemiBold" FontSize="12"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{loc:Loc Help.WayvncExternalBody}" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="10,8" Margin="0,0,0,16">
+                        <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap"
+                                   Text="# wayvnc.service&#x0a;ExecStartPre=%h/.local/bin/ensure-headless-output&#x0a;ExecStart=/usr/bin/wayvnc -g -C %h/.config/wayvnc/config -o HEADLESS-VNC&#x0a;&#x0a;# ensure-headless-output (idempotent)&#x0a;hyprctl output create headless HEADLESS-VNC&#x0a;hyprctl eval 'hl.monitor({ output = &quot;HEADLESS-VNC&quot;, mode = &quot;2560x1440@60&quot;, position = &quot;2560x0&quot;, scale = 1 })'"/>
+                    </Border>
+
+                    <TextBlock Text="{loc:Loc Help.WayvncBuiltinHeader}" FontWeight="SemiBold" FontSize="12"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{loc:Loc Help.WayvncBuiltinBody}" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="10,8" Margin="0,0,0,16">
+                        <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}" TextWrapping="Wrap"
+                                   Text="# wayvnc.service&#x0a;ExecStart=/usr/bin/wayvnc&#x0a;Wants=wayvnc-capture-watchdog.service&#x0a;&#x0a;# wayvnc-capture-watchdog.service&#x0a;ExecStart=%h/.config/hypr/scripts/wayvnc-capture-watchdog.sh&#x0a;Restart=always"/>
+                    </Border>
+
+                    <TextBlock Text="{loc:Loc Help.LimitationsHeader}" FontWeight="SemiBold" FontSize="13"
+                               Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,6"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="•" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" Text="{loc:Loc Help.LimitationSuspend}" FontSize="12" TextWrapping="Wrap"
+                                   Foreground="{StaticResource TextSecondaryBrush}"/>
                     </Grid>
 
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <StackPanel Margin="22,0,22,20">
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
 
-                            <TextBlock Text="{loc:Loc Help.PasteHeader}" FontWeight="SemiBold" FontSize="13"
-                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
-                            <TextBlock Text="{loc:Loc Help.PasteBody}" FontSize="12" TextWrapping="Wrap"
-                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+        <!-- ===================== ABOUT PAGE ===================== -->
+        <DockPanel x:Name="AboutPage" Margin="22,20,22,20" Visibility="Collapsed">
+            <Grid DockPanel.Dock="Top" Margin="0,0,0,18">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="&#xE72B;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                            Width="30" Height="30" Style="{StaticResource IconButton}" Padding="0"
+                            Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,10,0"
+                            Click="CloseAbout_Click" ToolTip="{loc:Loc Common.Back}"/>
+                    <controls:AppLogo Margin="0,0,10,0"/>
+                    <TextBlock Text="MyVNC" FontSize="16" FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
 
-                            <TextBlock Text="{loc:Loc Help.HowItWorksHeader}" FontWeight="SemiBold" FontSize="13"
-                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
-                            <TextBlock Text="{loc:Loc Help.HowItWorksBody}" FontSize="12" TextWrapping="Wrap"
-                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,16"/>
-
-                            <TextBlock Text="{loc:Loc Help.WayvncHeader}" FontWeight="SemiBold" FontSize="13"
-                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
-                            <TextBlock Text="{loc:Loc Help.WayvncKeyboardBody}" FontSize="12" TextWrapping="Wrap"
-                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                            <TextBlock Text="{loc:Loc Help.WayvncAddressBody}" FontSize="12" TextWrapping="Wrap"
-                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                            <TextBlock Text="{loc:Loc Help.WayvncAuthBody}" FontSize="12" TextWrapping="Wrap"
-                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10"/>
-
-                            <TextBlock Text="{loc:Loc Help.WayvncExampleLabel}" FontSize="11" FontStyle="Italic"
-                                       Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                            <Border Background="{StaticResource BgCardBrush}" CornerRadius="6" Padding="10,8" Margin="0,0,0,16">
-                                <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextPrimaryBrush}"
-                                           Text="address=0.0.0.0&#x0a;port=5900&#x0a;enable_auth=true&#x0a;enable_pam=true&#x0a;certificate_file=~/.config/wayvnc/certificate.pem&#x0a;private_key_file=~/.config/wayvnc/private_key.pem"/>
-                            </Border>
-
-                            <TextBlock Text="{loc:Loc Help.LimitationsHeader}" FontWeight="SemiBold" FontSize="13"
-                                       Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,4"/>
-                            <TextBlock Text="{loc:Loc Help.LimitationsBody}" FontSize="12" TextWrapping="Wrap"
-                                       Foreground="{StaticResource TextSecondaryBrush}"/>
-
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-        </Border>
-
-        <Border x:Name="AboutOverlay" Background="#CC0B0D11" Panel.ZIndex="100" Visibility="Collapsed"
-                MouseLeftButtonDown="AboutOverlay_MouseLeftButtonDown">
-            <Border Background="{StaticResource BgElevatedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                    CornerRadius="12" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center"
-                    MouseLeftButtonDown="FormCard_MouseLeftButtonDown">
-                <StackPanel Margin="24,22,24,22">
-                    <Grid Margin="0,0,0,14">
-                        <StackPanel Orientation="Horizontal">
-                            <controls:AppLogo Margin="0,0,10,0"/>
-                            <TextBlock Text="MyVNC" FontSize="16" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11" Style="{StaticResource IconButton}"
-                                Foreground="{StaticResource TextSecondaryBrush}" Width="24" Height="24" Padding="0"
-                                HorizontalAlignment="Right" VerticalAlignment="Top" Click="CloseAbout_Click" ToolTip="{loc:Loc Session.Close}"/>
-                    </Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,0,0,20" MaxWidth="440" HorizontalAlignment="Left">
+                    <TextBlock Text="{loc:Loc About.Quote}" FontSize="12" FontStyle="Italic" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,14"/>
 
                     <TextBlock x:Name="AboutVersionText" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
 
@@ -377,8 +432,8 @@
                         </Hyperlink>
                     </TextBlock>
                 </StackPanel>
-            </Border>
-        </Border>
+            </ScrollViewer>
+        </DockPanel>
 
     </Grid>
 </Window>
