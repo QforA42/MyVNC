@@ -37,6 +37,12 @@ public sealed class SessionTab(RfbConnectionOptions options) : INotifyPropertyCh
     /// <summary>Cancels a pending auto-reconnect delay when the tab is closed manually.</summary>
     public CancellationTokenSource? ReconnectCts { get; set; }
 
+    /// <summary>Cancels an in-flight ConnectAsync (TCP connect + handshake) when the tab is closed
+    /// manually — without this, closing a tab mid-reconnect only cancelled the *delay* before the
+    /// attempt, not the attempt itself, letting DisconnectAsync race the still-running ConnectAsync
+    /// over the same Framebuffer._client field.</summary>
+    public CancellationTokenSource? ConnectCts { get; set; }
+
     private void Set<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (Equals(field, value)) return;

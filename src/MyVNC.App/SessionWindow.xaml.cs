@@ -169,9 +169,17 @@ public partial class SessionWindow : Window
 
     private async Task ConnectTabAsync(SessionTab tab)
     {
+        tab.ConnectCts?.Dispose();
+        var cts = new CancellationTokenSource();
+        tab.ConnectCts = cts;
         try
         {
-            await tab.Framebuffer.ConnectAsync(tab.Options).ConfigureAwait(true);
+            await tab.Framebuffer.ConnectAsync(tab.Options, cts.Token).ConfigureAwait(true);
+        }
+        catch (OperationCanceledException) when (cts.IsCancellationRequested)
+        {
+            // The tab was closed while this (re)connect attempt was still in flight — not a real
+            // disconnect, so don't feed it into the auto-reconnect machinery below.
         }
         catch (Exception ex)
         {
@@ -300,6 +308,7 @@ public partial class SessionWindow : Window
     private async Task CloseTabAsync(SessionTab tab)
     {
         tab.ReconnectCts?.Cancel();
+        tab.ConnectCts?.Cancel();
         await tab.Framebuffer.DisconnectAsync().ConfigureAwait(true);
 
         var wasSelected = tab.IsSelected;

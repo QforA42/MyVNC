@@ -20,6 +20,13 @@ public partial class RemoteFramebufferControl : UserControl
     private RfbClient? _client;
     private WriteableBitmap? _bitmap;
 
+    // Serializes ConnectAsync/DisconnectAsync against each other — without it, closing a tab (or a
+    // fresh reconnect) while a previous ConnectAsync is still mid-flight (TCP connect/handshake)
+    // let both sides read/write the _client field concurrently: DisconnectAsync could null it out
+    // right as ConnectAsync's own await resumed and went to use it, corrupting state or leaking a
+    // connection outright. Every entry into either method now runs strictly one-at-a-time.
+    private readonly SemaphoreSlim _connectionLock = new(1, 1);
+
     private bool _rightAltDown;
     private bool _leftCtrlSuppressed;
     private bool _leftCtrlPending;
@@ -122,44 +129,72 @@ public partial class RemoteFramebufferControl : UserControl
         _client.SendPointerEvent(rx, ry, 0);
     }
 
-    public async Task ConnectAsync(RfbConnectionOptions options)
+    public async Task ConnectAsync(RfbConnectionOptions options, CancellationToken ct = default)
     {
-        ViewOnly = options.ViewOnly;
-        ReceiveClipboard = options.ReceiveClipboard;
-        SendClipboardEnabled = options.SendClipboard;
-        ActualSize = options.ActualSize;
-
-        _client = new RfbClient();
-        _client.FramebufferUpdated += OnFramebufferUpdated;
-        _client.DesktopResized += OnDesktopResized;
-        _client.ServerCutTextReceived += (_, e) => Dispatcher.BeginInvoke(() =>
+        await _connectionLock.WaitAsync(ct).ConfigureAwait(true);
+        try
         {
-            if (!ReceiveClipboard) return;
-            _lastSyncedClipboardText = e.Text;
-            TrySetClipboard(e.Text);
-        });
-        _client.ConnectionLost += (_, ex) => Dispatcher.BeginInvoke(() => RaiseDisconnected(ex));
+            ViewOnly = options.ViewOnly;
+            ReceiveClipboard = options.ReceiveClipboard;
+            SendClipboardEnabled = options.SendClipboard;
+            ActualSize = options.ActualSize;
 
-        await _client.ConnectAsync(options).ConfigureAwait(true);
+            // On a reconnect, this control's _client field just gets overwritten with a fresh
+            // RfbClient below — the previous one (whose receive loop has already exited, having
+            // fired ConnectionLost to get us here) was never disposed, leaving its TCP socket open.
+            // Over repeated auto-reconnects that leaks a stale half-open connection per attempt,
+            // which is exactly the shape of the still-unexplained duplicate-connection/memory
+            // incident (see diag commit 09707d5) — and a server that sees multiple lingering
+            // connections from the same client can plausibly serve a confused/blank framebuffer to
+            // the newest one. Dispose defensively before replacing it.
+            if (_client is not null)
+                await _client.DisposeAsync().ConfigureAwait(true);
 
-        _bitmap = new WriteableBitmap(_client.Width, _client.Height, 96, 96, PixelFormats.Bgr32, null);
-        FramebufferImage.Source = _bitmap;
+            var client = new RfbClient();
+            client.FramebufferUpdated += OnFramebufferUpdated;
+            client.DesktopResized += OnDesktopResized;
+            client.ServerCutTextReceived += (_, e) => Dispatcher.BeginInvoke(() =>
+            {
+                if (!ReceiveClipboard) return;
+                _lastSyncedClipboardText = e.Text;
+                TrySetClipboard(e.Text);
+            });
+            client.ConnectionLost += (_, ex) => Dispatcher.BeginInvoke(() => RaiseDisconnected(ex));
+            _client = client;
 
-        // Only start receiving framebuffer data now that the bitmap exists — otherwise the
-        // first full-screen update can arrive and be dropped before there's anywhere to draw it.
-        _client.BeginReceiving();
+            await client.ConnectAsync(options, ct).ConfigureAwait(true);
 
-        IsConnected = true;
-        Connected?.Invoke(this, EventArgs.Empty);
+            _bitmap = new WriteableBitmap(client.Width, client.Height, 96, 96, PixelFormats.Bgr32, null);
+            FramebufferImage.Source = _bitmap;
+
+            // Only start receiving framebuffer data now that the bitmap exists — otherwise the
+            // first full-screen update can arrive and be dropped before there's anywhere to draw it.
+            client.BeginReceiving();
+
+            IsConnected = true;
+            Connected?.Invoke(this, EventArgs.Empty);
+        }
+        finally
+        {
+            _connectionLock.Release();
+        }
     }
 
     public async Task DisconnectAsync()
     {
-        IsConnected = false;
-        if (_client is not null)
+        await _connectionLock.WaitAsync().ConfigureAwait(true);
+        try
         {
-            await _client.DisposeAsync().ConfigureAwait(true);
-            _client = null;
+            IsConnected = false;
+            if (_client is not null)
+            {
+                await _client.DisposeAsync().ConfigureAwait(true);
+                _client = null;
+            }
+        }
+        finally
+        {
+            _connectionLock.Release();
         }
     }
 
@@ -191,9 +226,12 @@ public partial class RemoteFramebufferControl : UserControl
             {
                 bmp.WritePixels(rect, e.Pixels, e.Rectangle.Width * 4, 0);
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                // A resize raced with an in-flight rectangle for the old framebuffer size — safe to drop.
+                // A resize raced with an in-flight rectangle for the old framebuffer size — safe to
+                // drop, but logged (rather than silently swallowed) since a burst of these would
+                // point at exactly the kind of stale-framebuffer race that produces a gray screen.
+                AppLog.Write($"Dropped stale framebuffer rect {rect} against {bmp.PixelWidth}x{bmp.PixelHeight} bitmap: {ex.Message}");
             }
         });
     }
@@ -512,14 +550,33 @@ public partial class RemoteFramebufferControl : UserControl
     public void SyncLocalClipboardToRemote()
     {
         if (_client is null || !IsConnected || ViewOnly || !SendClipboardEnabled) return;
-        string text;
-        try
-        {
-            if (!Clipboard.ContainsText()) return;
-            text = Clipboard.GetText();
-        }
-        catch { return; /* clipboard can be transiently locked by another app */ }
 
+        // Clipboard.GetText()/ContainsText() can block for up to ~1s per call (and longer if
+        // another app holds the clipboard open) via WPF's internal OLE retry loop — and this
+        // method is called synchronously from ClipboardMonitor's raw WndProc hook, on the UI
+        // thread, every time the clipboard changes. A confirmed hang (process dump, UI thread
+        // stack) showed the whole app frozen with the UI thread sitting in exactly this call.
+        // Reading the clipboard needs an STA thread, but not necessarily *this* one — do it on a
+        // dedicated short-lived STA thread so a contended clipboard never blocks the message pump.
+        var thread = new Thread(() =>
+        {
+            string text;
+            try
+            {
+                if (!Clipboard.ContainsText()) return;
+                text = Clipboard.GetText();
+            }
+            catch { return; /* clipboard can be transiently locked by another app */ }
+            Dispatcher.BeginInvoke(() => PushClipboardTextToRemote(text));
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.IsBackground = true;
+        thread.Start();
+    }
+
+    private void PushClipboardTextToRemote(string text)
+    {
+        if (_client is null || !IsConnected || ViewOnly || !SendClipboardEnabled) return;
         if (text == _lastSyncedClipboardText) return;
         _lastSyncedClipboardText = text;
         _client.SendClientCutText(text);
