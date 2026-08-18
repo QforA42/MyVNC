@@ -91,6 +91,14 @@ public partial class SessionWindow : Window
     private readonly DispatcherTimer _rightCtrlPollTimer;
     private bool _rightCtrlWasDown;
 
+    // Left Ctrl triple-press pins/unpins the top bar visible (see PollLeftCtrlTripleTap), for
+    // keyboards missing a dedicated key to hold — polled for the same reason as Right Ctrl above.
+    private bool _leftCtrlWasDown;
+    private int _leftCtrlPressCount;
+    private DateTime _lastLeftCtrlPressUtc;
+    private const int TripleCtrlWindowMs = 600;
+    private bool _topBarPinned;
+
     private Interop.ClipboardMonitor? _clipboardMonitor;
     private readonly Interop.GlobalKeyboardHook _keyboardHook = new();
 
@@ -142,7 +150,11 @@ public partial class SessionWindow : Window
         };
 
         _rightCtrlPollTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(60) };
-        _rightCtrlPollTimer.Tick += (_, _) => PollRightCtrl();
+        _rightCtrlPollTimer.Tick += (_, _) =>
+        {
+            PollRightCtrl();
+            PollLeftCtrlTripleTap();
+        };
         _rightCtrlPollTimer.Start();
         Closed += (_, _) => _rightCtrlPollTimer.Stop();
 
@@ -328,15 +340,17 @@ public partial class SessionWindow : Window
     }
 
     /// <summary>Decides which top bar is shown, whenever the tab count changes. Both bars behave
-    /// identically either way — hidden by default, revealed only while Right Ctrl is held (see
-    /// PollRightCtrl) — so the remote desktop's own top bar/panel is never covered, resized, or
-    /// offset by MyVNC's own chrome, in windowed mode or fullscreen.</summary>
+    /// identically either way — hidden by default, revealed only while Right Ctrl is held or the
+    /// bar is pinned (see PollRightCtrl / PollLeftCtrlTripleTap) — so the remote desktop's own top
+    /// bar/panel is never covered, resized, or offset by MyVNC's own chrome, in windowed mode or
+    /// fullscreen.</summary>
     private void UpdateTopBarMode()
     {
         var multiTab = Tabs.Count > 1;
         TabBar.Visibility = multiTab ? Visibility.Visible : Visibility.Collapsed;
         ToolbarOverlay.Visibility = multiTab ? Visibility.Collapsed : Visibility.Visible;
 
+        _topBarPinned = false;
         var (bar, transform) = multiTab ? (TabBar, TabBarTransform) : (ToolbarOverlay, ToolbarTransform);
         _toolbarHideTimer.Stop();
         transform.BeginAnimation(TranslateTransform.YProperty, null);
@@ -349,11 +363,42 @@ public partial class SessionWindow : Window
         var isDown = Keyboard.IsKeyDown(Key.RightCtrl);
         if (isDown == _rightCtrlWasDown) return;
         _rightCtrlWasDown = isDown;
+        if (_topBarPinned) return;
 
         var (bar, transform) = Tabs.Count > 1 ? (TabBar, TabBarTransform) : (ToolbarOverlay, ToolbarTransform);
         _toolbarHideTimer.Stop();
         if (isDown) ShowBar(bar, transform);
         else _toolbarHideTimer.Start();
+    }
+
+    // Left Ctrl triple-press pins/unpins the top bar visible, for keyboards missing a dedicated
+    // key to hold (or any key at all in some KVM/remote setups) — polled for the same reason as
+    // Right Ctrl above.
+    private void PollLeftCtrlTripleTap()
+    {
+        var isDown = Keyboard.IsKeyDown(Key.LeftCtrl);
+        if (isDown == _leftCtrlWasDown) return;
+        _leftCtrlWasDown = isDown;
+        if (!isDown) return;
+
+        var now = DateTime.UtcNow;
+        if ((now - _lastLeftCtrlPressUtc).TotalMilliseconds > TripleCtrlWindowMs)
+            _leftCtrlPressCount = 0;
+        _lastLeftCtrlPressUtc = now;
+        _leftCtrlPressCount++;
+
+        if (_leftCtrlPressCount < 3) return;
+        _leftCtrlPressCount = 0;
+        ToggleTopBarPin();
+    }
+
+    private void ToggleTopBarPin()
+    {
+        _topBarPinned = !_topBarPinned;
+        var (bar, transform) = Tabs.Count > 1 ? (TabBar, TabBarTransform) : (ToolbarOverlay, ToolbarTransform);
+        _toolbarHideTimer.Stop();
+        if (_topBarPinned) ShowBar(bar, transform);
+        else if (!Keyboard.IsKeyDown(Key.RightCtrl)) _toolbarHideTimer.Start();
     }
 
     private void ShowBar(Border bar, TranslateTransform transform)
