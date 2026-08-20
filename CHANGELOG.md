@@ -8,6 +8,27 @@ versionen.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-08-21
+
+### Added
+- **Theme setting** (Settings → THEME): follow Windows (default), or pin the app to light or
+  dark. Switching applies immediately to every open window, including live session windows.
+- MyVNC now uses the accent color picked in Windows (Settings → Personalization → Colors)
+  instead of its own fixed blue, for both themes. The accent is lightened or darkened as needed
+  to stay readable on the app's own surfaces, and text drawn on top of an accent-filled button
+  flips between white and near-black to match. The ">_" logo mark keeps its brand blue, matching
+  the taskbar icon.
+
+### Fixed
+- The app read the Windows light/dark app mode at startup but painted its backdrop, session
+  overlays and switch thumbs from hardcoded dark colors — so in light mode the light palette's
+  dark text landed on a near-black backdrop and was unreadable. Every color now comes from the
+  theme palette.
+- The theme is followed live rather than only at launch: changing the Windows app mode or accent
+  color repaints the running app, with no restart and without tearing down open sessions. Both
+  the WM_SETTINGCHANGE broadcast and the underlying registry keys are watched, so a change made
+  by a script or theme-switcher utility is picked up too.
+
 ## [0.8.2] - 2026-08-18
 
 ### Fixed
