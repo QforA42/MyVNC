@@ -17,18 +17,18 @@
                     BorderThickness="1,1,1,0" BorderBrush="Transparent"
                     MouseLeftButtonDown="TabHeader_MouseLeftButtonDown" Cursor="Hand">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock x:Name="Txt" Text="{Binding Title}" Foreground="{StaticResource TextSecondaryBrush}"
+                    <TextBlock x:Name="Txt" Text="{Binding Title}" Foreground="{DynamicResource TextSecondaryBrush}"
                                FontSize="12" VerticalAlignment="Center" MaxWidth="160" TextTrimming="CharacterEllipsis"/>
                     <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="9" Style="{StaticResource IconButton}"
-                            Foreground="{StaticResource TextSecondaryBrush}" Width="18" Height="18" Padding="0" Margin="8,0,0,0"
+                            Foreground="{DynamicResource TextSecondaryBrush}" Width="18" Height="18" Padding="0" Margin="8,0,0,0"
                             Tag="{Binding}" Click="CloseTab_Click" ToolTip="{loc:Loc Session.Close}"/>
                 </StackPanel>
             </Border>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource BgElevatedBrush}"/>
-                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-                    <Setter TargetName="Txt" Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BgElevatedBrush}"/>
+                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                    <Setter TargetName="Txt" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                     <Setter TargetName="Txt" Property="FontWeight" Value="SemiBold"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsSelected}" Value="False">
@@ -43,9 +43,9 @@
             <Grid Visibility="Collapsed" x:Name="Root">
                 <ContentControl Content="{Binding Framebuffer}" Focusable="False"
                                 AllowDrop="True" DragOver="SessionContent_DragOver" Drop="SessionContent_Drop"/>
-                <Border Background="#DD0F1115" Panel.ZIndex="20" x:Name="Status">
+                <Border Background="{DynamicResource OverlayPanelBrush}" Panel.ZIndex="20" x:Name="Status">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420">
-                        <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource TextPrimaryBrush}"
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource TextPrimaryBrush}"
                                    FontSize="15" TextWrapping="Wrap" TextAlignment="Center"/>
                         <Button Style="{StaticResource SecondaryButton}" HorizontalAlignment="Center" Margin="0,20,0,0"
                                 Tag="{Binding}" Click="StatusCloseButton_Click" x:Name="StatusClose"
@@ -84,7 +84,7 @@
              very top edge (see RootGrid_MouseMove) — so it never covers, resizes, or offsets the
              remote desktop's own top bar/panel underneath it. -->
         <Border x:Name="TabBar" VerticalAlignment="Top" Panel.ZIndex="10" Visibility="Collapsed"
-                Background="{StaticResource BgBaseBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                Background="{DynamicResource BgBaseBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
             <Border.RenderTransform>
                 <TranslateTransform x:Name="TabBarTransform" Y="0"/>
             </Border.RenderTransform>
@@ -121,15 +121,15 @@
              pointer is at the very top edge, so it never steals clicks from the remote
              desktop's own top bar/panel. Hidden once a second tab joins (see TabBar above). -->
         <Border x:Name="ToolbarOverlay" VerticalAlignment="Top" Panel.ZIndex="10"
-                Background="#EE171A21" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                Background="{DynamicResource OverlayToolbarBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
             <Border.RenderTransform>
                 <TranslateTransform x:Name="ToolbarTransform" Y="-48"/>
             </Border.RenderTransform>
             <Grid Margin="14,8">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Ellipse Width="8" Height="8" Fill="{StaticResource SuccessBrush}" Margin="0,0,8,0"/>
-                    <TextBlock x:Name="SessionTitleText" Foreground="{StaticResource TextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="SessionSubtitleText" Foreground="{StaticResource TextSecondaryBrush}" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="12"/>
+                    <Ellipse Width="8" Height="8" Fill="{DynamicResource SuccessBrush}" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="SessionTitleText" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="SessionSubtitleText" Foreground="{DynamicResource TextSecondaryBrush}" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="12"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -147,9 +147,9 @@
             </Grid>
         </Border>
 
-        <Border x:Name="RemoteFilesOverlay" Background="#CC0B0D11" Panel.ZIndex="100" Visibility="Collapsed"
+        <Border x:Name="RemoteFilesOverlay" Background="{DynamicResource OverlayScrimBrush}" Panel.ZIndex="100" Visibility="Collapsed"
                 MouseLeftButtonDown="RemoteFilesOverlay_MouseLeftButtonDown">
-            <Border Background="{StaticResource BgElevatedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource BgElevatedBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                     CornerRadius="12" Width="380" MaxHeight="500" HorizontalAlignment="Center" VerticalAlignment="Center"
                     MouseLeftButtonDown="RemoteFilesCard_MouseLeftButtonDown">
                 <Grid>
@@ -160,14 +160,14 @@
                     </Grid.RowDefinitions>
 
                     <Grid Margin="22,20,22,10">
-                        <TextBlock Text="{loc:Loc Session.ReceiveFile}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="{loc:Loc Session.ReceiveFile}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <Button Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11" Style="{StaticResource IconButton}"
-                                Foreground="{StaticResource TextSecondaryBrush}" Width="24" Height="24" Padding="0"
+                                Foreground="{DynamicResource TextSecondaryBrush}" Width="24" Height="24" Padding="0"
                                 HorizontalAlignment="Right" Click="CloseRemoteFiles_Click" ToolTip="{loc:Loc Session.Close}"/>
                     </Grid>
 
                     <Grid Grid.Row="1" Margin="22,0,22,10">
-                        <TextBlock x:Name="RemoteFilesStatusText" Foreground="{StaticResource TextSecondaryBrush}"
+                        <TextBlock x:Name="RemoteFilesStatusText" Foreground="{DynamicResource TextSecondaryBrush}"
                                    FontSize="12" TextWrapping="Wrap" Visibility="Collapsed"/>
                         <ListBox x:Name="RemoteFilesList" SelectionMode="Extended" Background="Transparent" BorderThickness="0"
                                  MaxHeight="320" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -175,10 +175,10 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="0,4">
-                                        <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextPrimaryBrush}"
+                                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextPrimaryBrush}"
                                                    FontSize="12" TextTrimming="CharacterEllipsis"/>
                                         <TextBlock Text="{Binding SizeBytes, StringFormat={}{0:N0} bytes}"
-                                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="10"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" FontSize="10"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>

@@ -14,6 +14,7 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 ## Features
 
 - **Own RFB/VNC client** — version handshake 3.3/3.7/3.8, None/VNC-Auth/VeNCrypt security (covers wayvnc's Plain/TLSPlain/X509Plain), Raw/CopyRect/DesktopSize/ZRLE encodings.
+- **Follows the Windows theme** — light or dark from the Windows app mode, plus the accent color you picked in Personalization → Colors, applied live when either changes. Settings → THEME can pin it to light or dark instead of following Windows.
 - **Multi-session** — open new connections as separate windows or as tabs in one window, switchable in Settings.
 - **Fullscreen** — F11 toggles it; the window chrome drops and the OS maximize button behaves the same way.
 - **Hold Right Ctrl to reveal the top bar** (or triple-tap Left Ctrl to pin it open) — MyVNC's own chrome (tab bar/toolbar) is hidden by default in both windowed and fullscreen mode, so it never covers the remote desktop's own panel. **Hold Right Ctrl and move the pointer to the top edge to reveal it while held**, or **triple-tap Left Ctrl within ~600ms to pin it visible** — handy on keyboards without a comfortable key to hold down, or KVM/remote setups missing one entirely. Triple-tap again to unpin. The full shortcut list is in the in-app Help page.

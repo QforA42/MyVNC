@@ -5,9 +5,9 @@
         <Rectangle>
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#090B0F" Offset="0"/>
-                    <GradientStop Color="#12151D" Offset="0.55"/>
-                    <GradientStop Color="#0C0E13" Offset="1"/>
+                    <GradientStop Color="{DynamicResource BackdropTopColor}" Offset="0"/>
+                    <GradientStop Color="{DynamicResource BackdropMidColor}" Offset="0.55"/>
+                    <GradientStop Color="{DynamicResource BackdropBottomColor}" Offset="1"/>
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
@@ -18,7 +18,7 @@
             </Ellipse.Effect>
             <Ellipse.Fill>
                 <RadialGradientBrush>
-                    <GradientStop Color="{StaticResource AccentColor}" Offset="0"/>
+                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
                     <GradientStop Color="Transparent" Offset="1"/>
                 </RadialGradientBrush>
             </Ellipse.Fill>
@@ -30,7 +30,7 @@
                     <DrawingBrush.Drawing>
                         <GeometryDrawing>
                             <GeometryDrawing.Pen>
-                                <Pen Brush="{StaticResource AccentBrush}" Thickness="1"/>
+                                <Pen Brush="{DynamicResource AccentBrush}" Thickness="1"/>
                             </GeometryDrawing.Pen>
                             <GeometryDrawing.Geometry>
                                 <GeometryGroup>
@@ -48,7 +48,7 @@
             <Rectangle.Fill>
                 <DrawingBrush TileMode="Tile" Viewport="0,0,1,4" ViewportUnits="Absolute">
                     <DrawingBrush.Drawing>
-                        <GeometryDrawing Brush="Black">
+                        <GeometryDrawing Brush="{DynamicResource BackdropScanlineBrush}">
                             <GeometryDrawing.Geometry>
                                 <RectangleGeometry Rect="0,0,1,1"/>
                             </GeometryDrawing.Geometry>
@@ -59,7 +59,7 @@
         </Rectangle>
 
         <TextBlock Text="&gt;_" FontFamily="Consolas" FontWeight="Bold" FontSize="360"
-                   Foreground="{StaticResource AccentBrush}" Opacity="0.05"
+                   Foreground="{DynamicResource AccentBrush}" Opacity="0.05"
                    HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-60,-90"/>
     </Grid>
 </UserControl>

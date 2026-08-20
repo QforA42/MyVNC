@@ -15,6 +15,24 @@
     <Color x:Key="DangerColor">#E5566B</Color>
     <Color x:Key="SuccessColor">#4CC38A</Color>
 
+    <!-- Decorative backdrop (TerminalCanvasBackground) — must track the theme, otherwise the
+         theme's text colors land on a backdrop from the other theme and turn unreadable. -->
+    <Color x:Key="BackdropTopColor">#090B0F</Color>
+    <Color x:Key="BackdropMidColor">#12151D</Color>
+    <Color x:Key="BackdropBottomColor">#0C0E13</Color>
+    <Color x:Key="BackdropScanlineColor">Black</Color>
+
+    <!-- Overlay panels drawn over a session's remote framebuffer, and the switch's off-track. -->
+    <Color x:Key="OverlayPanelColor">#DD0F1115</Color>
+    <Color x:Key="OverlayToolbarColor">#EE171A21</Color>
+    <Color x:Key="OverlayScrimColor">#CC0B0D11</Color>
+    <Color x:Key="SwitchTrackOffColor">#2A2F3A</Color>
+    <Color x:Key="SwitchThumbColor">#FFFFFF</Color>
+
+    <!-- Text/glyph color drawn on top of an accent-filled surface. Recomputed at runtime from
+         the Windows accent color (see ThemeManager) so a light accent gets dark text. -->
+    <Color x:Key="AccentForegroundColor">#0B0E14</Color>
+
     <SolidColorBrush x:Key="BgBaseBrush" Color="{StaticResource BgBaseColor}"/>
     <SolidColorBrush x:Key="BgElevatedBrush" Color="{StaticResource BgElevatedColor}"/>
     <SolidColorBrush x:Key="BgCardBrush" Color="{StaticResource BgCardColor}"/>
@@ -27,6 +45,14 @@
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}"/>
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
+
+    <SolidColorBrush x:Key="OverlayPanelBrush" Color="{StaticResource OverlayPanelColor}"/>
+    <SolidColorBrush x:Key="OverlayToolbarBrush" Color="{StaticResource OverlayToolbarColor}"/>
+    <SolidColorBrush x:Key="OverlayScrimBrush" Color="{StaticResource OverlayScrimColor}"/>
+    <SolidColorBrush x:Key="SwitchTrackOffBrush" Color="{StaticResource SwitchTrackOffColor}"/>
+    <SolidColorBrush x:Key="SwitchThumbBrush" Color="{StaticResource SwitchThumbColor}"/>
+    <SolidColorBrush x:Key="AccentForegroundBrush" Color="{StaticResource AccentForegroundColor}"/>
+    <SolidColorBrush x:Key="BackdropScanlineBrush" Color="{StaticResource BackdropScanlineColor}"/>
 
     <FontFamily x:Key="UiFont">Segoe UI Variable, Segoe UI</FontFamily>
 

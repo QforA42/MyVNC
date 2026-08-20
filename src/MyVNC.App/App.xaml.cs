@@ -11,6 +11,10 @@ public partial class App : Application
     public static AppSettings Settings { get; private set; } = new();
     public static AppTheme ResolvedTheme { get; private set; } = AppTheme.Dark;
 
+    /// <summary>Kept in step with the live palette by <see cref="ThemeManager"/>, which reapplies
+    /// the theme whenever Windows' app mode or accent color changes.</summary>
+    internal static void SetResolvedTheme(AppTheme theme) => ResolvedTheme = theme;
+
     private Mutex? _singleInstanceMutex;
 
     protected override void OnStartup(StartupEventArgs e)
@@ -76,8 +80,8 @@ public partial class App : Application
         Settings = SettingsStore.Load();
         AppLog.Enabled = Settings.DebugLogging;
         Loc.SetLanguage(Settings.Language);
-        ResolvedTheme = Interop.OsTheme.Detect();
-        ApplyTheme(ResolvedTheme);
+        ThemeManager.Initialize();
+        ResolvedTheme = ThemeManager.Current;
 
         // Launched from the taskbar jump list ("--connect <profileId>") — see JumpListBuilder.
         string? autoConnectId = null;
@@ -98,18 +102,8 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        ThemeManager.Shutdown();
         _singleInstanceMutex?.Dispose();
         base.OnExit(e);
-    }
-
-    /// <summary>Colors.Dark/Light.xaml supplies every brush ControlStyles.xaml's templates
-    /// reference via StaticResource — those resolve at the moment each Style/Setter is parsed,
-    /// so the colors dictionary must be merged in first. The OS theme is read once at launch;
-    /// if the user flips Windows' own light/dark setting, the app picks it up next time it starts.</summary>
-    private static void ApplyTheme(AppTheme theme)
-    {
-        var colorsSource = theme == AppTheme.Light ? "Themes/Colors.Light.xaml" : "Themes/Colors.Dark.xaml";
-        Current.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri(colorsSource, UriKind.Relative) });
-        Current.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("Themes/ControlStyles.xaml", UriKind.Relative) });
     }
 }

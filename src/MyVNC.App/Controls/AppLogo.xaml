@@ -7,7 +7,7 @@
             <Border CornerRadius="8">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="{StaticResource AccentColor}" Offset="0"/>
+                        <GradientStop Color="#5B8CFF" Offset="0"/>
                         <GradientStop Color="#7C5CFF" Offset="1"/>
                     </LinearGradientBrush>
                 </Border.Background>

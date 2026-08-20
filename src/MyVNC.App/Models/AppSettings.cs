@@ -3,6 +3,10 @@ namespace MyVNC.App.Models;
 public sealed class AppSettings
 {
     public AppLanguage Language { get; set; } = AppLanguage.Swedish;
+
+    /// <summary>Light/dark palette, or "System" to follow the Windows app mode live. The accent
+    /// color always comes from Windows regardless of this. See Services.ThemeManager.</summary>
+    public ThemePreference Theme { get; set; } = ThemePreference.System;
     public SessionOpenMode SessionOpenMode { get; set; } = SessionOpenMode.Window;
 
     /// <summary>Automatically retry with exponential backoff after an unexpected disconnect

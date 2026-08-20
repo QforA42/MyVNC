@@ -2,8 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:MyVNC.App">
-    <!-- Resources are merged in code (App.xaml.cs OnStartup) instead of here: ControlStyles.xaml's
-         Setters resolve their {StaticResource ...} color references at the moment the dictionary
-         is parsed, so Colors.Dark/Light.xaml must already be merged in before ControlStyles.xaml
-         loads — which a static merge here, happening before OnStartup picks the theme, can't guarantee. -->
+    <!-- Resources are merged in code, by ThemeManager (see Services/ThemeManager.cs): which of
+         Colors.Dark/Light.xaml applies depends on the Windows app mode, and the whole palette is
+         swapped out again live whenever the user changes that mode or the accent color. A static
+         merge here would pin one palette in place before any of that is known. -->
 </Application>

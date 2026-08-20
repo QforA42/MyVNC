@@ -53,6 +53,7 @@ public partial class MainWindow : Window
 
         BuildLanguageList();
         BuildAddressPicker();
+        BuildThemePicker();
         BuildSshTerminalPicker();
         LoadSettingsIntoUi();
 
@@ -203,6 +204,12 @@ public partial class MainWindow : Window
         DefaultAddressComboBox.SelectedIndex = 0;
     }
 
+    private void BuildThemePicker()
+    {
+        foreach (ThemePreference preference in Enum.GetValues<ThemePreference>())
+            ThemeComboBox.Items.Add(new ComboBoxItem { Content = Loc.T(preference.LocKey()), Tag = preference });
+    }
+
     private void BuildSshTerminalPicker()
     {
         foreach (SshTerminalChoice choice in Enum.GetValues<SshTerminalChoice>())
@@ -216,6 +223,10 @@ public partial class MainWindow : Window
         foreach (ComboBoxItem item in LanguageComboBox.Items)
             if ((AppLanguage)item.Tag == App.Settings.Language)
                 LanguageComboBox.SelectedItem = item;
+
+        foreach (ComboBoxItem item in ThemeComboBox.Items)
+            if ((ThemePreference)item.Tag == App.Settings.Theme)
+                ThemeComboBox.SelectedItem = item;
 
         SessionModeToggle.IsChecked = App.Settings.SessionOpenMode == SessionOpenMode.Tab;
         UpdateSessionModeLabel();
@@ -284,6 +295,17 @@ public partial class MainWindow : Window
         if (_suppressSettingsEvents) return;
         App.Settings.SessionOpenMode = SessionModeToggle.IsChecked == true ? SessionOpenMode.Tab : SessionOpenMode.Window;
         App.SettingsStore.Save(App.Settings);
+    }
+
+    private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_suppressSettingsEvents || ThemeComboBox.SelectedItem is not ComboBoxItem item) return;
+        var preference = (ThemePreference)item.Tag;
+        if (preference == App.Settings.Theme) return;
+
+        App.Settings.Theme = preference;
+        App.SettingsStore.Save(App.Settings);
+        ThemeManager.Reapply(); // repaints every open window in place — no restart, no rebuild
     }
 
     private void SshTerminalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

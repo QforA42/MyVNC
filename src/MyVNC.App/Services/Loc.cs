@@ -243,6 +243,14 @@ public static class Loc
             "Inställningar", "Settings", "Innstillinger", "Indstillinger", "Asetukset", "Stillingar");
         Add("Settings.Language",
             "SPRÅK", "LANGUAGE", "SPRÅK", "SPROG", "KIELI", "TUNGUMÁL");
+        Add("Settings.Theme",
+            "TEMA", "THEME", "TEMA", "TEMA", "TEEMA", "ÞEMA");
+        Add("Theme.System",
+            "Följ Windows", "Follow Windows", "Følg Windows", "Følg Windows", "Seuraa Windowsia", "Fylgja Windows");
+        Add("Theme.Light",
+            "Ljust", "Light", "Lyst", "Lyst", "Vaalea", "Ljóst");
+        Add("Theme.Dark",
+            "Mörkt", "Dark", "Mørkt", "Mørkt", "Tumma", "Dökkt");
         Add("Settings.SessionMode",
             "NYA SESSIONER", "NEW SESSIONS", "NYE ØKTER", "NYE FORBINDELSER", "UUDET ISTUNNOT", "NÝJAR SETUR");
         Add("Settings.SessionModeWindow",
