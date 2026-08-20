@@ -5,3 +5,4 @@ obj/
 installer/publish/
 installer/output/
 .env
+.codegraph/
