@@ -3,7 +3,7 @@
 Alla nämnvärda ändringar i MyVNC dokumenteras i denna fil.
 
 Formatet följer [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), och projektet
-använder [Semantic Versioning](docs/versioning-releases.md) — se `VERSION` för den kanoniska
+använder [Semantic Versioning](AGENTS.md#versionering) — se `VERSION` för den kanoniska
 versionen.
 
 ## [Unreleased]

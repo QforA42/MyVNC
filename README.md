@@ -27,13 +27,13 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 - **SSH terminal shortcut** — a per-card icon appears once a host's SSH port is confirmed reachable, launching PowerShell/Windows Terminal/WSL with `ssh` pre-filled. Also doubles as a way to unlock a host that's still sitting at boot: if the machine uses full-disk encryption with `dropbear-initramfs` (or similar) for remote unlock, that listens on the same port 22 well before wayvnc is up — SSH in (with `-i <key>` if it needs a specific identity file) and run your unlock command (e.g. `cryptroot-unlock`) the same way you would from any terminal. Live-tested: MyVNC's auto-reconnect picks the session up automatically the moment wayvnc comes up afterward, no manual reconnect needed.
 - **Send/receive files** — a session's toolbar has "Skicka fil…"/"Send file…" (button or drag-and-drop onto the session) and "Hämta fil…"/"Receive file…", both over SFTP (SSH, port 22) into/from a fixed `~/myvnc-shared` folder on the host. RFB/VNC itself has no file-transfer capability, so this is a side-channel, not part of the VNC protocol — it reuses the same username/password already stored for the connection (works automatically when wayvnc's `enable_pam=true`, since that's then the same as the host's Linux login).
 - **Opt-in debug logging** — off by default, toggle it in Settings. Writes connection lifecycle, security/encoding negotiation, disconnects, and reconnect attempts to `%APPDATA%\MyVNC\myvnc.log`, viewable via the "Open log" button — never credentials, keystrokes, or clipboard contents. A background watchdog also self-monitors memory/CPU and warns (always logged, regardless of the toggle) if the app itself looks like it's misbehaving.
-- **Full localization** — Swedish, English, Norwegian, Danish, Finnish, Icelandic. Follows the OS light/dark theme automatically.
+- **Full localization** — Swedish, English, Norwegian, Danish, Finnish, Icelandic.
 - **Windows integration** — desktop shortcut, taskbar jump-list (pinned + recent hosts, launches sessions directly), single-instance enforced so a jump-list click joins the already-running window instead of starting a disconnected process.
 - **In-app Help** — a keyboard-shortcuts table, the paste-key gotcha (Ctrl+Shift+V, not Ctrl+V), how the client works, wayvnc configuration pointers including two common setups (external monitor vs. built-in screen), and known limitations — all available as full pages from the dashboard's About/Help/Settings buttons, alongside New/Edit Connection.
 
 ## Installing
 
-**Download the installer:** [MyVNC-Setup-0.8.1.exe](https://github.com/QforA42/MyVNC/releases/download/v0.8.1/MyVNC-Setup-0.8.1.exe) (or browse all [releases](https://github.com/QforA42/MyVNC/releases)) — per-user install, no admin rights or UAC prompt required.
+**Download the installer:** [MyVNC-Setup-0.9.0.exe](https://github.com/QforA42/MyVNC/releases/download/v0.9.0/MyVNC-Setup-0.9.0.exe) (or browse all [releases](https://github.com/QforA42/MyVNC/releases)) — per-user install, no admin rights or UAC prompt required.
 
 **Build your own installer instead:**
 
@@ -74,7 +74,7 @@ Kept in sync with the in-app Help page — only what's actually still true today
 
 ## Development
 
-See [AGENTS.md](AGENTS.md) for versioning rules, commit conventions, and the build workflow. Quick reference:
+See [AGENTS.md](AGENTS.md) for versioning rules, commit conventions, and the build workflow. Version history lives in [CHANGELOG.md](CHANGELOG.md), with a per-release note (scope, regression testing done, known risks) under [docs/releases/](docs/releases/). Quick reference:
 
 ```powershell
 dotnet build MyVNC.slnx                      # Debug
