@@ -8,6 +8,19 @@ versionen.
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-08-26
+
+### Fixed
+- A connection whose connect attempt failed left its card's "Anslut" button and address dropdown
+  disabled: the dashboard counted *any* open tab as an active session, including one sitting on a
+  failed connect or waiting out an auto-reconnect backoff, so the card only came back to life once
+  the retries gave up and closed the tab (or never, with auto-reconnect off). Cards now reflect
+  sessions that are actually connected, and update the moment a tab connects, drops or closes
+  instead of only when the dashboard regains focus.
+- Clicking "Anslut" for a host whose session is already open but *not* connected now retries that
+  session immediately, skipping whatever reconnect backoff it was waiting on, instead of only
+  raising its window.
+
 ## [0.9.0] - 2026-08-21
 
 ### Added
