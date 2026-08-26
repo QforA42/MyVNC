@@ -33,7 +33,7 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 
 ## Installing
 
-**Download the installer:** [MyVNC-Setup-0.9.0.exe](https://github.com/QforA42/MyVNC/releases/download/v0.9.0/MyVNC-Setup-0.9.0.exe) (or browse all [releases](https://github.com/QforA42/MyVNC/releases)) — per-user install, no admin rights or UAC prompt required.
+**Download the installer:** [MyVNC-Setup-0.9.1.exe](https://github.com/QforA42/MyVNC/releases/download/v0.9.1/MyVNC-Setup-0.9.1.exe) (or browse all [releases](https://github.com/QforA42/MyVNC/releases)) — per-user install, no admin rights or UAC prompt required.
 
 **Build your own installer instead:**
 
