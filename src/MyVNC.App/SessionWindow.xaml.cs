@@ -56,6 +56,35 @@ public partial class SessionWindow : Window
         return openTabs.FirstOrDefault(t => addresses.Contains(t.Options.Host) && t.Options.Port == port);
     }
 
+    /// <summary>True when one of these addresses has a tab that is *connected right now* — unlike
+    /// <see cref="FindActiveSession"/>, which also matches a tab that's still connecting, sitting
+    /// on a failed connect, or waiting out an auto-reconnect backoff. The dashboard's per-card
+    /// "already connected" state uses this one: a connect that failed must not leave the card's
+    /// Connect button and address dropdown dead until the retries give up and close the tab.</summary>
+    public static bool HasConnectedSession(IEnumerable<string> candidateAddresses, int port)
+    {
+        var addresses = new HashSet<string>(candidateAddresses, StringComparer.OrdinalIgnoreCase);
+        return AllWindows.SelectMany(w => w.Tabs)
+            .Any(t => addresses.Contains(t.Options.Host) && t.Options.Port == port && t.Framebuffer.IsConnected);
+    }
+
+    /// <summary>Raised whenever a tab is added, connects, drops, or closes, so the dashboard can
+    /// refresh its per-card connected state. Its own Activated hook isn't enough: a connect can
+    /// fail (or an auto-reconnect give up) while the dashboard already has focus, and then no
+    /// activation ever follows to clear the card's "connected" state.</summary>
+    public static event Action? SessionsChanged;
+
+    private static void NotifySessionsChanged() => SessionsChanged?.Invoke();
+
+    /// <summary>Starts a connect attempt for a tab that isn't connected, skipping whatever
+    /// auto-reconnect backoff it was waiting on. Clicking Connect on a card whose session is
+    /// stuck retrying (or gave up entirely, with auto-reconnect off) means "try again now", not
+    /// just "show me that window" — without this the dashboard's only other option would be a
+    /// second connection to the same host, which is exactly what the duplicate guard blocks.
+    /// No-op while the tab is connected or already has an attempt in flight.</summary>
+    public static void RetryConnect(SessionTab tab)
+        => AllWindows.FirstOrDefault(w => w.Tabs.Contains(tab))?.RetryTabNow(tab);
+
     public static void FocusExistingSession(SessionTab tab)
     {
         var owner = AllWindows.FirstOrDefault(w => w.Tabs.Contains(tab));
@@ -125,6 +154,7 @@ public partial class SessionWindow : Window
             _keyboardHook.Dispose();
             if (Shared == this) Shared = null;
             AllWindows.Remove(this);
+            NotifySessionsChanged();
         };
 
         SourceInitialized += (_, _) =>
@@ -175,6 +205,7 @@ public partial class SessionWindow : Window
         Tabs.Add(tab);
         SelectTab(tab);
         UpdateTopBarMode();
+        NotifySessionsChanged();
 
         _ = ConnectTabAsync(tab);
     }
@@ -184,6 +215,7 @@ public partial class SessionWindow : Window
         tab.ConnectCts?.Dispose();
         var cts = new CancellationTokenSource();
         tab.ConnectCts = cts;
+        tab.IsConnecting = true;
         try
         {
             await tab.Framebuffer.ConnectAsync(tab.Options, cts.Token).ConfigureAwait(true);
@@ -197,6 +229,26 @@ public partial class SessionWindow : Window
         {
             HandleTabDisconnected(tab, ex);
         }
+        finally
+        {
+            tab.IsConnecting = false;
+        }
+    }
+
+    /// <summary>See <see cref="RetryConnect"/> — the instance half, run on the window owning the tab.</summary>
+    private void RetryTabNow(SessionTab tab)
+    {
+        if (tab.IsConnecting || tab.Framebuffer.IsConnected) return;
+
+        AppLog.Write($"Retrying {tab.Options.Host}:{tab.Options.Port} now (Connect clicked on the dashboard)");
+        tab.ReconnectCts?.Cancel();
+        tab.ReconnectCts = null;
+        tab.ReconnectAttempt = 0; // user-initiated: start the backoff ladder over rather than giving up sooner
+        tab.StatusMessage = Loc.T("Session.Connecting", tab.Options.Host, tab.Options.Port);
+        tab.IsCloseVisible = false;
+        tab.IsStatusVisible = true;
+
+        _ = ConnectTabAsync(tab);
     }
 
     private void OnTabConnected(SessionTab tab)
@@ -206,6 +258,7 @@ public partial class SessionWindow : Window
         tab.ReconnectAttempt = 0;
         tab.ReconnectCts?.Cancel();
         tab.ReconnectCts = null;
+        NotifySessionsChanged();
 
         tab.IsStatusVisible = false;
         if (tab == SelectedTab)
@@ -233,6 +286,7 @@ public partial class SessionWindow : Window
         if (error is null) return; // clean disconnect via CloseTabAsync, tab is going away anyway
 
         AppLog.Write($"Tab disconnected ({tab.Options.Host}:{tab.Options.Port}): {error.Message}");
+        NotifySessionsChanged();
 
         if (App.Settings.AutoReconnect)
         {
@@ -331,6 +385,7 @@ public partial class SessionWindow : Window
         var wasSelected = tab.IsSelected;
         var index = Tabs.IndexOf(tab);
         Tabs.Remove(tab);
+        NotifySessionsChanged();
 
         if (Tabs.Count == 0)
         {

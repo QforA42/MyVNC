@@ -37,6 +37,11 @@ public sealed class SessionTab(RfbConnectionOptions options) : INotifyPropertyCh
     /// <summary>Cancels a pending auto-reconnect delay when the tab is closed manually.</summary>
     public CancellationTokenSource? ReconnectCts { get; set; }
 
+    /// <summary>True while a ConnectAsync (TCP connect + handshake) is in flight, so a
+    /// user-initiated "connect again" from the dashboard can't start a second attempt racing the
+    /// first one over the same framebuffer.</summary>
+    public bool IsConnecting { get; set; }
+
     /// <summary>Cancels an in-flight ConnectAsync (TCP connect + handshake) when the tab is closed
     /// manually — without this, closing a tab mid-reconnect only cancelled the *delay* before the
     /// attempt, not the attempt itself, letting DisconnectAsync race the still-running ConnectAsync

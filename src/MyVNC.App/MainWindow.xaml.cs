@@ -67,10 +67,14 @@ public partial class MainWindow : Window
         Activated += (_, _) => RefreshSshAvailability();
 
         // Same idea for session-active state: cheap to recompute (no I/O, just checks in-memory
-        // open tabs), so just re-check whenever the dashboard regains focus rather than wiring up
-        // cross-window notifications for every tab open/close/disconnect.
+        // open tabs), so re-check whenever the dashboard regains focus. Activation alone isn't
+        // enough, though — a connect can fail (or an auto-reconnect give up and close the tab)
+        // while the dashboard already has focus, and then no activation follows to clear the
+        // card's "connected" state, leaving Connect and its address dropdown disabled.
         RefreshSessionActiveState();
         Activated += (_, _) => RefreshSessionActiveState();
+        SessionWindow.SessionsChanged += RefreshSessionActiveState;
+        Closed += (_, _) => SessionWindow.SessionsChanged -= RefreshSessionActiveState;
 
         if (openSettings) ShowPage(SettingsPage);
 
@@ -354,7 +358,7 @@ public partial class MainWindow : Window
         {
             var profile = _profiles[i];
             var addresses = profile.AvailableAddresses().Select(a => a.Value);
-            var active = SessionWindow.FindActiveSession(addresses, profile.Port) is not null;
+            var active = SessionWindow.HasConnectedSession(addresses, profile.Port);
             if (profile.IsSessionActive == active) continue;
 
             profile.IsSessionActive = active;
@@ -745,6 +749,12 @@ public partial class MainWindow : Window
         {
             AppLog.Write($"Duplicate connect blocked for {host}:{port} — focusing existing session instead");
             SessionWindow.FocusExistingSession(existing);
+            // The tab that blocked this may not be a *live* session — it can be sitting on a failed
+            // connect, waiting out an auto-reconnect backoff, or (with auto-reconnect off) parked on
+            // a "Disconnected" overlay forever. Clicking Connect on its card means "try again now",
+            // so kick an immediate attempt rather than just raising a window that's stuck. No-op for
+            // a genuinely connected session, which only gets focused.
+            SessionWindow.RetryConnect(existing);
             return;
         }
 
@@ -767,11 +777,9 @@ public partial class MainWindow : Window
             shared.AddTab(options);
             if (shared.WindowState == WindowState.Minimized) shared.WindowState = WindowState.Normal;
             shared.Activate();
-            RefreshSessionActiveState();
             return;
         }
 
         new SessionWindow(options).Show();
-        RefreshSessionActiveState();
     }
 }
