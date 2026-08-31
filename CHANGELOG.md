@@ -8,6 +8,8 @@ versionen.
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-08-31
+
 ### Added
 - In-app Help now covers running wayvnc with a single-client guard, and why such a guard must
   disconnect the *older* sessions rather than the new one: wayvnc has no built-in connection cap,
