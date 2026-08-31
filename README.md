@@ -29,11 +29,11 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 - **Opt-in debug logging** — off by default, toggle it in Settings. Writes connection lifecycle, security/encoding negotiation, disconnects, and reconnect attempts to `%APPDATA%\MyVNC\myvnc.log`, viewable via the "Open log" button — never credentials, keystrokes, or clipboard contents. A background watchdog also self-monitors memory/CPU and warns (always logged, regardless of the toggle) if the app itself looks like it's misbehaving.
 - **Full localization** — Swedish, English, Norwegian, Danish, Finnish, Icelandic.
 - **Windows integration** — desktop shortcut, taskbar jump-list (pinned + recent hosts, launches sessions directly), single-instance enforced so a jump-list click joins the already-running window instead of starting a disconnected process.
-- **In-app Help** — a keyboard-shortcuts table, the paste-key gotcha (Ctrl+Shift+V, not Ctrl+V), how the client works, wayvnc configuration pointers including two common setups (external monitor vs. built-in screen), and known limitations — all available as full pages from the dashboard's About/Help/Settings buttons, alongside New/Edit Connection.
+- **In-app Help** — a keyboard-shortcuts table, the paste-key gotcha (Ctrl+Shift+V, not Ctrl+V), how the client works, wayvnc configuration pointers including three common setups (external monitor, built-in screen, and one client at a time), and known limitations — all available as full pages from the dashboard's About/Help/Settings buttons, alongside New/Edit Connection.
 
 ## Installing
 
-**Download the installer:** [MyVNC-Setup-0.9.1.exe](https://github.com/QforA42/MyVNC/releases/download/v0.9.1/MyVNC-Setup-0.9.1.exe) (or browse all [releases](https://github.com/QforA42/MyVNC/releases)) — per-user install, no admin rights or UAC prompt required.
+**Download the installer:** [MyVNC-Setup-0.9.2.exe](https://github.com/QforA42/MyVNC/releases/download/v0.9.2/MyVNC-Setup-0.9.2.exe) (or browse all [releases](https://github.com/QforA42/MyVNC/releases)) — per-user install, no admin rights or UAC prompt required.
 
 **Build your own installer instead:**
 
