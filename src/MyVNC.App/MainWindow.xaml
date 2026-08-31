@@ -389,6 +389,15 @@
                                    Text="# wayvnc.service&#x0a;ExecStart=/usr/bin/wayvnc&#x0a;Wants=wayvnc-capture-watchdog.service&#x0a;&#x0a;# wayvnc-capture-watchdog.service&#x0a;ExecStart=%h/.config/hypr/scripts/wayvnc-capture-watchdog.sh&#x0a;Restart=always"/>
                     </Border>
 
+                    <TextBlock Text="{loc:Loc Help.WayvncSingleClientHeader}" FontWeight="SemiBold" FontSize="12"
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{loc:Loc Help.WayvncSingleClientBody}" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                    <Border Background="{DynamicResource BgCardBrush}" CornerRadius="6" Padding="10,8" Margin="0,0,0,16">
+                        <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"
+                                   Text="# on client-connected: keep the new id, drop every other client&#x0a;wayvncctl --json client-list \&#x0a;  | jq -r --arg keep &quot;$id&quot; '.[] | select(.id != $keep) | .id' \&#x0a;  | while read -r old; do wayvncctl client-disconnect &quot;$old&quot;; done"/>
+                    </Border>
+
                     <TextBlock Text="{loc:Loc Help.LimitationsHeader}" FontWeight="SemiBold" FontSize="13"
                                Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,6"/>
 
@@ -399,6 +408,16 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="•" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,8,0"/>
                         <TextBlock Grid.Column="1" Text="{loc:Loc Help.LimitationSuspend}" FontSize="12" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </Grid>
+
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="•" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" Text="{loc:Loc Help.LimitationGhostSession}" FontSize="12" TextWrapping="Wrap"
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </Grid>
 

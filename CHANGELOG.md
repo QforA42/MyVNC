@@ -8,6 +8,15 @@ versionen.
 
 ## [Unreleased]
 
+### Added
+- In-app Help now covers running wayvnc with a single-client guard, and why such a guard must
+  disconnect the *older* sessions rather than the new one: wayvnc has no built-in connection cap,
+  and a half-open session left by a client that vanished without closing (network drop, suspend)
+  otherwise holds the only slot forever, so every later connection is accepted and dropped again
+  immediately. Added as a third wayvnc setup alongside external-monitor and built-in-screen, with
+  the `wayvncctl client-list` / `client-disconnect` recipe as a known-limitation entry for
+  diagnosing it from the client side. All six UI languages.
+
 ## [0.9.1] - 2026-08-26
 
 ### Fixed
