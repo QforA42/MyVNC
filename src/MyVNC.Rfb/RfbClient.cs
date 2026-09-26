@@ -566,6 +566,17 @@ public sealed class RfbClient : IAsyncDisposable
         try
         {
             _cts?.Cancel();
+
+            // Closing a viewer must release its server-side client slot immediately.  Merely
+            // cancelling the token is not sufficient here: a NetworkStream read can remain
+            // blocked briefly while the peer is sending a framebuffer update.  During that
+            // window a just-opened replacement viewer can be rejected by a single-client
+            // wayvnc guard, or both receive loops can spend CPU decoding frames.  Disposing the
+            // transport makes the outstanding read complete now; the receive loop treats the
+            // resulting cancellation/object-disposed exception as normal shutdown.
+            _stream?.Dispose();
+            _tcp?.Dispose();
+
             if (_receiveLoop is not null)
                 await Task.WhenAny(_receiveLoop, Task.Delay(500)).ConfigureAwait(false);
         }
@@ -574,8 +585,8 @@ public sealed class RfbClient : IAsyncDisposable
         {
             _zrleDecoder?.Dispose();
             _zrleDecoder = null;
-            _stream?.Dispose();
-            _tcp?.Dispose();
+            _stream = null;
+            _tcp = null;
             State = RfbConnectionState.Disconnected;
         }
     }
