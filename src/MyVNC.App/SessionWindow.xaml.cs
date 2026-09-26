@@ -288,6 +288,18 @@ public partial class SessionWindow : Window
         AppLog.Write($"Tab disconnected ({tab.Options.Host}:{tab.Options.Port}): {error.Message}");
         NotifySessionsChanged();
 
+        // The user (or the downgrade check) refused this server's identity — retrying would just
+        // hit the same refusal, and re-prompt, on every backoff step. Park the tab instead.
+        if (error is RfbServerIdentityRejectedException)
+        {
+            tab.ReconnectCts?.Cancel();
+            tab.ReconnectCts = null;
+            tab.StatusMessage = Loc.T("Trust.Rejected");
+            tab.IsCloseVisible = true;
+            tab.IsStatusVisible = true;
+            return;
+        }
+
         if (App.Settings.AutoReconnect)
         {
             ScheduleReconnect(tab, error);

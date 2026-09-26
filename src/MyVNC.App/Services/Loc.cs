@@ -104,19 +104,26 @@ public static class Loc
             "Kunde inte nå {0}:{1}", "Couldn't reach {0}:{1}", "Kunne ikke nå {0}:{1}",
             "Kunne ikke nå {0}:{1}", "Ei saatu yhteyttä osoitteeseen {0}:{1}", "Náði ekki sambandi við {0}:{1}");
         Add("Form.ForgetSshHostKey",
-            "Glöm SSH-värdnyckel", "Forget SSH host key", "Glem SSH-vertsnøkkel",
-            "Glem SSH-værtsnøgle", "Unohda SSH-isäntäavain", "Gleyma SSH-hýsilslykli");
+            "Glöm sparade värdnycklar",
+            "Forget saved host keys",
+            "Glem lagrede vertsnøkler",
+            "Glem gemte værtsnøgler",
+            "Unohda tallennetut isäntäavaimet",
+            "Gleyma vistuðum hýsilslyklum");
         Add("Form.ForgetSshHostKeyTooltip",
-            "Tar bort cachade SSH-värdnycklar för de adresser som fyllts i ovan, så nästa SSH-anslutning inte blockeras av \"host key changed\" (t.ex. efter att en maskin ominstallerats). Bypassar aldrig verifieringen av nästa nyckel som visas.",
-            "Removes cached SSH host keys for the addresses filled in above, so the next SSH connection isn't blocked by \"host key changed\" (e.g. after a machine was reinstalled). Never bypasses verification of whatever key shows up next.",
-            "Fjerner bufrede SSH-vertsnøkler for adressene fylt inn ovenfor, slik at neste SSH-tilkobling ikke blokkeres av \"host key changed\" (f.eks. etter at en maskin ble installert på nytt). Omgår aldri verifiseringen av neste nøkkel som dukker opp.",
-            "Fjerner cachede SSH-værtsnøgler for adresserne udfyldt ovenfor, så den næste SSH-forbindelse ikke blokeres af \"host key changed\" (f.eks. efter en maskine er blevet geninstalleret). Omgår aldrig verifikationen af den næste nøgle, der dukker op.",
-            "Poistaa välimuistiin tallennetut SSH-isäntäavaimet yllä täytetyille osoitteille, jotta seuraava SSH-yhteys ei esty \"host key changed\" -virheeseen (esim. koneen uudelleenasennuksen jälkeen). Ei koskaan ohita seuraavan näytettävän avaimen todennusta.",
-            "Fjarlægir vistaða SSH-hýsilslykla fyrir vistföngin sem fyllt eru út hér að ofan, svo næsta SSH-tenging stöðvist ekki vegna \"host key changed\" (t.d. eftir að vél var endurupsett). Fer aldrei framhjá staðfestingu á næsta lykli sem birtist.");
+            "Tar bort sparade SSH-värdnycklar (i known_hosts) och MyVNC:s sparade certifikat-/värdnyckelfingeravtryck för de adresser som fyllts i ovan — t.ex. efter att en maskin ominstallerats. Nästa anslutning frågar igen; verifieringen hoppas aldrig över.",
+            "Removes cached SSH host keys (in known_hosts) and MyVNC's pinned certificate/host key fingerprints for the addresses filled in above — e.g. after a machine was reinstalled. The next connection asks again; verification is never skipped.",
+            "Fjerner bufrede SSH-vertsnøkler (i known_hosts) og MyVNCs lagrede sertifikat-/vertsnøkkelfingeravtrykk for adressene fylt inn ovenfor — f.eks. etter at en maskin ble installert på nytt. Neste tilkobling spør igjen; verifiseringen hoppes aldri over.",
+            "Fjerner cachede SSH-værtsnøgler (i known_hosts) og MyVNC's gemte certifikat-/værtsnøglefingeraftryk for adresserne udfyldt ovenfor — f.eks. efter en maskine er blevet geninstalleret. Næste forbindelse spørger igen; verifikationen springes aldrig over.",
+            "Poistaa välimuistiin tallennetut SSH-isäntäavaimet (known_hosts) sekä MyVNC:n tallentamat varmenne- ja isäntäavainsormenjäljet yllä täytetyille osoitteille — esim. koneen uudelleenasennuksen jälkeen. Seuraava yhteys kysyy uudelleen; todennusta ei koskaan ohiteta.",
+            "Fjarlægir vistaða SSH-hýsilslykla (í known_hosts) og vistuð fingraför skírteina/hýsilslykla í MyVNC fyrir vistföngin sem fyllt eru út hér að ofan — t.d. eftir að vél var endurupsett. Næsta tenging spyr aftur; staðfestingu er aldrei sleppt.");
         Add("Form.ForgetSshHostKeyOk",
-            "Rensade {0} adress(er) från known_hosts", "Cleared {0} address(es) from known_hosts",
-            "Fjernet {0} adresse(r) fra known_hosts", "Ryddede {0} adresse(r) fra known_hosts",
-            "Poistettiin {0} osoite(tta) known_hosts-tiedostosta", "Hreinsaði {0} vistfang/vistföng úr known_hosts");
+            "Rensade {0} adress(er) från known_hosts och {1} sparade fingeravtryck",
+            "Cleared {0} address(es) from known_hosts and {1} pinned fingerprint(s)",
+            "Fjernet {0} adresse(r) fra known_hosts og {1} lagrede fingeravtrykk",
+            "Ryddede {0} adresse(r) fra known_hosts og {1} gemte fingeraftryk",
+            "Poistettiin {0} osoite(tta) known_hosts-tiedostosta ja {1} tallennettu(a) sormenjälki(ä)",
+            "Hreinsaði {0} vistfang/vistföng úr known_hosts og {1} vistuð fingraför");
         Add("Form.ViewOnly",
             "Visa-endast-läge (skicka inget tangentbord/mus)", "View-only mode (no keyboard/mouse sent)",
             "Vis kun-modus (ingen tastatur/mus sendes)", "Vis kun-tilstand (intet tastatur/mus sendes)",
@@ -287,6 +294,55 @@ public static class Loc
         Add("Session.Disconnected",
             "Anslutningen avbröts: {0}", "Connection lost: {0}", "Tilkoblingen ble brutt: {0}",
             "Forbindelsen blev afbrudt: {0}", "Yhteys katkesi: {0}", "Tengingin rofnaði: {0}");
+        Add("Trust.Title",
+            "Verifiera serverns identitet",
+            "Verify server identity",
+            "Bekreft serverens identitet",
+            "Bekræft serverens identitet",
+            "Varmista palvelimen identiteetti",
+            "Staðfesta auðkenni þjóns");
+        Add("Trust.TlsNew",
+            "Första anslutningen till {0}.\n\nServerns TLS-certifikat är inte utfärdat av en betrodd utfärdare (normalt för wayvnc, som använder ett självsignerat certifikat). Kontrollera att fingeravtrycket stämmer med serverns innan du litar på det:\n\nSHA-256: {1}\n\nPå servern: openssl x509 -in ~/.config/wayvnc/certificate.pem -noout -fingerprint -sha256\n\nLita på certifikatet och anslut?",
+            "First connection to {0}.\n\nThe server's TLS certificate is not issued by a trusted authority (normal for wayvnc, which uses a self-signed certificate). Check that the fingerprint matches the server's before trusting it:\n\nSHA-256: {1}\n\nOn the server: openssl x509 -in ~/.config/wayvnc/certificate.pem -noout -fingerprint -sha256\n\nTrust this certificate and connect?",
+            "Første tilkobling til {0}.\n\nServerens TLS-sertifikat er ikke utstedt av en klarert utsteder (normalt for wayvnc, som bruker et selvsignert sertifikat). Kontroller at fingeravtrykket stemmer med serverens før du stoler på det:\n\nSHA-256: {1}\n\nPå serveren: openssl x509 -in ~/.config/wayvnc/certificate.pem -noout -fingerprint -sha256\n\nStol på sertifikatet og koble til?",
+            "Første forbindelse til {0}.\n\nServerens TLS-certifikat er ikke udstedt af en betroet udsteder (normalt for wayvnc, som bruger et selvsigneret certifikat). Kontrollér, at fingeraftrykket stemmer med serverens, før du stoler på det:\n\nSHA-256: {1}\n\nPå serveren: openssl x509 -in ~/.config/wayvnc/certificate.pem -noout -fingerprint -sha256\n\nStol på certifikatet og forbind?",
+            "Ensimmäinen yhteys kohteeseen {0}.\n\nPalvelimen TLS-varmennetta ei ole myöntänyt luotettu myöntäjä (tavallista wayvncille, joka käyttää itse allekirjoitettua varmennetta). Tarkista, että sormenjälki vastaa palvelimen sormenjälkeä, ennen kuin luotat siihen:\n\nSHA-256: {1}\n\nPalvelimella: openssl x509 -in ~/.config/wayvnc/certificate.pem -noout -fingerprint -sha256\n\nLuotetaanko varmenteeseen ja yhdistetään?",
+            "Fyrsta tenging við {0}.\n\nTLS-skírteini þjónsins er ekki gefið út af traustum útgefanda (eðlilegt fyrir wayvnc, sem notar sjálfundirritað skírteini). Athugaðu að fingrafarið passi við fingrafar þjónsins áður en þú treystir því:\n\nSHA-256: {1}\n\nÁ þjóninum: openssl x509 -in ~/.config/wayvnc/certificate.pem -noout -fingerprint -sha256\n\nTreysta skírteininu og tengjast?");
+        Add("Trust.TlsChanged",
+            "VARNING: TLS-certifikatet för {0} har ÄNDRATS.\n\nDet kan betyda att någon avlyssnar anslutningen (man-in-the-middle) för att komma åt ditt lösenord. Det kan också vara ofarligt — t.ex. att wayvnc installerats om eller dess certifikat genererats på nytt.\n\nTidigare betrott: {1}\nNu presenterat: {2}\n\nFortsätt bara om du vet varför det ändrats. Lita på det nya certifikatet och anslut?",
+            "WARNING: The TLS certificate for {0} has CHANGED.\n\nThis can mean someone is intercepting the connection (man-in-the-middle) to capture your password. It can also be harmless — e.g. wayvnc was reinstalled or its certificate regenerated.\n\nPreviously trusted: {1}\nNow presented: {2}\n\nOnly continue if you know why it changed. Trust the new certificate and connect?",
+            "ADVARSEL: TLS-sertifikatet for {0} er ENDRET.\n\nDette kan bety at noen avlytter tilkoblingen (man-in-the-middle) for å få tak i passordet ditt. Det kan også være ufarlig — f.eks. at wayvnc er installert på nytt eller sertifikatet er generert på nytt.\n\nTidligere klarert: {1}\nNå presentert: {2}\n\nFortsett bare hvis du vet hvorfor det er endret. Stol på det nye sertifikatet og koble til?",
+            "ADVARSEL: TLS-certifikatet for {0} er ÆNDRET.\n\nDet kan betyde, at nogen aflytter forbindelsen (man-in-the-middle) for at få fat i din adgangskode. Det kan også være harmløst — f.eks. at wayvnc er geninstalleret, eller certifikatet er genereret på ny.\n\nTidligere betroet: {1}\nNu præsenteret: {2}\n\nFortsæt kun, hvis du ved, hvorfor det er ændret. Stol på det nye certifikat og forbind?",
+            "VAROITUS: Kohteen {0} TLS-varmenne on MUUTTUNUT.\n\nSe voi tarkoittaa, että joku sieppaa yhteyden (man-in-the-middle) saadakseen salasanasi. Se voi olla myös vaaratonta — esim. wayvnc on asennettu uudelleen tai sen varmenne luotu uudelleen.\n\nAiemmin luotettu: {1}\nNyt esitetty: {2}\n\nJatka vain, jos tiedät, miksi se muuttui. Luotetaanko uuteen varmenteeseen ja yhdistetään?",
+            "VIÐVÖRUN: TLS-skírteinið fyrir {0} hefur BREYST.\n\nÞað getur þýtt að einhver sé að hlera tenginguna (man-in-the-middle) til að ná lykilorðinu þínu. Það getur líka verið skaðlaust — t.d. að wayvnc hafi verið endurupsett eða skírteinið endurgert.\n\nÁður treyst: {1}\nNú birt: {2}\n\nHaltu aðeins áfram ef þú veist af hverju það breyttist. Treysta nýja skírteininu og tengjast?");
+        Add("Trust.TlsDowngrade",
+            "Anslutningen till {0} nekades.\n\nServern har tidigare använt en krypterad (TLS-)anslutning, men erbjuder nu bara {1}, vilket skulle skicka dina inloggningsuppgifter eller sessionen oskyddat. Det är så en angripare som tar bort krypteringen skulle se ut.\n\nOm serverns konfiguration medvetet ändrats: använd \"Glöm sparade värdnycklar\" på anslutningens redigeringssida och anslut igen.",
+            "Connection to {0} refused.\n\nThis server has previously used an encrypted (TLS) connection, but now offers only {1}, which would send your credentials or session unprotected. This is what an attacker stripping the encryption would look like.\n\nIf the server's configuration was deliberately changed, use \"Forget saved host keys\" on the connection's edit page and connect again.",
+            "Tilkoblingen til {0} ble avvist.\n\nServeren har tidligere brukt en kryptert (TLS-)tilkobling, men tilbyr nå bare {1}, som ville sendt påloggingsinformasjonen eller økten din ubeskyttet. Slik ville en angriper som fjerner krypteringen sett ut.\n\nHvis serverens konfigurasjon er endret med vilje: bruk \"Glem lagrede vertsnøkler\" på tilkoblingens redigeringsside og koble til igjen.",
+            "Forbindelsen til {0} blev afvist.\n\nServeren har tidligere brugt en krypteret (TLS-)forbindelse, men tilbyder nu kun {1}, som ville sende dine loginoplysninger eller sessionen ubeskyttet. Sådan ville en angriber, der fjerner krypteringen, se ud.\n\nHvis serverens konfiguration er ændret med vilje: brug \"Glem gemte værtsnøgler\" på forbindelsens redigeringsside og forbind igen.",
+            "Yhteys kohteeseen {0} estettiin.\n\nPalvelin on aiemmin käyttänyt salattua (TLS-)yhteyttä, mutta tarjoaa nyt vain {1}, jolloin kirjautumistietosi tai istunto lähetettäisiin suojaamatta. Juuri tältä näyttäisi hyökkääjä, joka poistaa salauksen.\n\nJos palvelimen asetuksia on muutettu tarkoituksella: käytä yhteyden muokkaussivulla \"Unohda tallennetut isäntäavaimet\" ja yhdistä uudelleen.",
+            "Tengingu við {0} var hafnað.\n\nÞjónninn hefur áður notað dulkóðaða (TLS-)tengingu, en býður nú aðeins {1}, sem myndi senda innskráningarupplýsingar þínar eða lotuna óvarðar. Þannig myndi árásaraðili sem fjarlægir dulkóðunina líta út.\n\nEf stillingum þjónsins var breytt viljandi: notaðu \"Gleyma vistuðum hýsilslyklum\" á breytingasíðu tengingarinnar og tengstu aftur.");
+        Add("Trust.SshNew",
+            "Första filöverföringen till {0}.\n\nServerns SSH-värdnyckel är ännu okänd för MyVNC. Kontrollera att fingeravtrycket stämmer med serverns innan du litar på den:\n\n{1}\n\nPå servern: ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub (eller motsvarande nyckeltyp)\n\nLita på värdnyckeln och anslut?",
+            "First file transfer to {0}.\n\nThe server's SSH host key is not yet known to MyVNC. Check that the fingerprint matches the server's before trusting it:\n\n{1}\n\nOn the server: ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub (or the matching key type)\n\nTrust this host key and connect?",
+            "Første filoverføring til {0}.\n\nServerens SSH-vertsnøkkel er ennå ukjent for MyVNC. Kontroller at fingeravtrykket stemmer med serverens før du stoler på den:\n\n{1}\n\nPå serveren: ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub (eller tilsvarende nøkkeltype)\n\nStol på vertsnøkkelen og koble til?",
+            "Første filoverførsel til {0}.\n\nServerens SSH-værtsnøgle er endnu ukendt for MyVNC. Kontrollér, at fingeraftrykket stemmer med serverens, før du stoler på den:\n\n{1}\n\nPå serveren: ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub (eller tilsvarende nøgletype)\n\nStol på værtsnøglen og forbind?",
+            "Ensimmäinen tiedostonsiirto kohteeseen {0}.\n\nPalvelimen SSH-isäntäavain on MyVNC:lle vielä tuntematon. Tarkista, että sormenjälki vastaa palvelimen sormenjälkeä, ennen kuin luotat siihen:\n\n{1}\n\nPalvelimella: ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub (tai vastaava avaintyyppi)\n\nLuotetaanko isäntäavaimeen ja yhdistetään?",
+            "Fyrsti skráaflutningur til {0}.\n\nSSH-hýsilslykill þjónsins er MyVNC enn óþekktur. Athugaðu að fingrafarið passi við fingrafar þjónsins áður en þú treystir honum:\n\n{1}\n\nÁ þjóninum: ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub (eða samsvarandi lyklagerð)\n\nTreysta hýsilslyklinum og tengjast?");
+        Add("Trust.SshChanged",
+            "VARNING: SSH-värdnyckeln för {0} har ÄNDRATS.\n\nDet kan betyda att någon avlyssnar anslutningen (man-in-the-middle) för att komma åt ditt lösenord. Det kan också vara ofarligt — t.ex. att maskinen installerats om.\n\nTidigare betrodd: {1}\nNu presenterad: {2}\n\nFortsätt bara om du vet varför den ändrats. Lita på den nya värdnyckeln och anslut?",
+            "WARNING: The SSH host key for {0} has CHANGED.\n\nThis can mean someone is intercepting the connection (man-in-the-middle) to capture your password. It can also be harmless — e.g. the machine was reinstalled.\n\nPreviously trusted: {1}\nNow presented: {2}\n\nOnly continue if you know why it changed. Trust the new host key and connect?",
+            "ADVARSEL: SSH-vertsnøkkelen for {0} er ENDRET.\n\nDette kan bety at noen avlytter tilkoblingen (man-in-the-middle) for å få tak i passordet ditt. Det kan også være ufarlig — f.eks. at maskinen er installert på nytt.\n\nTidligere klarert: {1}\nNå presentert: {2}\n\nFortsett bare hvis du vet hvorfor den er endret. Stol på den nye vertsnøkkelen og koble til?",
+            "ADVARSEL: SSH-værtsnøglen for {0} er ÆNDRET.\n\nDet kan betyde, at nogen aflytter forbindelsen (man-in-the-middle) for at få fat i din adgangskode. Det kan også være harmløst — f.eks. at maskinen er geninstalleret.\n\nTidligere betroet: {1}\nNu præsenteret: {2}\n\nFortsæt kun, hvis du ved, hvorfor den er ændret. Stol på den nye værtsnøgle og forbind?",
+            "VAROITUS: Kohteen {0} SSH-isäntäavain on MUUTTUNUT.\n\nSe voi tarkoittaa, että joku sieppaa yhteyden (man-in-the-middle) saadakseen salasanasi. Se voi olla myös vaaratonta — esim. kone on asennettu uudelleen.\n\nAiemmin luotettu: {1}\nNyt esitetty: {2}\n\nJatka vain, jos tiedät, miksi se muuttui. Luotetaanko uuteen isäntäavaimeen ja yhdistetään?",
+            "VIÐVÖRUN: SSH-hýsilslykillinn fyrir {0} hefur BREYST.\n\nÞað getur þýtt að einhver sé að hlera tenginguna (man-in-the-middle) til að ná lykilorðinu þínu. Það getur líka verið skaðlaust — t.d. að vélin hafi verið endurupsett.\n\nÁður treyst: {1}\nNú birt: {2}\n\nHaltu aðeins áfram ef þú veist af hverju hann breyttist. Treysta nýja hýsilslyklinum og tengjast?");
+        Add("Trust.Rejected",
+            "Serverns identitet godkändes inte — anslutningen avbröts. Inga inloggningsuppgifter skickades.",
+            "The server's identity was not accepted — the connection was aborted. No credentials were sent.",
+            "Serverens identitet ble ikke godkjent — tilkoblingen ble avbrutt. Ingen påloggingsinformasjon ble sendt.",
+            "Serverens identitet blev ikke godkendt — forbindelsen blev afbrudt. Ingen loginoplysninger blev sendt.",
+            "Palvelimen identiteettiä ei hyväksytty — yhteys keskeytettiin. Kirjautumistietoja ei lähetetty.",
+            "Auðkenni þjónsins var ekki samþykkt — tengingin var rofin. Engar innskráningarupplýsingar voru sendar.");
         Add("Session.Close",
             "Stäng", "Close", "Lukk", "Luk", "Sulje", "Loka");
         Add("Session.Fullscreen",

@@ -18,6 +18,28 @@ public static class FileTransferService
     private const int SshPort = 22;
     private const string SharedDirectory = "myvnc-shared";
 
+    /// <summary>Every SFTP connection verifies the server's host key against the pinned one
+    /// (trust on first use, see <see cref="HostTrust"/>) before the password is sent — SSH.NET
+    /// otherwise accepts any host key, which would hand the credentials to a man-in-the-middle.</summary>
+    private static SftpClient CreateClient(string host, string? username, string? password)
+    {
+        var client = new SftpClient(host, SshPort, username ?? string.Empty, password ?? string.Empty);
+        client.HostKeyReceived += (_, e) =>
+            e.CanTrust = HostTrust.VerifySshHostKey(host, SshPort, $"{e.HostKeyName} SHA256:{e.FingerPrintSHA256}");
+        return client;
+    }
+
+    internal static bool IsSafeLocalFileName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name) || name is "." or "..") return false;
+        if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) return false; // includes \ / : and control chars
+        if (name.EndsWith('.') || name.EndsWith(' ')) return false;               // Windows silently strips these
+        var stem = Path.GetFileNameWithoutExtension(name).ToUpperInvariant();
+        string[] reserved = ["CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"];
+        return !reserved.Contains(stem);
+    }
+
     public static async Task<FileTransferResult> UploadFileAsync(string host, string? username, string? password, string localFilePath, CancellationToken ct = default)
     {
         var fileName = Path.GetFileName(localFilePath);
@@ -25,7 +47,7 @@ public static class FileTransferService
         {
             return await Task.Run(() =>
             {
-                using var client = new SftpClient(host, SshPort, username ?? string.Empty, password ?? string.Empty);
+                using var client = CreateClient(host, username, password);
                 client.Connect();
                 ct.ThrowIfCancellationRequested();
 
@@ -63,7 +85,7 @@ public static class FileTransferService
     {
         return await Task.Run(() =>
         {
-            using var client = new SftpClient(host, SshPort, username ?? string.Empty, password ?? string.Empty);
+            using var client = CreateClient(host, username, password);
             client.Connect();
             ct.ThrowIfCancellationRequested();
 
@@ -83,11 +105,17 @@ public static class FileTransferService
         {
             return await Task.Run(() =>
             {
-                using var client = new SftpClient(host, SshPort, username ?? string.Empty, password ?? string.Empty);
+                using var client = CreateClient(host, username, password);
                 client.Connect();
                 ct.ThrowIfCancellationRequested();
 
                 var remotePath = $"{SharedDirectory}/{remoteFileName}";
+
+                // The name comes from the server's directory listing, and a Linux filename may
+                // contain '\' or look like "..", "C:x" or a device name — any of which would make
+                // Path.Combine below write outside the chosen folder on Windows.
+                if (!IsSafeLocalFileName(remoteFileName))
+                    throw new InvalidOperationException($"Refusing to save a file with an unsafe name: '{remoteFileName}'");
 
                 var localName = remoteFileName;
                 var localPath = Path.Combine(localDestinationDirectory, localName);

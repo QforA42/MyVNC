@@ -386,10 +386,11 @@ public partial class MainWindow : Window
 
         ForgetSshHostKeyButton.IsEnabled = false;
         var cleared = SshLauncher.ForgetHostKeys(addresses);
+        var pinsRemoved = HostTrust.Forget(addresses);
         ForgetSshHostKeyButton.IsEnabled = true;
 
         ForgetSshHostKeyResultText.Foreground = (Brush)FindResource("SuccessBrush");
-        ForgetSshHostKeyResultText.Text = Loc.T("Form.ForgetSshHostKeyOk", cleared);
+        ForgetSshHostKeyResultText.Text = Loc.T("Form.ForgetSshHostKeyOk", cleared, pinsRemoved);
     }
 
     // ----- New/edit connection page -----
@@ -770,6 +771,7 @@ public partial class MainWindow : Window
             ReceiveClipboard = receiveClipboard,
             SendClipboard = sendClipboard,
             ActualSize = actualSize,
+            VerifyServerIdentity = HostTrust.VerifyVncServerAsync,
         };
 
         if (App.Settings.SessionOpenMode == SessionOpenMode.Tab && SessionWindow.Shared is { } shared)
