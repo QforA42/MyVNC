@@ -91,4 +91,4 @@ Found a vulnerability? Please report it privately — see [SECURITY.md](SECURITY
 
 ## License
 
-MyVNC is released under the [MIT License](LICENSE). It uses [SSH.NET](https://github.com/sshnet/SSH.NET) (MIT) for file transfer.
+MyVNC is released under the [MIT License](LICENSE). It uses [SSH.NET](https://github.com/sshnet/SSH.NET) (MIT) for file transfer; see [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt) for all bundled components.
