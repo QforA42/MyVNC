@@ -343,6 +343,13 @@ public static class Loc
             "Serverens identitet blev ikke godkendt — forbindelsen blev afbrudt. Ingen loginoplysninger blev sendt.",
             "Palvelimen identiteettiä ei hyväksytty — yhteys keskeytettiin. Kirjautumistietoja ei lähetetty.",
             "Auðkenni þjónsins var ekki samþykkt — tengingin var rofin. Engar innskráningarupplýsingar voru sendar.");
+        Add("Ssh.InvalidTarget",
+            "Kan inte öppna SSH: adressen eller användarnamnet innehåller ogiltiga tecken. Tillåtet är bokstäver (a–z), siffror och . - _ (samt : % i adresser).",
+            "Can't open SSH: the address or username contains invalid characters. Allowed are letters (a–z), digits and . - _ (plus : % in addresses).",
+            "Kan ikke åpne SSH: adressen eller brukernavnet inneholder ugyldige tegn. Tillatt er bokstaver (a–z), sifre og . - _ (samt : % i adresser).",
+            "Kan ikke åbne SSH: adressen eller brugernavnet indeholder ugyldige tegn. Tilladt er bogstaver (a–z), cifre og . - _ (samt : % i adresser).",
+            "SSH:ta ei voi avata: osoite tai käyttäjätunnus sisältää virheellisiä merkkejä. Sallittuja ovat kirjaimet (a–z), numerot sekä . - _ (osoitteissa myös : %).",
+            "Ekki er hægt að opna SSH: vistfangið eða notandanafnið inniheldur ógild tákn. Leyfðir eru bókstafir (a–z), tölustafir og . - _ (auk : % í vistföngum).");
         Add("Session.Close",
             "Stäng", "Close", "Lukk", "Luk", "Sulje", "Loka");
         Add("Session.Fullscreen",

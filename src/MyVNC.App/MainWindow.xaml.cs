@@ -346,7 +346,8 @@ public partial class MainWindow : Window
     {
         if (((FrameworkElement)sender).Tag is not ConnectionProfile profile) return;
         var address = profile.ResolveAddress(profile.DefaultAddress);
-        SshLauncher.Launch(address, profile.Username, App.Settings.SshTerminal);
+        if (!SshLauncher.Launch(address, profile.Username, App.Settings.SshTerminal))
+            MessageBox.Show(this, Loc.T("Ssh.InvalidTarget"), Loc.T("Card.OpenSsh"), MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
     /// <summary>Cheap, synchronous (no I/O — just checks already-open tabs), so unlike SSH
