@@ -1,5 +1,7 @@
 # MyVNC
 
+[![CI](https://github.com/QforA42/MyVNC/actions/workflows/ci.yml/badge.svg)](https://github.com/QforA42/MyVNC/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](https://hyprland.org/)/[omarchy](https://omarchy.org/) machines running [wayvnc](https://github.com/any1/wayvnc) over Tailscale. Built from scratch (own RFB protocol implementation, no bundled VNC library).
 
 ![MyVNC dashboard](docs/assets/dashboard.png)
@@ -74,11 +76,19 @@ Kept in sync with the in-app Help page — only what's actually still true today
 
 ## Development
 
-See [AGENTS.md](AGENTS.md) for versioning rules, commit conventions, and the build workflow. Version history lives in [CHANGELOG.md](CHANGELOG.md), with a per-release note (scope, regression testing done, known risks) under [docs/releases/](docs/releases/). Quick reference:
+See [CONTRIBUTING.md](CONTRIBUTING.md) for versioning rules, commit conventions, and the build workflow. Version history lives in [CHANGELOG.md](CHANGELOG.md), with a per-release note (scope, regression testing done, known risks) under [docs/releases/](docs/releases/). Quick reference:
 
 ```powershell
 dotnet build MyVNC.slnx                      # Debug
-dotnet build MyVNC.slnx -c Release            # Release (what the desktop shortcut runs)
+dotnet build MyVNC.slnx -c Release            # Release
 dotnet test tests\MyVNC.Rfb.Tests             # RFB protocol unit tests
 powershell -File scripts\smoke-test.ps1       # process-level regression check
 ```
+
+## Security
+
+Found a vulnerability? Please report it privately — see [SECURITY.md](SECURITY.md), which also lists the client's current known security limitations.
+
+## License
+
+MyVNC is released under the [MIT License](LICENSE). It uses [SSH.NET](https://github.com/sshnet/SSH.NET) (MIT) for file transfer.
