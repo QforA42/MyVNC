@@ -1,10 +1,10 @@
 # Changelog
 
-Alla nämnvärda ändringar i MyVNC dokumenteras i denna fil.
+All notable changes to MyVNC are documented in this file.
 
-Formatet följer [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), och projektet
-använder [Semantic Versioning](AGENTS.md#versionering) — se `VERSION` för den kanoniska
-versionen.
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
+uses [Semantic Versioning](CONTRIBUTING.md#versioning) — see `VERSION` for the canonical
+version.
 
 ## [Unreleased]
 
@@ -353,16 +353,16 @@ versionen.
 ## [0.1.0] - 2026-08-15
 
 ### Added
-- Egen RFB/VNC-klientimplementation (handskakning 3.3/3.7/3.8, None/VNC-Auth/VeNCrypt,
-  Raw/CopyRect/DesktopSize/ZRLE-kodning) skräddarsydd för wayvnc/Hyprland-hosts.
-- Modern WPF-dashboard med sparade anslutningar, favoritmarkering, sök/filter och stöd för
-  fyra adresser per host (Host-IP, FQDN, Tailscale-IP, Tailscale-FQDN) med adressväljare.
-- Flersessionsstöd: egna fönster eller flikar i samma fönster (valbart), med tydlig
-  flikindikering och helskärmsbeteende som matchar enkelsessionsläget.
-- Anslutningsalternativ per host: visa-endast-läge, oberoende urklippsriktningar
-  (ta emot/skicka), verklig storlek vs. anpassa-till-fönster, testa anslutning-knapp.
-- Automatisk återanslutning med exponentiell backoff vid oväntat tapp.
-- Fullständig lokalisering (svenska, engelska, norska, danska, finska, isländska); appen
-  följer OS:ets ljusa/mörka tema automatiskt.
-- Windows-integration: skrivbordsikon, taskbar-genvägar (jump list) med pinnade/senaste
-  anslutningar, egen app-logga som ikon.
+- Own RFB/VNC client implementation (handshake 3.3/3.7/3.8, None/VNC-Auth/VeNCrypt,
+  Raw/CopyRect/DesktopSize/ZRLE encodings) tailored for wayvnc/Hyprland hosts.
+- Modern WPF dashboard with saved connections, favorites, search/filter and support for
+  four addresses per host (Host IP, FQDN, Tailscale IP, Tailscale FQDN) with an address picker.
+- Multi-session support: separate windows or tabs in one window (selectable), with clear
+  tab indication and fullscreen behavior matching single-session mode.
+- Per-host connection options: view-only mode, independent clipboard directions
+  (receive/send), actual size vs. fit-to-window, a test-connection button.
+- Automatic reconnect with exponential backoff after an unexpected drop.
+- Full localization (Swedish, English, Norwegian, Danish, Finnish, Icelandic); the app
+  follows the OS light/dark theme automatically.
+- Windows integration: desktop shortcut, taskbar shortcuts (jump list) with pinned/recent
+  connections, own app logo as the icon.
