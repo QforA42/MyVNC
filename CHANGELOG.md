@@ -8,6 +8,8 @@ version.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-09-26
+
 ### Security
 - VNC connections over VeNCrypt now verify the server's TLS certificate instead of accepting any
   certificate: the first connection shows the SHA-256 fingerprint for confirmation and pins it
@@ -28,10 +30,22 @@ version.
 - A failed or rejected connection attempt now closes its socket immediately instead of leaving
   it open until the next attempt, where it could hold the only slot on a single-client wayvnc
   server.
+- Closing a session now releases its server connection at once. Previously a read could stay
+  blocked on an in-flight framebuffer update for a moment, so a session reopened right away
+  could be refused by a single-client wayvnc guard, or two receive loops decoded frames at once.
+- Framebuffer, resize and disconnect notifications still queued from a just-closed session no
+  longer repaint, or mark as disconnected, a session opened right after it.
 
 ### Changed
 - "Forget SSH host key" on the connection edit page is now "Forget saved host keys" and also
   clears MyVNC's pinned TLS certificate and SSH host key fingerprints for the host.
+
+### Added
+- The installer now ships `LICENSE.txt` and `THIRD-PARTY-NOTICES.txt` for MyVNC and its bundled
+  components (SSH.NET, BouncyCastle, the .NET runtime).
+- Project groundwork for a public repository: MIT license, security policy (`SECURITY.md`),
+  contributing guide, a GitHub Actions build-and-test workflow, Dependabot, and English release
+  notes.
 
 ## [0.9.2] - 2026-08-31
 
