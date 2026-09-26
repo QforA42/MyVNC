@@ -151,7 +151,7 @@ public partial class RemoteFramebufferControl : UserControl
             // fired ConnectionLost to get us here) was never disposed, leaving its TCP socket open.
             // Over repeated auto-reconnects that leaks a stale half-open connection per attempt,
             // which is exactly the shape of the still-unexplained duplicate-connection/memory
-            // incident (see diag commit 09707d5) — and a server that sees multiple lingering
+            // incident (see diag commit 8a9dd82) — and a server that sees multiple lingering
             // connections from the same client can plausibly serve a confused/blank framebuffer to
             // the newest one. Dispose defensively before replacing it.
             Interlocked.Increment(ref _connectionGeneration);
