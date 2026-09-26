@@ -1,6 +1,6 @@
 ; Inno Setup script for MyVNC. MyAppVersion is passed in from build-installer.ps1 via
 ; /DMyAppVersion=x.y.z (read from the root VERSION file there), so a release bump (see
-; AGENTS.md) doesn't require touching this script. The fallback below only applies if this file
+; CONTRIBUTING.md) doesn't require touching this script. The fallback below only applies if this file
 ; is ever compiled directly without going through build-installer.ps1.
 ;
 ; AppId is a fixed GUID: Inno Setup uses it to identify "the same app" across versions for

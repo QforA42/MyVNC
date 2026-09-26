@@ -6,3 +6,7 @@ installer/publish/
 installer/output/
 .env
 .codegraph/
+
+# Local, non-public agent instructions
+CLAUDE.local.md
+AGENTS.local.md
