@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # NuGet packages (SSH.NET and its dependencies, the test stack).
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build
+    groups:
+      test-stack:
+        patterns: ["xunit*", "Microsoft.NET.Test.Sdk"]
+
+  # Actions used by .github/workflows.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build
