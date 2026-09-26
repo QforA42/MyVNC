@@ -1,6 +1,8 @@
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace MyVNC.Rfb;
@@ -65,6 +67,12 @@ public sealed class RfbClient : IAsyncDisposable
         catch (Exception ex)
         {
             RfbLog.Write($"Connect failed for {options.Host}:{options.Port}: {ex}");
+            // Close the socket now rather than whenever the caller next disposes this client:
+            // a half-finished handshake (e.g. a rejected server identity) otherwise stays open
+            // and can hold the only slot on a single-client wayvnc server.
+            _stream?.Dispose();
+            _tcp?.Dispose();
+            State = RfbConnectionState.Disconnected;
             throw;
         }
     }
@@ -121,6 +129,10 @@ public sealed class RfbClient : IAsyncDisposable
 
         RfbLog.Write($"Server version '{versionStr}', security type: {chosen}");
 
+        // VeNCrypt verifies inside DoVeNCryptAsync, once it knows whether TLS is in use.
+        if (chosen is RfbSecurityType.None or RfbSecurityType.VncAuth)
+            await VerifyServerIdentityAsync(options, chosen.ToString(), certificate: null, chainValid: false, ct).ConfigureAwait(false);
+
         if (chosen == RfbSecurityType.VncAuth)
         {
             if (string.IsNullOrEmpty(options.Password))
@@ -170,7 +182,7 @@ public sealed class RfbClient : IAsyncDisposable
     /// <summary>
     /// VeNCrypt (RFB security type 19) is what wayvnc and most modern Wayland/Hyprland
     /// compositors use for username+password auth. Negotiates protocol version 0.2, picks
-    /// the "Plain" sub-type (optionally TLS-wrapped for the X509* variants), then sends the
+    /// a username/password sub-type (TLS-wrapped X509Plain/TLSPlain preferred over Plain), then sends the
     /// credentials in the clear over that channel.
     /// </summary>
     private static async Task<Stream> DoVeNCryptAsync(Stream stream, RfbConnectionOptions options, CancellationToken ct)
@@ -195,9 +207,12 @@ public sealed class RfbClient : IAsyncDisposable
         for (int i = 0; i < subtypeCount; i++)
             subtypes[i] = (VeNCryptSubType)await stream.ReadU32Async(ct).ConfigureAwait(false);
 
-        var chosenSubtype = subtypes.Contains(VeNCryptSubType.Plain) ? VeNCryptSubType.Plain
-            : subtypes.Contains(VeNCryptSubType.X509Plain) ? VeNCryptSubType.X509Plain
+        // Prefer the TLS-wrapped variants: Plain sends the password in the clear, so picking it
+        // whenever it's offered would let anyone on the path read it, and a man-in-the-middle
+        // could strip TLS simply by offering Plain alongside it.
+        var chosenSubtype = subtypes.Contains(VeNCryptSubType.X509Plain) ? VeNCryptSubType.X509Plain
             : subtypes.Contains(VeNCryptSubType.TLSPlain) ? VeNCryptSubType.TLSPlain
+            : subtypes.Contains(VeNCryptSubType.Plain) ? VeNCryptSubType.Plain
             : throw new NotSupportedException("Servern kräver en VeNCrypt-underttyp som inte stöds (endast användarnamn/lösenord stöds).");
 
         RfbLog.Write($"VeNCrypt subtype: {chosenSubtype}");
@@ -214,16 +229,34 @@ public sealed class RfbClient : IAsyncDisposable
 
         if (chosenSubtype is VeNCryptSubType.X509Plain or VeNCryptSubType.TLSPlain)
         {
-            // wayvnc's default certificate is self-signed and not part of any CA chain the
-            // client can validate, so we trust-on-first-use here (same posture TigerVNC's
-            // "AcceptGtkOsdCert" prompt and most home VNC setups take for a LAN/VPN-only server).
-            var ssl = new SslStream(stream, leaveInnerStreamOpen: false, (_, _, _, _) => true);
+            // wayvnc's default certificate is self-signed and not part of any CA chain, so the
+            // handshake itself accepts any certificate and records whether standard validation
+            // would have passed. The actual trust decision (a pinned fingerprint, trust on first
+            // use) is VerifyServerIdentity's, made below before the credentials go out.
+            var policyErrors = SslPolicyErrors.None;
+            var ssl = new SslStream(stream, leaveInnerStreamOpen: false, (_, _, _, errors) =>
+            {
+                policyErrors = errors;
+                return true;
+            });
             await ssl.AuthenticateAsClientAsync(new SslClientAuthenticationOptions
             {
                 TargetHost = options.Host,
                 EnabledSslProtocols = SslProtocols.None, // let the OS pick the best mutually supported protocol
             }, ct).ConfigureAwait(false);
             stream = ssl;
+
+            if (ssl.RemoteCertificate is null)
+                throw new AuthenticationException("The server did not present a TLS certificate.");
+            var certificate = ssl.RemoteCertificate as X509Certificate2
+                ?? X509CertificateLoader.LoadCertificate(ssl.RemoteCertificate.GetRawCertData());
+
+            await VerifyServerIdentityAsync(options, $"VeNCrypt {chosenSubtype}", certificate,
+                chainValid: policyErrors == SslPolicyErrors.None, ct).ConfigureAwait(false);
+        }
+        else
+        {
+            await VerifyServerIdentityAsync(options, $"VeNCrypt {chosenSubtype}", certificate: null, chainValid: false, ct).ConfigureAwait(false);
         }
 
         if (string.IsNullOrEmpty(options.Username))
@@ -239,6 +272,27 @@ public sealed class RfbClient : IAsyncDisposable
 
         return stream;
     }
+
+    private static async Task VerifyServerIdentityAsync(RfbConnectionOptions options, string security,
+        X509Certificate2? certificate, bool chainValid, CancellationToken ct)
+    {
+        var identity = new RfbServerIdentity
+        {
+            Host = options.Host,
+            Port = options.Port,
+            Security = security,
+            Certificate = certificate,
+            CertificateSha256 = certificate is null ? null : FormatFingerprint(certificate.GetCertHash(HashAlgorithmName.SHA256)),
+            CertificateChainValid = certificate is not null && chainValid,
+        };
+        RfbLog.Write($"Server identity: {security}, certificate SHA-256 {identity.CertificateSha256 ?? "(none)"}, chain valid: {identity.CertificateChainValid}");
+
+        if (options.VerifyServerIdentity is { } verify && !await verify(identity, ct).ConfigureAwait(false))
+            throw new RfbServerIdentityRejectedException(identity);
+    }
+
+    internal static string FormatFingerprint(byte[] hash) => Convert.ToHexString(hash).Chunk(2)
+        .Select(pair => new string(pair)).Aggregate((a, b) => $"{a}:{b}");
 
     private static async Task<string> ReadRfbStringAsync(Stream stream, CancellationToken ct)
     {

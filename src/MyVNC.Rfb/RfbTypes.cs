@@ -1,3 +1,5 @@
+using System.Security.Cryptography.X509Certificates;
+
 namespace MyVNC.Rfb;
 
 public enum RfbSecurityType : byte
@@ -55,6 +57,44 @@ public sealed class RfbConnectionOptions
     public bool ReceiveClipboard { get; init; } = true;
     public bool SendClipboard { get; init; } = true;
     public bool ActualSize { get; init; }
+
+    /// <summary>Called once per connection after the security type is negotiated (and, for
+    /// VeNCrypt X509/TLS, after the TLS handshake) but before any credential is sent. Returning
+    /// false aborts the connection with <see cref="RfbServerIdentityRejectedException"/>. When
+    /// null, every server is accepted — the library itself has no trust store.</summary>
+    public Func<RfbServerIdentity, CancellationToken, Task<bool>>? VerifyServerIdentity { get; init; }
+}
+
+/// <summary>What the client knows about the server's identity at the point credentials are
+/// about to be sent.</summary>
+public sealed class RfbServerIdentity
+{
+    public required string Host { get; init; }
+    public required int Port { get; init; }
+
+    /// <summary>The negotiated security, e.g. "VeNCrypt X509Plain", "VncAuth" or "None".</summary>
+    public required string Security { get; init; }
+
+    /// <summary>The server's TLS certificate, or null when the connection is not TLS-protected
+    /// (security type None/VncAuth, or VeNCrypt Plain).</summary>
+    public X509Certificate2? Certificate { get; init; }
+
+    /// <summary>SHA-256 fingerprint of <see cref="Certificate"/> as colon-separated hex, or null.</summary>
+    public string? CertificateSha256 { get; init; }
+
+    /// <summary>True when the certificate chains to a trusted root and matches <see cref="Host"/>
+    /// (standard TLS validation succeeded). A self-signed wayvnc certificate is never valid.</summary>
+    public bool CertificateChainValid { get; init; }
+
+    public bool IsEncrypted => Certificate is not null;
+}
+
+/// <summary>Thrown when <see cref="RfbConnectionOptions.VerifyServerIdentity"/> rejects the server.
+/// Not a transient network error — reconnecting will be rejected the same way.</summary>
+public sealed class RfbServerIdentityRejectedException(RfbServerIdentity identity)
+    : IOException($"Server identity for {identity.Host}:{identity.Port} was rejected ({identity.Security}).")
+{
+    public RfbServerIdentity Identity { get; } = identity;
 }
 
 public enum RfbConnectionState
