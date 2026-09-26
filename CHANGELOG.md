@@ -8,6 +8,31 @@ version.
 
 ## [Unreleased]
 
+### Security
+- VNC connections over VeNCrypt now verify the server's TLS certificate instead of accepting any
+  certificate: the first connection shows the SHA-256 fingerprint for confirmation and pins it
+  (trust on first use, stored in `%APPDATA%\MyVNC\known_hosts.json`), a changed certificate
+  triggers a warning that defaults to refusing, and a pinned host that suddenly offers no TLS is
+  refused as a downgrade. The check runs before any credential is sent, and a rejected server is
+  not auto-reconnected to.
+- VeNCrypt now prefers the TLS-wrapped X509Plain/TLSPlain sub-types over Plain, which sent the
+  password unencrypted whenever a server offered both.
+- SFTP file transfer now verifies the server's SSH host key (trust on first use, warning on
+  change) before sending the password; previously any host key was accepted.
+- Downloaded files whose server-provided name could escape the chosen folder (`..`, `\`, drive
+  letters, reserved device names) are refused.
+- The SSH terminal shortcut validates the host and username and passes them as separate process
+  arguments, so a connection profile can no longer inject shell commands or ssh options.
+
+### Fixed
+- A failed or rejected connection attempt now closes its socket immediately instead of leaving
+  it open until the next attempt, where it could hold the only slot on a single-client wayvnc
+  server.
+
+### Changed
+- "Forget SSH host key" on the connection edit page is now "Forget saved host keys" and also
+  clears MyVNC's pinned TLS certificate and SSH host key fingerprints for the host.
+
 ## [0.9.2] - 2026-08-31
 
 ### Added

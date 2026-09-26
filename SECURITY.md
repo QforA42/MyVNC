@@ -69,16 +69,32 @@ Out of scope:
 - The inherent weaknesses of the RFB protocol itself, such as VNC Auth's DES challenge or the
   `None` security type sending everything unencrypted.
 
+## How MyVNC verifies servers
+
+- **VNC over TLS (VeNCrypt X509Plain/TLSPlain):** preferred over unencrypted VeNCrypt Plain
+  whenever the server offers both. wayvnc uses a self-signed certificate, so MyVNC uses
+  trust on first use: the first connection shows the certificate's SHA-256 fingerprint for you to
+  compare with the server's, and the accepted fingerprint is pinned in
+  `%APPDATA%\MyVNC\known_hosts.json`. A changed certificate triggers a warning (defaulting to
+  refuse), and a host with a pinned certificate that suddenly offers no TLS is refused as a
+  downgrade. Certificates that pass standard CA validation for the host name are accepted
+  without a prompt.
+- **SFTP file transfer:** the server's SSH host key is verified the same way (trust on first use,
+  pinned, warning on change) before the password is sent.
+- **SSH terminal shortcut:** the host and username are validated against a strict character set
+  and passed as separate process arguments — never through a shell-built command string.
+- The identity check always runs before any credential is sent; rejecting it aborts the
+  connection and stops auto-reconnect.
+
+"Forget saved host keys" on a connection's edit page clears both OpenSSH's `known_hosts` entries
+and MyVNC's pinned fingerprints for that host, e.g. after a reinstall.
+
 ## Known security limitations
 
-These are known and are not considered new vulnerabilities, but fixes are welcome:
+These are known and are not considered new vulnerabilities, but improvements are welcome:
 
-- **VeNCrypt TLS certificates are not verified.** When connecting with TLSPlain/X509Plain, MyVNC
-  accepts any server certificate (VNC servers typically use self-signed ones). An attacker who can
-  intercept the connection can therefore impersonate the server and capture the username and
-  password. Mitigation: only connect over a network you trust or an encrypted overlay such as
-  Tailscale/WireGuard or an SSH tunnel.
-- **The SFTP file transfer does not verify the SSH host key.** The same credentials are sent over
-  SSH, with the same man-in-the-middle exposure and the same mitigation.
+- **Trust on first use is only as good as the first connection.** If the very first connection
+  to a host is already intercepted, the attacker's fingerprint gets pinned. Compare the
+  fingerprint with the server's (the prompt shows the command to run there) before accepting.
 - **VNC Auth and the `None` security type** provide no encryption of the session itself; use
-  VeNCrypt with TLS or a secure tunnel.
+  VeNCrypt with TLS or a secure tunnel such as Tailscale/WireGuard or SSH.
