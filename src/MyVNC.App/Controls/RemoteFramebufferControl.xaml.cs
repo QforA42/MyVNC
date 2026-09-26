@@ -20,6 +20,13 @@ public partial class RemoteFramebufferControl : UserControl
     private RfbClient? _client;
     private WriteableBitmap? _bitmap;
 
+    // Incremented before an old transport is torn down.  Render/connection notifications are
+    // posted from the RFB receive thread, so some can already be waiting on the WPF dispatcher
+    // when a tab is closed.  They must not repaint (or mark disconnected) a subsequently opened
+    // session; more importantly they then become tiny no-ops instead of keeping the UI busy
+    // painting the old desktop after a quick close-and-reopen.
+    private int _connectionGeneration;
+
     // Serializes ConnectAsync/DisconnectAsync against each other — without it, closing a tab (or a
     // fresh reconnect) while a previous ConnectAsync is still mid-flight (TCP connect/handshake)
     // let both sides read/write the _client field concurrently: DisconnectAsync could null it out
@@ -147,19 +154,21 @@ public partial class RemoteFramebufferControl : UserControl
             // incident (see diag commit 09707d5) — and a server that sees multiple lingering
             // connections from the same client can plausibly serve a confused/blank framebuffer to
             // the newest one. Dispose defensively before replacing it.
+            Interlocked.Increment(ref _connectionGeneration);
             if (_client is not null)
                 await _client.DisposeAsync().ConfigureAwait(true);
 
             var client = new RfbClient();
-            client.FramebufferUpdated += OnFramebufferUpdated;
-            client.DesktopResized += OnDesktopResized;
+            var generation = _connectionGeneration;
+            client.FramebufferUpdated += (sender, e) => OnFramebufferUpdated(client, generation, e);
+            client.DesktopResized += (sender, e) => OnDesktopResized(client, generation, e);
             client.ServerCutTextReceived += (_, e) => Dispatcher.BeginInvoke(() =>
             {
                 if (!ReceiveClipboard) return;
                 _lastSyncedClipboardText = e.Text;
                 TrySetClipboard(e.Text);
             });
-            client.ConnectionLost += (_, ex) => Dispatcher.BeginInvoke(() => RaiseDisconnected(ex));
+            client.ConnectionLost += (_, ex) => Dispatcher.BeginInvoke(() => RaiseDisconnected(client, generation, ex));
             _client = client;
 
             await client.ConnectAsync(options, ct).ConfigureAwait(true);
@@ -185,6 +194,7 @@ public partial class RemoteFramebufferControl : UserControl
         await _connectionLock.WaitAsync().ConfigureAwait(true);
         try
         {
+            Interlocked.Increment(ref _connectionGeneration);
             IsConnected = false;
             if (_client is not null)
             {
@@ -198,27 +208,30 @@ public partial class RemoteFramebufferControl : UserControl
         }
     }
 
-    private void RaiseDisconnected(Exception? ex)
+    private void RaiseDisconnected(RfbClient client, int generation, Exception? ex)
     {
+        if (generation != Volatile.Read(ref _connectionGeneration) || !ReferenceEquals(client, _client)) return;
         IsConnected = false;
         Disconnected?.Invoke(this, new RemoteDisconnectedEventArgs(ex));
     }
 
-    private void OnDesktopResized(object? sender, DesktopResizedEventArgs e)
+    private void OnDesktopResized(RfbClient client, int generation, DesktopResizedEventArgs e)
     {
         // Same priority as OnFramebufferUpdated so this stays ordered relative to the
         // rectangles around it instead of jumping the (lower-priority) Render queue.
         Dispatcher.BeginInvoke(DispatcherPriority.Render, () =>
         {
+            if (generation != Volatile.Read(ref _connectionGeneration) || !ReferenceEquals(client, _client)) return;
             _bitmap = new WriteableBitmap(e.Width, e.Height, 96, 96, PixelFormats.Bgr32, null);
             FramebufferImage.Source = _bitmap;
         });
     }
 
-    private void OnFramebufferUpdated(object? sender, FramebufferUpdateEventArgs e)
+    private void OnFramebufferUpdated(RfbClient client, int generation, FramebufferUpdateEventArgs e)
     {
         Dispatcher.BeginInvoke(DispatcherPriority.Render, () =>
         {
+            if (generation != Volatile.Read(ref _connectionGeneration) || !ReferenceEquals(client, _client)) return;
             var bmp = _bitmap;
             if (bmp is null || e.Rectangle.Width == 0 || e.Rectangle.Height == 0) return;
             var rect = new Int32Rect(e.Rectangle.X, e.Rectangle.Y, e.Rectangle.Width, e.Rectangle.Height);
