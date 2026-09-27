@@ -8,6 +8,16 @@ version.
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-09-27
+
+### Fixed
+- Closing a session window with the window's X button now cancels pending reconnects and releases
+  its VNC connection. Previously an invisible session could keep reconnecting, compete with a new
+  window for a server's single-client slot, and cause both connections to drop repeatedly.
+- A connection that completes the handshake but drops immediately now counts toward the three
+  reconnect attempts. A successful handshake alone no longer resets the retry counter, which
+  previously allowed this failure to loop indefinitely.
+
 ## [0.10.0] - 2026-09-26
 
 ### Security

@@ -25,7 +25,7 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 - **Per-host connection options** — view-only mode, independent clipboard directions (receive/send), actual-size vs. fit-to-window, a test-connection reachability check.
 - **Search and pin saved connections** — filter the dashboard list by name/host/address, and pin favorites to the top.
 - **Duplicate-connection guard** — only one live session per host at a time, no matter which of its known addresses (Host IP, FQDN, Tailscale IP, Tailscale FQDN) is used to connect; a second attempt focuses the existing session instead of opening a competing one.
-- **Auto-reconnect** with exponential backoff after an unexpected drop, capped at 3 attempts before giving up and closing the tab automatically — a host that's genuinely gone doesn't retry forever.
+- **Auto-reconnect** with exponential backoff after an unexpected drop, capped at 3 attempts before giving up and closing the tab automatically. A handshake followed by an immediate drop counts as a failed attempt, and closing a session window stops its pending reconnects.
 - **Wake button** — nudges a DPMS-blanked remote screen (sends a harmless key), and a Ctrl+Alt+Del button for the remote login screen.
 - **SSH terminal shortcut** — a per-card icon appears once a host's SSH port is confirmed reachable, launching PowerShell/Windows Terminal/WSL with `ssh` pre-filled. Also doubles as a way to unlock a host that's still sitting at boot: if the machine uses full-disk encryption with `dropbear-initramfs` (or similar) for remote unlock, that listens on the same port 22 well before wayvnc is up — SSH in (with `-i <key>` if it needs a specific identity file) and run your unlock command (e.g. `cryptroot-unlock`) the same way you would from any terminal. Live-tested: MyVNC's auto-reconnect picks the session up automatically the moment wayvnc comes up afterward, no manual reconnect needed.
 - **Send/receive files** — a session's toolbar has "Skicka fil…"/"Send file…" (button or drag-and-drop onto the session) and "Hämta fil…"/"Receive file…", both over SFTP (SSH, port 22) into/from a fixed `~/myvnc-shared` folder on the host. RFB/VNC itself has no file-transfer capability, so this is a side-channel, not part of the VNC protocol — it reuses the same username/password already stored for the connection (works automatically when wayvnc's `enable_pam=true`, since that's then the same as the host's Linux login). The host's SSH key is verified before the password is sent, and downloaded file names are checked so they can't land outside the folder you picked.
@@ -38,7 +38,7 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 
 Requires Windows 10 or 11 (x64).
 
-**Download the installer:** [MyVNC-Setup-0.10.0.exe](https://github.com/QforA42/MyVNC/releases/download/v0.10.0/MyVNC-Setup-0.10.0.exe) (or browse all [releases](https://github.com/QforA42/MyVNC/releases)) — per-user install, no admin rights or UAC prompt required.
+**Download the installer:** [MyVNC-Setup-0.10.1.exe](https://github.com/QforA42/MyVNC/releases/download/v0.10.1/MyVNC-Setup-0.10.1.exe) (or browse all [releases](https://github.com/QforA42/MyVNC/releases)) — per-user install, no admin rights or UAC prompt required.
 
 **Build your own installer instead** (needs the [.NET 10 SDK](https://dotnet.microsoft.com/download) and [Inno Setup 6](https://jrsoftware.org/isinfo.php): `winget install --id JRSoftware.InnoSetup -e`):
 
