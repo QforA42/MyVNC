@@ -112,6 +112,10 @@ public partial class SessionWindow : Window
     /// closing it.</summary>
     private const int MaxReconnectAttempts = 3;
 
+    /// <summary>How long a connection must stay up before a later drop starts the reconnect
+    /// backoff over at attempt 1.</summary>
+    private static readonly TimeSpan StableConnectionThreshold = TimeSpan.FromSeconds(15);
+
     // Polled rather than driven by routed KeyDown/KeyUp events, because RemoteFramebufferControl
     // forwards most keys to the remote via PreviewKeyDown and marks them Handled — which stops
     // the paired bubbling KeyDown from ever reaching this window while the framebuffer has focus.
@@ -150,6 +154,15 @@ public partial class SessionWindow : Window
         StateChanged += SessionWindow_StateChanged;
         Closed += (_, _) =>
         {
+            // Closing the window with X bypasses CloseTabAsync. Cancel every pending retry and
+            // release its transport, or an invisible tab can keep reconnecting indefinitely.
+            foreach (var tab in Tabs.ToArray())
+            {
+                tab.ReconnectCts?.Cancel();
+                tab.ConnectCts?.Cancel();
+                _ = DisconnectClosedTabAsync(tab);
+            }
+            Tabs.Clear();
             _clipboardMonitor?.Dispose();
             _keyboardHook.Dispose();
             if (Shared == this) Shared = null;
@@ -253,9 +266,11 @@ public partial class SessionWindow : Window
 
     private void OnTabConnected(SessionTab tab)
     {
+        if (!Tabs.Contains(tab)) return;
         if (tab.ReconnectAttempt > 0)
             AppLog.Write($"Reconnected to {tab.Options.Host}:{tab.Options.Port} after {tab.ReconnectAttempt} attempt(s)");
-        tab.ReconnectAttempt = 0;
+        // ReconnectAttempt is deliberately not reset here — see HandleTabDisconnected.
+        tab.ConnectedAtUtc = DateTime.UtcNow;
         tab.ReconnectCts?.Cancel();
         tab.ReconnectCts = null;
         NotifySessionsChanged();
@@ -283,10 +298,16 @@ public partial class SessionWindow : Window
     /// on, keep retrying with backoff until it succeeds or the user closes the tab.</summary>
     private void HandleTabDisconnected(SessionTab tab, Exception? error)
     {
-        if (error is null) return; // clean disconnect via CloseTabAsync, tab is going away anyway
+        if (error is null || !Tabs.Contains(tab)) return; // closed tab/window
 
         AppLog.Write($"Tab disconnected ({tab.Options.Host}:{tab.Options.Port}): {error.Message}");
         NotifySessionsChanged();
+
+        // Only a connection that actually stayed up earns a fresh backoff ladder; one dropped right
+        // after the handshake counts as another failed attempt, so MaxReconnectAttempts still applies.
+        if (tab.ConnectedAtUtc is { } connectedAt && DateTime.UtcNow - connectedAt >= StableConnectionThreshold)
+            tab.ReconnectAttempt = 0;
+        tab.ConnectedAtUtc = null;
 
         // The user (or the downgrade check) refused this server's identity — retrying would just
         // hit the same refusal, and re-prompt, on every backoff step. Park the tab instead.
@@ -409,6 +430,18 @@ public partial class SessionWindow : Window
             SelectTab(Tabs[Math.Max(0, index - 1)]);
 
         UpdateTopBarMode();
+    }
+
+    private static async Task DisconnectClosedTabAsync(SessionTab tab)
+    {
+        try
+        {
+            await tab.Framebuffer.DisconnectAsync().ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Write($"Failed to release closed session ({tab.Options.Host}:{tab.Options.Port}): {ex}");
+        }
     }
 
     /// <summary>Decides which top bar is shown, whenever the tab count changes. Both bars behave

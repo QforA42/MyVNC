@@ -31,8 +31,15 @@ public sealed class SessionTab(RfbConnectionOptions options) : INotifyPropertyCh
     public string StatusMessage { get => _statusMessage; set => Set(ref _statusMessage, value); }
 
     /// <summary>Consecutive failed-reconnect count, driving the auto-reconnect backoff delay.
-    /// Reset to 0 on a successful connect.</summary>
+    /// Reset to 0 only once a connection has stayed up for a while (see
+    /// <see cref="ConnectedAtUtc"/>), not merely on a completed handshake.</summary>
     public int ReconnectAttempt { get; set; }
+
+    /// <summary>When the current connection completed its handshake, or null while not connected.
+    /// A server that accepts the handshake and then drops the connection straight away (seen with
+    /// wayvnc on omarchy01) would otherwise reset <see cref="ReconnectAttempt"/> on every cycle and
+    /// keep the tab retrying every 2s forever.</summary>
+    public DateTime? ConnectedAtUtc { get; set; }
 
     /// <summary>Cancels a pending auto-reconnect delay when the tab is closed manually.</summary>
     public CancellationTokenSource? ReconnectCts { get; set; }
