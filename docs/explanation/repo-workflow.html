@@ -56,7 +56,7 @@ ul { padding-left: 20px; }
 <ul><li><code>git push</code>, force push, rebase of shared branches, tags, <code>--no-verify</code></li><li>Version bumps and releases; deploys</li><li>New or upgraded dependencies, CI, hooks, registries, base images (installing from the existing lockfiles</li><li>Breaking API or contract changes, auth/permission/crypto changes, migrations</li><li>Deleting files or data you did not create; network calls to non-local services</li><li>Changing an accepted ADR (write a superseding ADR instead)</li><li>Secrets: never print, commit or write them; use Infisical where configured</li></ul>
 
 <h2>CI</h2>
-<p>Full CI on the developer machine: <code>node tooling/scripts/ci-local.mjs</code> (the <code>ci</code> stage in a container with every scanner). No hosted workflows.</p>
+<p>Full CI on the developer machine: <code>node tooling/scripts/ci-local.mjs</code> (the <code>ci</code> stage in a container with every scanner). Workflows: <code>.github/workflows/ci.yml</code>.</p>
 </main>
 </body>
 </html>

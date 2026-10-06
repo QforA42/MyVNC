@@ -28,8 +28,9 @@ node tooling/scripts/gate.mjs pre-push           # format, build -warnaserror, t
 If a build fails with a locked-file error, a running instance of the app is holding the output
 binaries — close MyVNC (or `taskkill /F /IM MyVNC.App.exe`) and build again.
 
-MyVNC has no hosted CI: it builds and runs on Windows only. Quality gates are defined once in
-`tooling/gates.yaml` and run locally by git hooks (`npx lefthook install`) and by agents. Please make sure
+Quality gates are defined once in `tooling/gates.yaml` and run locally by git hooks (`npx lefthook install`)
+and by agents. Pull requests are also built and tested on a GitHub-hosted Windows runner
+([workflows/ci.yml](workflows/ci.yml)), because MyVNC builds on Windows only. Please make sure
 `node tooling/scripts/gate.mjs pre-push` passes before opening a pull request; `node tooling/scripts/gate.mjs ci`
 runs everything, and `node tooling/scripts/ci-local.mjs` runs it with every scanner in a container.
 

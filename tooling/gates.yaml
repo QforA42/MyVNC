@@ -28,7 +28,7 @@ stages:
   edit: [frontmatter-files, language-staged, names-staged, layout, biome-staged, prettier-staged, dotnet-whitespace-fix]
   turn-end: [frontmatter-files, language-staged, names-staged, clean-code-staged, layout, agents, agents-sync, biome-files, dotnet-whitespace-staged]
   pre-commit: [frontmatter-fix, overview-fix, language-staged, names-staged, clean-code-staged, layout, agents, biome-staged, prettier-staged, eslint-staged, dotnet-whitespace-staged, gitleaks-staged]
-  # MyVNC has no hosted CI (Windows-only, local project): pre-push also runs format, NuGet audit and gitleaks.
+  # MyVNC: CI on GitHub (windows-latest) covers build and tests only; pre-push also runs format, NuGet audit and gitleaks.
   pre-push: [overview, frontmatter, language, markdownlint, typecheck, lint-typed, clean-code, eslint, typecheck-npm, test-npm, deps-boundaries, test-unit, dotnet-build, dotnet-test, dotnet-format, dotnet-vulnerable, gitleaks-history]
   verify: [frontmatter, language, typecheck, lint-typed, clean-code, eslint, typecheck-npm, test-npm, build-npm, deps-boundaries, test-unit, test-integration, dotnet-build, dotnet-test, dotnet-test-integration, compose-smoke]
   ci: [layout, names, agents, agents-sync, overview, frontmatter, language, markdownlint, biome-check, typecheck, lint-typed, clean-code, duplication, deps-boundaries, knip, test-unit, test-integration, build, prettier-check, eslint, typecheck-npm, test-npm, build-npm, audit-npm, audit-node, dotnet-format, dotnet-build, dotnet-test, dotnet-vulnerable, osv-exceptions, osv, gitleaks-history, actionlint, hadolint, trivy-config]

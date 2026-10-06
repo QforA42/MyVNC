@@ -2,7 +2,7 @@
 
 # MyVNC
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/QforA42/MyVNC/actions/workflows/ci.yml/badge.svg)](https://github.com/QforA42/MyVNC/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](https://hyprland.org/)/[omarchy](https://omarchy.org/) machines running [wayvnc](https://github.com/any1/wayvnc), on the LAN or over Tailscale. Built from scratch (own RFB protocol implementation, no bundled VNC library).
 
