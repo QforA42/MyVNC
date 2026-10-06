@@ -16,14 +16,19 @@ task belongs to it, and a folder's `AGENTS.md` before editing in it. The whole f
 
 | Path | Purpose | Own AGENTS.md |
 |---|---|---|
-| `apps/` | Runnable applications | per app |
-| `packages/` | Shared libraries; layering enforced by dependency-cruiser | per package when needed |
+| `src/MyVNC.Rfb/` | RFB (VNC) protocol library: handshake, security types, encodings; no UI dependencies | — |
+| `src/MyVNC.App/` | WPF app (`net10.0-windows`): dashboard, session windows, settings, localization (`Services/Loc.cs`) | — |
+| `tests/MyVNC.Rfb.Tests/` | xUnit tests for the protocol library | — |
 | `docs/` | Product truth for readers (Diátaxis) and ADRs | yes |
-| `project/` | Plans, status, protocols, releases, evidence | yes |
-| `tests/` | Cross-cutting e2e, perf and fixtures | — |
-| `tooling/` | Gates, scripts, schemas, security config | — |
-| `deploy/` | Dockerfiles, compose, k8s | — |
+| `project/` | Plans, status, protocols, release notes (`project/releases/`), evidence | yes |
+| `tooling/` | Gates, scripts (smoke test), CI image, schemas, security config, `installer/` (Inno Setup) | — |
+| `.github/` | CONTRIBUTING (versioning, commits, localization, privacy), SECURITY, Dependabot | — |
 | `.agents/` | Source for skills and agent roles (generated into `.claude/`, `.codex/`) | — |
+
+`VERSION` is the only version source (`Directory.Build.props` reads it); `.github/CONTRIBUTING.md` has the
+release rules. Build with `MyVNC.slnx`; a running `MyVNC.App.exe` locks the output (`taskkill /F /IM MyVNC.App.exe`).
+User-facing strings exist in six languages in `src/MyVNC.App/Services/Loc.cs`. Never log credentials,
+keystrokes or clipboard contents, and use placeholders for hosts and addresses in docs and commits.
 
 ## Commands
 
@@ -32,7 +37,8 @@ task belongs to it, and a folder's `AGENTS.md` before editing in it. The whole f
 | Fast check while editing | `node tooling/scripts/gate.mjs quick` |
 | Before commit (hooks run it) | `node tooling/scripts/gate.mjs pre-commit --staged` |
 | Before push | `node tooling/scripts/gate.mjs pre-push` |
-| Is the chunk done? (includes Compose smoke test) | `node tooling/scripts/gate.mjs verify` |
+| Is the chunk done? | `node tooling/scripts/gate.mjs verify` |
+| App-level smoke test (Release build, Windows) | `powershell -File tooling\scripts\smoke-test.ps1` |
 | Full CI locally, all scanners | `node tooling/scripts/ci-local.mjs` |
 | Everything CI runs | `node tooling/scripts/gate.mjs ci` |
 | List stages and checks | `node tooling/scripts/gate.mjs --list` |
@@ -84,6 +90,6 @@ Report a conflict between sources instead of resolving it silently.
 
 ## Definition of done
 
-`node tooling/scripts/gate.mjs verify` passes (tests, types, layering and the Compose stack healthy
-with its smoke URLs), docs and front-matter are updated in the same change, and the result (command
+`node tooling/scripts/gate.mjs verify` passes (format, build with warnings as errors, unit tests), user-visible
+changes have a `[Unreleased]` line in `CHANGELOG.md`, docs and front-matter are updated in the same change, and the result (command
 and outcome) is recorded in the chunk row and `project/STATUS.md`.
