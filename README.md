@@ -1,3 +1,5 @@
+![MyVNC: your Wayland desktop from Windows, over LAN or Tailscale with TLS and SFTP](docs/explanation/images/myvnc-hero.svg)
+
 # MyVNC
 
 [![CI](https://github.com/QforA42/MyVNC/actions/workflows/ci.yml/badge.svg)](https://github.com/QforA42/MyVNC/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)

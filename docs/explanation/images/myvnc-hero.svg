@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 560" role="img" aria-label="MyVNC: Your Wayland desktop, from Windows. Connect over LAN or Tailscale.">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#102b45"/>
+      <stop offset="0.55" stop-color="#164b70"/>
+      <stop offset="1" stop-color="#247d92"/>
+    </linearGradient>
+    <pattern id="fine" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M20 0H0V20" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+    <pattern id="coarse" width="100" height="100" patternUnits="userSpaceOnUse">
+      <path d="M100 0H0V100" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="glow" cx="0.72" cy="0.45" r="0.5">
+      <stop offset="0" stop-color="#8fe3e0" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#8fe3e0" stop-opacity="0"/>
+    </radialGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#8fe3e0"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="560" fill="url(#bg)"/>
+  <rect width="1600" height="560" fill="url(#fine)"/>
+  <rect width="1600" height="560" fill="url(#coarse)"/>
+  <rect width="1600" height="560" fill="url(#glow)"/>
+
+
+<g font-family="'Segoe UI', system-ui, -apple-system, sans-serif" fill="#ffffff">
+<text x="96" y="168" font-size="22" letter-spacing="5" fill="#8fe3e0">WINDOWS · WAYLAND · REMOTE</text>
+<text x="92" y="250" font-size="84" font-weight="700">MyVNC</text>
+<text x="96" y="306" font-size="28" fill="#d7e9fa">Your Wayland desktop, from Windows.</text><text x="96" y="346" font-size="28" fill="#d7e9fa">Connect over LAN or Tailscale.</text>
+<g font-size="18" fill="#102b45" font-weight="600"><rect x="96" y="392" width="174" height="40" rx="20" fill="#9fd3ff"/><text x="183" y="418" text-anchor="middle">Windows client</text><rect x="284" y="392" width="174" height="40" rx="20" fill="#c9f0d6"/><text x="371" y="418" text-anchor="middle">TLS verification</text><rect x="472" y="392" width="174" height="40" rx="20" fill="#ffe3a8"/><text x="559" y="418" text-anchor="middle">SSH + SFTP</text></g>
+<text font-family="ui-monospace, Consolas, monospace" x="96" y="488" font-size="16" fill="#9fb8d2">RFB 3.3 / 3.7 / 3.8   # wayvnc · Hyprland · Omarchy</text>
+</g>
+<g fill="none" stroke="#e6f1ff" stroke-width="2"><rect x="860" y="96" width="300" height="368" rx="10"/><path d="M860 76H1160" stroke-opacity="0.6" stroke-width="1.5" marker-end="url(#arrow)" marker-start="url(#arrow)"/><path d="M840 96V464" stroke-opacity="0.6" stroke-width="1.5" marker-end="url(#arrow)" marker-start="url(#arrow)"/></g>
+<g font-family="ui-monospace, 'Cascadia Code', Consolas, monospace"><text x="884" y="134" font-size="17" fill="#8fe3e0">remote.session</text><rect x="886" y="164" width="248" height="157" rx="10" fill="#ffffff" fill-opacity="0.1" stroke="#9fd3ff" stroke-width="1.5"/><path d="M886 190h248" stroke="#9fd3ff" stroke-width="1.5"/><circle cx="900" cy="177" r="3" fill="#ffe3a8"/><circle cx="912" cy="177" r="3" fill="#c9f0d6"/><path d="M906 280l54-49 41 27 43-46 70 68" fill="none" stroke="#8fe3e0" stroke-width="2"/><path d="M1010 321v22M967 344h86" stroke="#e8f4ff" stroke-width="3"/><text x="902" y="210" font-size="14" fill="#e8f4ff">Omarchy / wayvnc</text><text x="884" y="389" font-size="20" fill="#e8f4ff">Windows → Linux</text><text x="884" y="423" font-size="16" fill="#9fb8d2">LAN · Tailscale · TLS</text><text x="884" y="446" font-size="14" fill="#9fb8d2">clipboard · files · reconnect</text></g>
+<g fill="none" stroke="#8fe3e0" stroke-width="2.5" stroke-dasharray="6 6"><path d="M1160 170C1230 170 1240 130 1300 130" marker-end="url(#arrow)"/><path d="M1160 280H1300" marker-end="url(#arrow)"/><path d="M1160 390C1230 390 1240 430 1300 430" marker-end="url(#arrow)"/></g>
+<g transform="translate(1310 78)" font-family="'Segoe UI', system-ui, sans-serif" color="#9fd3ff"><rect x="0" y="0" width="200" height="104" rx="10" fill="#ffffff" fill-opacity="0.1" stroke="#9fd3ff" stroke-width="1.5"/><rect x="24" y="24" width="44" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="4"/><path d="M46 56v13M34 70h24" stroke="currentColor" stroke-width="4"/><text x="88" y="48" font-size="22" font-weight="700" fill="#ffffff">Sessions</text><text x="88" y="74" font-size="13" fill="#d7e9fa">tabs + windows</text><text x="88" y="92" font-size="13" fill="#d7e9fa">fullscreen</text></g><g transform="translate(1310 228)" font-family="'Segoe UI', system-ui, sans-serif" color="#c9f0d6"><rect x="0" y="0" width="200" height="104" rx="10" fill="#ffffff" fill-opacity="0.1" stroke="#c9f0d6" stroke-width="1.5"/><path d="M34 44V36a12 12 0 0 1 24 0v8" fill="none" stroke="currentColor" stroke-width="5"/><rect x="26" y="44" width="40" height="31" rx="6" fill="currentColor"/><circle cx="46" cy="57" r="4" fill="#0b2545"/><path d="M46 59v8" stroke="#0b2545" stroke-width="3"/><text x="88" y="48" font-size="22" font-weight="700" fill="#ffffff">Trust</text><text x="88" y="74" font-size="13" fill="#d7e9fa">certificate pins</text><text x="88" y="92" font-size="13" fill="#d7e9fa">TLS encryption</text></g><g transform="translate(1310 378)" font-family="'Segoe UI', system-ui, sans-serif" color="#ffe3a8"><rect x="0" y="0" width="200" height="104" rx="10" fill="#ffffff" fill-opacity="0.1" stroke="#ffe3a8" stroke-width="1.5"/><path d="M24 34h17l6 7h24v30H24z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><text x="88" y="48" font-size="22" font-weight="700" fill="#ffffff">Files</text><text x="88" y="74" font-size="13" fill="#d7e9fa">SFTP transfer</text><text x="88" y="92" font-size="13" fill="#d7e9fa">SSH shortcut</text></g>
+</svg>
