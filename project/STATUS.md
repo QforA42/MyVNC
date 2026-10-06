@@ -22,8 +22,7 @@ At most 80 lines. Rewrite it; never append. This is the only file every agent se
 
 ## Next steps
 
-1. Connect the Gitea mirror and runner so `.gitea/workflows/gates.yml` runs on omarchy01.
-2. Install the git hooks: `npx lefthook install`.
+1. Install the git hooks: `npx lefthook install` (no hosted CI; pre-push is the gate).
 
 ## Owner actions
 

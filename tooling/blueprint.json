@@ -9,7 +9,11 @@
     "PREFIX": "VNC",
     "OWNER": "magnus"
   },
-  "skip": [],
+  "skip": [
+    ".gitea/workflows/gates.yml",
+    ".gitea/workflows/nightly.yml",
+    ".gitea/workflows/release-images.yml"
+  ],
   "files": {
     ".agents/agents.config.json": "b5d338997a6e5304175203850ac43038635dcb296edac585e8f270ff04dbb1c2",
     ".agents/codex/hooks.json": "b29326d4139b5f84d5137632c09f0dd571083d623f54864ed8a50f4d4a17efc1",
@@ -36,9 +40,6 @@
     ".claude/settings.json": "c1009fdad0e7c81f9489bf95105ba59a58f58869be079f843714d75eec367aef",
     ".editorconfig": "57b10b905e23d264dedb7ee9913c1634d851cc692bf43b1bafb4b2506ddad257",
     ".gitattributes": null,
-    ".gitea/workflows/gates.yml": "057e2cf9fbd118269edeb466e8e23a14ef3c1194e9183857fb3f080380b78d0c",
-    ".gitea/workflows/nightly.yml": "1d747896d514a69eafe1c9c4f941a902c8429d1c4fab731c9463994c88f34afd",
-    ".gitea/workflows/release-images.yml": "e478f6888b6beaf4b59bb6444f1e2c3cb527d125285ce9ffb05cf7b50c28720e",
     ".github/actionlint.yaml": "9229029f19051864169dcb12b6bd903c7db002c7ab2e1dacf3a38a9f56cd582f",
     ".github/renovate.json": "aa7dc1f2ca6f51c57ebf92a8e2abc24dfdf269004332494a09c0cb19b24e74a9",
     ".gitignore": null,

@@ -28,10 +28,10 @@ node tooling/scripts/gate.mjs pre-push           # format, build -warnaserror, t
 If a build fails with a locked-file error, a running instance of the app is holding the output
 binaries — close MyVNC (or `taskkill /F /IM MyVNC.App.exe`) and build again.
 
-Quality gates are defined once in `tooling/gates.yaml` and run by git hooks (`npx lefthook install`), by
-agents and by CI on the self-hosted Gitea runner (`.gitea/workflows/gates.yml`). Please make sure
-`node tooling/scripts/gate.mjs pre-push` passes locally before opening a pull request;
-`node tooling/scripts/ci-local.mjs` runs the full CI, with every scanner, in a container.
+MyVNC has no hosted CI: it builds and runs on Windows only. Quality gates are defined once in
+`tooling/gates.yaml` and run locally by git hooks (`npx lefthook install`) and by agents. Please make sure
+`node tooling/scripts/gate.mjs pre-push` passes before opening a pull request; `node tooling/scripts/gate.mjs ci`
+runs everything, and `node tooling/scripts/ci-local.mjs` runs it with every scanner in a container.
 
 ## Project layout
 
@@ -43,7 +43,6 @@ agents and by CI on the self-hosted Gitea runner (`.gitea/workflows/gates.yml`).
 | `docs/` | Product documentation (Diátaxis) and ADRs. |
 | `project/` | Status, review queue and release notes (`project/releases/`, one per version). |
 | `tooling/` | Gates, scripts (including the smoke test), CI image, schemas and the installer (`tooling/installer/`). |
-| `.agents/` | Agent roles, skills and hooks; `AGENTS.md` is the entry point for Codex and Claude Code. |
 
 ## Versioning
 

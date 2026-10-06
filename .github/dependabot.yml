@@ -1,6 +1,6 @@
 version: 2
 # NuGet updates stay on Dependabot while the repository is on GitHub; Renovate (.github/renovate.json)
-# takes over when a Renovate runner is set up. CI workflows live in .gitea/ and are not on GitHub.
+# takes over when a Renovate runner is set up. There is no hosted CI; gates run locally.
 updates:
   # NuGet packages (SSH.NET and its dependencies, the test stack).
   - package-ecosystem: nuget

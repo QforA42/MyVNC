@@ -26,3 +26,13 @@ tooling/installer/output/
 # Local, non-public agent instructions
 CLAUDE.local.md
 AGENTS.local.md
+
+# Agent instructions, roles, skills and hooks stay on this machine only (MyVNC is public and Windows-only).
+# They are written by repo-blueprint (apply-blueprint.mjs, sync-agents.mjs) and kept out of git.
+AGENTS.md
+CLAUDE.md
+**/AGENTS.md
+**/CLAUDE.md
+.agents/
+.claude/
+.codex/
