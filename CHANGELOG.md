@@ -3,7 +3,7 @@
 All notable changes to MyVNC are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
-uses [Semantic Versioning](CONTRIBUTING.md#versioning) — see `VERSION` for the canonical
+uses [Semantic Versioning](.github/CONTRIBUTING.md#versioning) — see `VERSION` for the canonical
 version.
 
 ## [Unreleased]

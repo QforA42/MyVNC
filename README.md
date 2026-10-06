@@ -2,7 +2,7 @@
 
 # MyVNC
 
-[![CI](https://github.com/QforA42/MyVNC/actions/workflows/ci.yml/badge.svg)](https://github.com/QforA42/MyVNC/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](https://hyprland.org/)/[omarchy](https://omarchy.org/) machines running [wayvnc](https://github.com/any1/wayvnc), on the LAN or over Tailscale. Built from scratch (own RFB protocol implementation, no bundled VNC library).
 
@@ -18,7 +18,7 @@ A custom-built VNC client for Windows, made to connect cleanly to [Hyprland](htt
 ## Features
 
 - **Own RFB/VNC client** — version handshake 3.3/3.7/3.8, None/VNC-Auth/VeNCrypt security (covers wayvnc's Plain/TLSPlain/X509Plain, preferring the TLS-encrypted variants), Raw/CopyRect/DesktopSize/ZRLE encodings.
-- **Verifies the server before sending your password** — wayvnc uses a self-signed certificate, so MyVNC uses trust on first use: the first connection to an address shows the certificate's SHA-256 fingerprint (and the command that prints it on the server) for you to compare, then pins it in `%APPDATA%\MyVNC\known_hosts.json`. A changed certificate is a warning that defaults to refusing, and a pinned host that suddenly offers no encryption is refused outright. File transfer checks the SSH host key the same way. See [SECURITY.md](SECURITY.md#how-myvnc-verifies-servers).
+- **Verifies the server before sending your password** — wayvnc uses a self-signed certificate, so MyVNC uses trust on first use: the first connection to an address shows the certificate's SHA-256 fingerprint (and the command that prints it on the server) for you to compare, then pins it in `%APPDATA%\MyVNC\known_hosts.json`. A changed certificate is a warning that defaults to refusing, and a pinned host that suddenly offers no encryption is refused outright. File transfer checks the SSH host key the same way. See [SECURITY.md](.github/SECURITY.md#how-myvnc-verifies-servers).
 - **Follows the Windows theme** — light or dark from the Windows app mode, plus the accent color you picked in Personalization → Colors, applied live when either changes. Settings → THEME can pin it to light or dark instead of following Windows.
 - **Multi-session** — open new connections as separate windows or as tabs in one window, switchable in Settings.
 - **Fullscreen** — F11 toggles it; the window chrome drops and the OS maximize button behaves the same way.
@@ -45,10 +45,10 @@ Requires Windows 10 or 11 (x64).
 **Build your own installer instead** (needs the [.NET 10 SDK](https://dotnet.microsoft.com/download) and [Inno Setup 6](https://jrsoftware.org/isinfo.php): `winget install --id JRSoftware.InnoSetup -e`):
 
 ```powershell
-installer\build-installer.ps1
+tooling\installer\build-installer.ps1
 ```
 
-This publishes a self-contained Release build and produces `installer\output\MyVNC-Setup-<version>.exe`. See [installer/](installer/).
+This publishes a self-contained Release build and produces `tooling\installer\output\MyVNC-Setup-<version>.exe`. See [tooling/installer/](tooling/installer/).
 
 **From source** (needs the .NET 10 SDK):
 
@@ -90,18 +90,19 @@ Kept in sync with the in-app Help page — only what's actually still true today
 
 ## Development
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for versioning rules, commit conventions, and the build workflow. Version history lives in [CHANGELOG.md](CHANGELOG.md), with a per-release note (scope, regression testing done, known risks) under [docs/releases/](docs/releases/). Quick reference:
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for versioning rules, commit conventions, and the build workflow. Version history lives in [CHANGELOG.md](CHANGELOG.md), with a per-release note (scope, regression testing done, known risks) under [project/releases/](project/releases/). Quick reference:
 
 ```powershell
 dotnet build MyVNC.slnx                      # Debug
 dotnet build MyVNC.slnx -c Release            # Release
 dotnet test tests\MyVNC.Rfb.Tests             # RFB protocol unit tests
-powershell -File scripts\smoke-test.ps1       # process-level regression check
+powershell -File tooling\scripts\smoke-test.ps1  # process-level regression check
+node tooling/scripts/gate.mjs pre-push            # the checks CI runs on .NET and docs
 ```
 
 ## Security
 
-Found a vulnerability? Please report it privately — see [SECURITY.md](SECURITY.md), which also describes how MyVNC verifies servers and its known security limitations.
+Found a vulnerability? Please report it privately — see [SECURITY.md](.github/SECURITY.md), which also describes how MyVNC verifies servers and its known security limitations.
 
 ## License
 

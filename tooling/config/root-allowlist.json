@@ -16,6 +16,7 @@
     "CHANGELOG.md",
     "VERSION",
     "LICENSE",
+    "THIRD-PARTY-NOTICES.txt",
     "package.json",
     "pnpm-lock.yaml",
     "pnpm-workspace.yaml",
