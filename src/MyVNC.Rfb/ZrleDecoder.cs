@@ -94,57 +94,57 @@ internal sealed class ZrleDecoder
                 break;
 
             case 1: // Solid colour
-            {
-                var px = ReadCPixel();
-                for (int ty = 0; ty < th; ty++)
-                    for (int tx = 0; tx < tw; tx++)
-                        WritePixel(pixels, rectWidth, tileX + tx, tileY + ty, px);
-                break;
-            }
-
-            case >= 2 and <= 16: // Packed palette
-            {
-                var palette = ReadPalette(subencoding);
-                var bitsPerIndex = subencoding == 2 ? 1 : subencoding <= 4 ? 2 : 4;
-                var rowBytes = (tw * bitsPerIndex + 7) / 8;
-                for (int ty = 0; ty < th; ty++)
-                {
-                    var row = ReadBytes(rowBytes);
-                    for (int tx = 0; tx < tw; tx++)
-                        WritePixel(pixels, rectWidth, tileX + tx, tileY + ty, palette[ReadPackedIndex(row, tx, bitsPerIndex)]);
-                }
-                break;
-            }
-
-            case 128: // Plain RLE
-            {
-                var total = tw * th;
-                var written = 0;
-                while (written < total)
                 {
                     var px = ReadCPixel();
-                    var run = ReadRunLength();
-                    for (var i = 0; i < run && written < total; i++, written++)
-                        WritePixel(pixels, rectWidth, tileX + written % tw, tileY + written / tw, px);
+                    for (int ty = 0; ty < th; ty++)
+                        for (int tx = 0; tx < tw; tx++)
+                            WritePixel(pixels, rectWidth, tileX + tx, tileY + ty, px);
+                    break;
                 }
-                break;
-            }
+
+            case >= 2 and <= 16: // Packed palette
+                {
+                    var palette = ReadPalette(subencoding);
+                    var bitsPerIndex = subencoding == 2 ? 1 : subencoding <= 4 ? 2 : 4;
+                    var rowBytes = (tw * bitsPerIndex + 7) / 8;
+                    for (int ty = 0; ty < th; ty++)
+                    {
+                        var row = ReadBytes(rowBytes);
+                        for (int tx = 0; tx < tw; tx++)
+                            WritePixel(pixels, rectWidth, tileX + tx, tileY + ty, palette[ReadPackedIndex(row, tx, bitsPerIndex)]);
+                    }
+                    break;
+                }
+
+            case 128: // Plain RLE
+                {
+                    var total = tw * th;
+                    var written = 0;
+                    while (written < total)
+                    {
+                        var px = ReadCPixel();
+                        var run = ReadRunLength();
+                        for (var i = 0; i < run && written < total; i++, written++)
+                            WritePixel(pixels, rectWidth, tileX + written % tw, tileY + written / tw, px);
+                    }
+                    break;
+                }
 
             case >= 130: // Palette RLE
-            {
-                var palette = ReadPalette(subencoding - 128);
-                var total = tw * th;
-                var written = 0;
-                while (written < total)
                 {
-                    var indexByte = ReadByte();
-                    var px = palette[indexByte & 0x7F];
-                    var run = (indexByte & 0x80) != 0 ? ReadRunLength() : 1;
-                    for (var i = 0; i < run && written < total; i++, written++)
-                        WritePixel(pixels, rectWidth, tileX + written % tw, tileY + written / tw, px);
+                    var palette = ReadPalette(subencoding - 128);
+                    var total = tw * th;
+                    var written = 0;
+                    while (written < total)
+                    {
+                        var indexByte = ReadByte();
+                        var px = palette[indexByte & 0x7F];
+                        var run = (indexByte & 0x80) != 0 ? ReadRunLength() : 1;
+                        for (var i = 0; i < run && written < total; i++, written++)
+                            WritePixel(pixels, rectWidth, tileX + written % tw, tileY + written / tw, px);
+                    }
+                    break;
                 }
-                break;
-            }
 
             default:
                 throw new IOException($"Okänd ZRLE-tile-kodning ({subencoding}).");

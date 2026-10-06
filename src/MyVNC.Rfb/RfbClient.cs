@@ -26,7 +26,6 @@ public sealed class RfbClient : IAsyncDisposable
     private Task? _receiveLoop;
     private ZrleDecoder? _zrleDecoder;
 
-    private readonly byte[] _framebuffer0 = Array.Empty<byte>();
     private byte[] _framebuffer = Array.Empty<byte>();
     private readonly Lock _fbLock = new();
 

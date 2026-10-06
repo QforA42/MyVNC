@@ -1,16 +1,23 @@
-# Normalize line endings: text files are stored with LF in the repository and checked out with
-# CRLF (this is a Windows-only project), regardless of each contributor's core.autocrlf setting.
-* text=auto eol=crlf
-
-# Shell scripts must keep LF to run on Linux/macOS/WSL.
+# Text is stored and checked out with LF (repo-blueprint); Windows-only formats keep CRLF.
+# Git attribute patterns do not expand {a,b}, so every extension has its own line.
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.iss text eol=crlf
 *.sh text eol=lf
 
-# Binary files — never touch line endings or diff as text.
+# Binary files: never touch line endings or diff as text.
 *.png binary
 *.jpg binary
+*.jpeg binary
 *.gif binary
+*.webp binary
 *.ico binary
+*.pdf binary
+*.zip binary
 *.exe binary
 *.dll binary
 *.pdb binary
-*.zip binary
+# Session metrics are append-only: lines from different branches are kept, never in conflict.
+project/metrics/sessions.jsonl merge=union

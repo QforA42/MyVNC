@@ -1,12 +1,38 @@
+# Everything local, temporary or generated at runtime goes in .local/ (test results, debug notes, outputs).
+.local/
+node_modules/
+dist/
+build/
 bin/
 obj/
+coverage/
+*.log
 *.user
-.vs/
-installer/publish/
-installer/output/
 .env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+.vs/
+.idea/
+.claude/settings.local.json
+.claude/worktrees/
 .codegraph/
+
+# Installer build output (tooling/installer/build-installer.ps1)
+tooling/installer/publish/
+tooling/installer/output/
 
 # Local, non-public agent instructions
 CLAUDE.local.md
 AGENTS.local.md
+
+# Agent instructions, roles, skills and hooks stay on this machine only (MyVNC is public and Windows-only).
+# They are written by repo-blueprint (apply-blueprint.mjs, sync-agents.mjs) and kept out of git.
+AGENTS.md
+CLAUDE.md
+**/AGENTS.md
+**/CLAUDE.md
+.agents/
+.claude/
+.codex/

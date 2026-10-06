@@ -1,0 +1,16 @@
+{
+  "title": "Release note",
+  "required": ["version"],
+  "properties": {
+    "status": { "type": "string", "enum": ["draft", "released", "superseded"] },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$" },
+    "released": { "type": ["string", "null"], "format": "date" },
+    "decision": { "type": "string", "enum": ["approved", "conditional", "draft"] },
+    "protocol": { "type": "string" },
+    "images": {
+      "type": "array",
+      "description": "Released image digests; CVE results are queried from Zot by digest",
+      "items": { "type": "string", "pattern": "^[a-z0-9./:-]+@sha256:[a-f0-9]{64}$" }
+    }
+  }
+}

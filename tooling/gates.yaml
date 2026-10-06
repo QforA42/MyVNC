@@ -1,0 +1,278 @@
+# Quality gates per stage. Run with: node tooling/scripts/gate.mjs <stage>
+# A check runs only when its `requires` paths exist, so one file serves TS, .NET and docs-only repos.
+#   requires: [path]          the path must exist (glob:<regex> = some tracked file matches)
+#   tools: [binary]           must be on PATH; locally a missing tool is skipped, in CI (--strict or CI=true) it fails
+#   staged: "<args>"          runs only with --staged or --files; matching files are appended after <args>
+#   match: "<regex>"          which of those files the check receives
+# Agent hooks run `edit` after each file edit and `turn-end` before an agent ends its turn (.agents/hooks/).
+#   cwd: "<dir>"              runs the check in that folder; staged files are passed relative to it
+# Add a check here before telling agents about it: agents run gates, they do not memorise rules.
+
+# ${name} in run, requires, match and cwd. Defaults: dotnetDir/dotnetTarget apps/backend, npmDir "."
+# A .NET solution in the root: dotnetDir: ".", dotnetTarget: MySolution.sln.
+# npmDirs: [apps/web, apps/admin] lists every npm folder the CI container and doctor install (default [npmDir]);
+# the npm checks run in npmDir.
+vars:
+  # MyVNC: the solution is in the root (src/, tests/), no npm project.
+  dotnetDir: "."
+  dotnetTarget: MyVNC.slnx
+  dotnetUnitTestArgs: "--filter \"Category!=Integration\""
+  dotnetIntegrationTestArgs: "--filter \"Category=Integration\""
+  npmDir: "."
+
+# Environment for every check (the caller's environment wins), for example DOTNET_ROLL_FORWARD: Major.
+env: {}
+
+stages:
+  quick: [frontmatter, names, layout, biome-check]
+  edit: [frontmatter-files, language-staged, names-staged, layout, biome-staged, prettier-staged, dotnet-whitespace-fix]
+  turn-end: [frontmatter-files, language-staged, names-staged, clean-code-staged, layout, agents, agents-sync, biome-files, dotnet-whitespace-staged]
+  pre-commit: [frontmatter-fix, overview-fix, language-staged, names-staged, clean-code-staged, layout, agents, biome-staged, prettier-staged, eslint-staged, dotnet-whitespace-staged, gitleaks-staged]
+  # MyVNC: CI on GitHub (windows-latest) covers build and tests only; pre-push also runs format, NuGet audit and gitleaks.
+  pre-push: [overview, frontmatter, language, markdownlint, typecheck, lint-typed, clean-code, eslint, typecheck-npm, test-npm, deps-boundaries, test-unit, dotnet-build, dotnet-test, dotnet-format, dotnet-vulnerable, gitleaks-history]
+  verify: [frontmatter, language, typecheck, lint-typed, clean-code, eslint, typecheck-npm, test-npm, build-npm, deps-boundaries, test-unit, test-integration, dotnet-build, dotnet-test, dotnet-test-integration, compose-smoke]
+  ci: [layout, names, agents, agents-sync, overview, frontmatter, language, markdownlint, biome-check, typecheck, lint-typed, clean-code, duplication, deps-boundaries, knip, test-unit, test-integration, build, prettier-check, eslint, typecheck-npm, test-npm, build-npm, audit-npm, audit-node, dotnet-format, dotnet-build, dotnet-test, dotnet-vulnerable, osv-exceptions, osv, gitleaks-history, actionlint, hadolint, trivy-config]
+  build: [image-cve]
+  release: [frontmatter, agents-sync, governance, release-cve]
+  nightly: [blueprint-status, test-e2e, audit-node, audit-npm, dotnet-vulnerable, osv-exceptions, osv, released-cve]
+
+checks:
+  # Documents and repository shape
+  frontmatter:
+    run: node tooling/scripts/check-frontmatter.mjs
+  frontmatter-fix:
+    run: node tooling/scripts/check-frontmatter.mjs --fix-updated
+    staged: "--files"
+    match: "\\.md$"
+  frontmatter-files:
+    run: node tooling/scripts/check-frontmatter.mjs
+    staged: "--files"
+    match: "\\.md$"
+  language:
+    run: node tooling/scripts/check-language.mjs
+  language-staged:
+    run: node tooling/scripts/check-language.mjs
+    staged: "--files"
+    match: "\\.md$"
+  names:
+    run: node tooling/scripts/check-names.mjs
+  names-staged:
+    run: node tooling/scripts/check-names.mjs
+    staged: "--files"
+    match: "^(docs|project)/"
+  # Pragmatic clean code (ADR 0009 in the blueprint): limits with a baseline that only shrinks, and copied code
+  clean-code:
+    run: node tooling/scripts/check-clean-code.mjs
+    requires: [tooling/config/clean-code.json]
+  clean-code-staged:
+    run: node tooling/scripts/check-clean-code.mjs
+    staged: "--files"
+    match: "[.](ts|tsx|js|jsx|mjs|cjs)$"
+    requires: [tooling/config/clean-code.json]
+  duplication:
+    run: jscpd --config tooling/config/jscpd.json
+    requires: [tooling/config/jscpd.json]
+    tools: [jscpd]
+  layout:
+    run: node tooling/scripts/check-layout.mjs
+  overview:
+    run: node tooling/scripts/render-overview.mjs --check
+  overview-fix:
+    # Regenerates and stages docs/explanation/repo-workflow.html when a source of the page is staged.
+    run: node tooling/scripts/render-overview.mjs --stage
+    staged: ""
+    match: "^(tooling/gates[.]yaml|tooling/blueprint[.]json|AGENTS[.]md|[.]agents/|docs/|project/)"
+  blueprint-status:
+    run: node tooling/scripts/blueprint-status.mjs --strict
+  agents:
+    run: node tooling/scripts/check-agents.mjs
+    requires: [.agents/agents.config.json]
+  agents-sync:
+    run: node tooling/scripts/sync-agents.mjs --check
+    requires: [.agents/agents.config.json]
+  markdownlint:
+    run: npx --no-install markdownlint-cli2
+    requires: [.markdownlint-cli2.jsonc]
+    tools: [npx]
+  governance:
+    run: node tooling/scripts/check-governance.mjs
+    requires: [tooling/scripts/check-governance.mjs]
+
+  # TypeScript / Node
+  biome-check:
+    run: pnpm exec biome check
+    requires: [biome.jsonc, node_modules/.modules.yaml]
+    tools: [pnpm]
+  biome-staged:
+    run: pnpm exec biome check --write --no-errors-on-unmatched
+    staged: ""
+    match: "\\.(ts|tsx|js|mjs|cjs|json|jsonc|css)$"
+    requires: [biome.jsonc, node_modules/.modules.yaml]
+    tools: [pnpm]
+  biome-files:
+    run: pnpm exec biome check --no-errors-on-unmatched
+    staged: ""
+    match: "\\.(ts|tsx|js|mjs|cjs|json|jsonc|css)$"
+    requires: [biome.jsonc, node_modules/.modules.yaml]
+    tools: [pnpm]
+  typecheck:
+    run: pnpm -r --if-present typecheck
+    requires: [pnpm-workspace.yaml, node_modules/.modules.yaml]
+    tools: [pnpm]
+  lint-typed:
+    run: pnpm exec eslint --config tooling/config/eslint.typed.mjs --max-warnings 0
+    requires: [tooling/config/eslint.typed.mjs, node_modules/.modules.yaml]
+    tools: [pnpm]
+  deps-boundaries:
+    run: pnpm exec depcruise --config tooling/config/dependency-cruiser.cjs apps packages
+    requires: [tooling/config/dependency-cruiser.cjs, node_modules/.modules.yaml]
+    tools: [pnpm]
+  knip:
+    run: pnpm exec knip --config tooling/config/knip.json
+    requires: [tooling/config/knip.json, node_modules/.modules.yaml]
+    tools: [pnpm]
+  test-unit:
+    run: pnpm exec vitest run --project unit
+    requires: [vitest.config.ts, node_modules/.modules.yaml]
+    tools: [pnpm]
+  test-integration:
+    run: pnpm exec vitest run --project integration
+    requires: [vitest.config.ts, node_modules/.modules.yaml]
+    tools: [pnpm]
+  test-e2e:
+    run: pnpm exec playwright test
+    requires: [tests/e2e]
+    tools: [pnpm]
+  build:
+    run: pnpm -r --if-present build
+    requires: [pnpm-workspace.yaml, node_modules/.modules.yaml]
+    tools: [pnpm]
+  audit-node:
+    run: pnpm audit --prod --audit-level=high
+    requires: [pnpm-lock.yaml]
+    tools: [pnpm]
+
+  # npm frontend with Prettier and ESLint (node-npm overlay); runs in the npmDir folder once its dependencies are
+  # installed (the CI image always installs them; locally doctor.mjs suggests npm ci)
+  prettier-check:
+    run: npx --no-install prettier --check .
+    cwd: ${npmDir}
+    requires: ["${npmDir}/package-lock.json", "${npmDir}/node_modules/.package-lock.json", "${npmDir}/.prettierrc.json|${npmDir}/.prettierrc|${npmDir}/.prettierrc.js|${npmDir}/.prettierrc.mjs|${npmDir}/prettier.config.js|${npmDir}/prettier.config.mjs"]
+    tools: [npx]
+  prettier-staged:
+    run: npx --no-install prettier --write --ignore-unknown
+    staged: ""
+    match: "[.](ts|tsx|js|jsx|mjs|cjs|json|css|scss|html|vue)$"
+    cwd: ${npmDir}
+    requires: ["${npmDir}/package-lock.json", "${npmDir}/node_modules/.package-lock.json", "${npmDir}/.prettierrc.json|${npmDir}/.prettierrc|${npmDir}/.prettierrc.js|${npmDir}/.prettierrc.mjs|${npmDir}/prettier.config.js|${npmDir}/prettier.config.mjs"]
+    tools: [npx]
+  eslint:
+    run: npx --no-install eslint .
+    cwd: ${npmDir}
+    requires: ["${npmDir}/package-lock.json", "${npmDir}/node_modules/.package-lock.json", "${npmDir}/eslint.config.mjs|${npmDir}/eslint.config.js|${npmDir}/eslint.config.cjs|${npmDir}/eslint.config.ts"]
+    tools: [npx]
+  eslint-staged:
+    run: npx --no-install eslint --fix --no-warn-ignored
+    staged: ""
+    match: "[.](ts|tsx|js|jsx|mjs|cjs|vue)$"
+    cwd: ${npmDir}
+    requires: ["${npmDir}/package-lock.json", "${npmDir}/node_modules/.package-lock.json", "${npmDir}/eslint.config.mjs|${npmDir}/eslint.config.js|${npmDir}/eslint.config.cjs|${npmDir}/eslint.config.ts"]
+    tools: [npx]
+  typecheck-npm:
+    run: npm run --if-present typecheck
+    cwd: ${npmDir}
+    requires: [${npmDir}/package-lock.json, ${npmDir}/node_modules/.package-lock.json]
+    tools: [npm]
+  test-npm:
+    run: npm run --if-present test
+    cwd: ${npmDir}
+    requires: [${npmDir}/package-lock.json, ${npmDir}/node_modules/.package-lock.json]
+    tools: [npm]
+  build-npm:
+    run: npm run --if-present build
+    cwd: ${npmDir}
+    requires: [${npmDir}/package-lock.json, ${npmDir}/node_modules/.package-lock.json]
+    tools: [npm]
+  audit-npm:
+    run: npm audit --omit=dev --audit-level=high
+    cwd: ${npmDir}
+    requires: [${npmDir}/package-lock.json]
+    tools: [npm]
+
+  # .NET: paths come from vars dotnetDir and dotnetTarget (see docs/reference/dotnet.md in the blueprint)
+  # MyVNC-local: dotnet format whitespace on staged files instead of CSharpier (no extra tool to install).
+  dotnet-whitespace-staged:
+    run: dotnet format whitespace --folder --verify-no-changes
+    staged: "--include"
+    match: "[.]cs$"
+    requires: [${dotnetDir}/Directory.Build.props]
+    tools: [dotnet]
+  dotnet-whitespace-fix:
+    run: dotnet format whitespace --folder
+    staged: "--include"
+    match: "[.]cs$"
+    requires: [${dotnetDir}/Directory.Build.props]
+    tools: [dotnet]
+  dotnet-format:
+    run: dotnet format ${dotnetTarget} --verify-no-changes
+    requires: [${dotnetDir}/Directory.Build.props]
+    tools: [dotnet]
+  dotnet-build:
+    run: dotnet build ${dotnetTarget} -warnaserror
+    requires: [${dotnetDir}/Directory.Build.props]
+    tools: [dotnet]
+  # Unit tests exclude [Trait("Category", "Integration")] (Testcontainers and other Docker-backed tests);
+  # those run in verify, which has Docker (locally, or ci-local.mjs --docker).
+  dotnet-test:
+    run: dotnet test ${dotnetTarget} ${dotnetUnitTestArgs}
+    requires: [${dotnetDir}/Directory.Build.props]
+    tools: [dotnet]
+  dotnet-test-integration:
+    run: dotnet test ${dotnetTarget} ${dotnetIntegrationTestArgs}
+    requires: [${dotnetDir}/Directory.Build.props]
+    tools: [dotnet, docker]
+  dotnet-vulnerable:
+    run: node tooling/scripts/dotnet-vulnerable.mjs ${dotnetTarget}
+    requires: [${dotnetDir}/Directory.Build.props]
+    tools: [dotnet]
+
+  # Runtime: build and start the stack, wait for health, run smoke URLs, tear down
+  compose-smoke:
+    run: node tooling/scripts/compose-smoke.mjs
+    requires: [deploy/compose/compose.yaml]
+    tools: [docker]
+
+  # Security
+  gitleaks-staged:
+    run: gitleaks git --staged --redact --no-banner
+    tools: [gitleaks]
+  gitleaks-history:
+    run: gitleaks git --redact --no-banner
+    tools: [gitleaks]
+  osv:
+    run: osv-scanner scan source -r --config tooling/config/osv-scanner.toml .
+    requires: ["glob:(^|/)(pnpm-lock[.]yaml|package-lock[.]json|packages[.]lock[.]json|go[.]sum|Cargo[.]lock|poetry[.]lock|uv[.]lock)$"]
+    tools: [osv-scanner]
+  # Exceptions in osv-scanner.toml need a reason and an ignoreUntil date at most 90 days ahead.
+  osv-exceptions:
+    run: node tooling/scripts/check-osv-exceptions.mjs
+    requires: [tooling/config/osv-scanner.toml]
+  actionlint:
+    run: node tooling/scripts/each-file.mjs "^[.](github|gitea)/workflows/.*[.]ya?ml$" actionlint -config-file .github/actionlint.yaml
+    tools: [actionlint]
+  hadolint:
+    run: node tooling/scripts/each-file.mjs "Dockerfile$" hadolint --failure-threshold error
+    requires: [deploy]
+    tools: [hadolint]
+  trivy-config:
+    run: trivy config --exit-code 1 --severity HIGH,CRITICAL deploy
+    requires: [deploy]
+    tools: [trivy]
+
+  # Containers: images are pushed to Zot, which scans them with its built-in Trivy.
+  image-cve:
+    run: node tooling/scripts/zot-cve.mjs --images-from-env
+  release-cve:
+    run: node tooling/scripts/zot-cve.mjs --images-from-release
+  released-cve:
+    run: node tooling/scripts/zot-cve.mjs --images-from-release --all

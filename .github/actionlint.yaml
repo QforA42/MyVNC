@@ -1,0 +1,4 @@
+# actionlint configuration: runner labels of the self-hosted Gitea runner in the LAN.
+self-hosted-runner:
+  labels:
+    - lan

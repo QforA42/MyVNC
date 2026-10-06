@@ -1,0 +1,37 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{cs,csproj,props,targets}]
+indent_size = 4
+
+[*.cs]
+# Analyzer severities live here so `dotnet build` enforces them (EnforceCodeStyleInBuild).
+# MyVNC-local: the blueprint's blanket `category-Style.severity = warning` turns ~3,000 preference hits
+# (var, braces, expression bodies) into errors; only the rules below are enforced.
+dotnet_sort_system_directives_first = true
+csharp_using_directive_placement = outside_namespace:warning
+csharp_style_namespace_declarations = file_scoped:warning
+# unnecessary using, unused and unread private members, file-scoped namespaces
+dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.IDE0051.severity = warning
+dotnet_diagnostic.IDE0052.severity = warning
+dotnet_diagnostic.IDE0161.severity = warning
+# Desktop app: ConfigureAwait(false) is deliberate where used, not required everywhere.
+dotnet_diagnostic.CA2007.severity = none
+
+# Language preferences: suggestions only, so `dotnet format` does not rewrite them
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+csharp_prefer_braces = when_multiline:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion

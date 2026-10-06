@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "repo-blueprint/frontmatter/base",
+  "title": "Front-matter fields shared by every document",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "type",
+    "title",
+    "status",
+    "owner",
+    "updated"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]{1,9}-[A-Z]{2,6}-[0-9A-Za-z-]{1,40}$",
+      "description": "Stable id, never changes: <PROJECT>-<KIND>-<number or slug>, e.g. FLW-PH-034"
+    },
+    "type": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "status": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created": {
+      "type": "string",
+      "format": "date"
+    },
+    "updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Set by tooling (pre-commit fixer), not by hand"
+    },
+    "lang": {
+      "type": "string",
+      "enum": [
+        "en",
+        "sv"
+      ],
+      "description": "Default en. Translations live next to the source as <name>.<lang>.md"
+    },
+    "translation_of": {
+      "type": "string",
+      "description": "Id of the English source document; required in <name>.<lang>.md files"
+    },
+    "previous_paths": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[^/].*[^/]$"
+      },
+      "description": "Repository-relative paths this document had before a rename, oldest first (ADR 0007). The id never changes."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]*$"
+      },
+      "uniqueItems": true
+    },
+    "tickets": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(github|gitea):[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+#[0-9]+$|^ticketeer:[A-Za-z0-9][A-Za-z0-9-]*$"
+      }
+    },
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "supersedes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "superseded_by": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "related": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "wiki": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sync"
+      ],
+      "properties": {
+        "space": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9/-]*$"
+        },
+        "page_type": {
+          "type": "string"
+        },
+        "sync": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "manual",
+            "never"
+          ]
+        }
+      }
+    },
+    "review_by": {
+      "type": "string",
+      "format": "date"
+    }
+  }
+}

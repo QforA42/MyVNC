@@ -1,0 +1,21 @@
+{
+  "title": "Delivery phase (project/phases/phase-NNN-slug/plan.md)",
+  "properties": {
+    "status": { "type": "string", "enum": ["proposed", "planned", "active", "needs-test", "accepted", "abandoned"] },
+    "phase": { "type": "integer", "minimum": 0 },
+    "promoted": { "type": "string", "format": "date" },
+    "closed": { "type": ["string", "null"], "format": "date" },
+    "release": { "type": ["string", "null"] },
+    "progress": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Derived by tooling from the chunk table; do not edit by hand",
+      "properties": {
+        "chunks_total": { "type": "integer", "minimum": 0 },
+        "chunks_done": { "type": "integer", "minimum": 0 },
+        "next_chunk": { "type": ["string", "null"] }
+      }
+    }
+  },
+  "required": ["phase"]
+}

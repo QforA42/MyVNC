@@ -1,0 +1,9 @@
+# Exceptions for the osv gate (osv-scanner). Use one only for a finding that cannot be fixed yet, typically a
+# dev-only dependency waiting for an upstream release. Every entry needs a reason and an ignoreUntil date at
+# most 90 days ahead (gate osv-exceptions). When the date passes, osv-scanner reports the finding again and CI
+# fails, so the exception is reviewed instead of forgotten. Remove the entry once the upgrade has landed.
+#
+# [[IgnoredVulns]]
+# id = "GHSA-xxxx-xxxx-xxxx"
+# ignoreUntil = 2026-12-31
+# reason = "dev-only: vitest -> vite; waiting for vite 7.1.5 (ticket ABC-123)"

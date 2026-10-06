@@ -1,4 +1,6 @@
 version: 2
+# NuGet updates stay on Dependabot while the repository is on GitHub; Renovate (.github/renovate.json)
+# takes over when a Renovate runner is set up. CI runs in .github/workflows/ci.yml on windows-latest.
 updates:
   # NuGet packages (SSH.NET and its dependencies, the test stack).
   - package-ecosystem: nuget

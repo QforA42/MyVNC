@@ -1,0 +1,7 @@
+{
+  "title": "Contract or specification",
+  "properties": {
+    "status": { "type": "string", "enum": ["draft", "accepted", "superseded"] },
+    "contract_version": { "type": "integer", "minimum": 1 }
+  }
+}

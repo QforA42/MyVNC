@@ -1,0 +1,7 @@
+{
+  "title": "Reader documentation: tutorial, how-to, reference, explanation (Diátaxis)",
+  "properties": {
+    "status": { "type": "string", "enum": ["draft", "published", "deprecated"] },
+    "audience": { "type": "string", "enum": ["user", "operator", "developer", "agent"] }
+  }
+}
