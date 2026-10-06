@@ -36,15 +36,15 @@ jobs:
         run: dotnet build MyVNC.slnx -c Release --no-restore -warnaserror
 
       - name: Test
-        run: dotnet test tests/MyVNC.Rfb.Tests -c Release --no-build --logger trx --results-directory TestResults
+        run: dotnet test tests/MyVNC.Rfb.Tests -c Release --no-build --logger trx --results-directory .local/TestResults
 
+      # render-overview --check is not run here: the overview reads the agent files, which are local-only.
       - name: Docs and repository checks
         run: |
           node tooling/scripts/check-layout.mjs
           node tooling/scripts/check-names.mjs
           node tooling/scripts/check-frontmatter.mjs
           node tooling/scripts/check-language.mjs
-          node tooling/scripts/render-overview.mjs --check
 
       - name: NuGet vulnerabilities
         run: node tooling/scripts/dotnet-vulnerable.mjs MyVNC.slnx
@@ -57,5 +57,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: TestResults
+          path: .local/TestResults
           retention-days: 7
