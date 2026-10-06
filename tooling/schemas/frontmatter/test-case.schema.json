@@ -1,0 +1,12 @@
+{
+  "title": "Test case",
+  "required": ["area"],
+  "properties": {
+    "status": { "type": "string", "enum": ["draft", "active", "retired"] },
+    "area": { "type": "string" },
+    "priority": { "type": "string", "enum": ["P1", "P2", "P3"] },
+    "automated": { "type": ["string", "null"], "description": "Path to the automated test, or null for manual" },
+    "last_result": { "type": "string", "enum": ["passed", "failed", "skipped", "not-run"], "description": "Derived by tooling from test reports" },
+    "last_run": { "type": "string", "format": "date" }
+  }
+}

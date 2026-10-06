@@ -1,0 +1,22 @@
+# Gates on the self-hosted Gitea runner in the LAN (ADR 0006: local first). The runner needs node and
+# docker; every scanner comes from the local CI image (tooling/ci/Dockerfile), the same image
+# `node tooling/scripts/ci-local.mjs` uses on a developer machine.
+name: gates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: [self-hosted, lan]
+    timeout-minutes: 45
+    env:
+      REQUIRE_TICKET_REF: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gates in the local CI image
+        run: node tooling/scripts/ci-local.mjs ci

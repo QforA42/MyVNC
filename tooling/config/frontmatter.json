@@ -1,0 +1,42 @@
+{
+  "$comment": "Which Markdown files must carry front-matter and which schema applies to each type. Paths are relative to the repository root.",
+  "schemasDir": "tooling/schemas/frontmatter",
+  "include": [
+    "docs/",
+    "project/"
+  ],
+  "exclude": [
+    "README.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "project/templates/",
+    "project/archive/",
+    "**/evidence/"
+  ],
+  "types": {
+    "tutorial": "doc",
+    "how-to": "doc",
+    "reference": "doc",
+    "explanation": "doc",
+    "adr": "adr",
+    "spec": "spec",
+    "phase": "phase",
+    "test-protocol": "test-protocol",
+    "test-case": "test-case",
+    "release": "release",
+    "status": "record",
+    "roadmap": "record",
+    "backlog": "record",
+    "review": "record",
+    "runbook": "record",
+    "handoff": "record",
+    "metrics": "record",
+    "review-queue": "record",
+    "proposal": "proposal"
+  },
+  "idPrefix": "VNC",
+  "primaryLang": "en",
+  "translationLangs": [
+    "sv"
+  ]
+}

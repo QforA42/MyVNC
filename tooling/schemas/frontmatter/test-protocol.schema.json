@@ -1,0 +1,12 @@
+{
+  "title": "Test protocol for a phase or release",
+  "required": ["applies_to"],
+  "properties": {
+    "status": { "type": "string", "enum": ["draft", "executed", "approved", "conditionally-approved", "rejected"] },
+    "applies_to": { "type": "string", "description": "Version or commit the protocol covers" },
+    "executed": { "type": ["string", "null"], "format": "date" },
+    "result": { "type": "string", "enum": ["passed", "failed", "conditional", "not-run"] },
+    "test_cases": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "evidence": { "type": "array", "items": { "type": "string" } }
+  }
+}

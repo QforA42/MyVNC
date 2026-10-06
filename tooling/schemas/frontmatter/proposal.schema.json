@@ -1,0 +1,6 @@
+{
+  "title": "Proposal: an idea or design before it becomes a phase (project/proposals/YYYY-MM-DD-slug.md)",
+  "properties": {
+    "status": { "type": "string", "enum": ["idea", "exploring", "deferred", "promoted", "rejected"] }
+  }
+}

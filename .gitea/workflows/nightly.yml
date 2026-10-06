@@ -1,0 +1,18 @@
+# Nightly on the self-hosted Gitea runner: slow tests, dependency audits and a fresh Zot CVE check of
+# released images (Zot re-evaluates stored images against its updated database).
+name: nightly
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  nightly:
+    runs-on: [self-hosted, lan]
+    env:
+      ZOT_URL: https://zot.lan.vb210.se
+    steps:
+      - uses: actions/checkout@v4
+      - name: Nightly gates in the local CI image
+        run: node tooling/scripts/ci-local.mjs nightly

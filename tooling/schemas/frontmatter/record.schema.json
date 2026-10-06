@@ -1,0 +1,6 @@
+{
+  "title": "Project record: status, roadmap, backlog, review, runbook, handoff",
+  "properties": {
+    "status": { "type": "string", "enum": ["current", "draft", "archived"] }
+  }
+}

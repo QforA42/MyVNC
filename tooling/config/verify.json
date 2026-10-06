@@ -1,0 +1,6 @@
+{
+  "$comment": "Runtime verification for the `verify` gate (compose-smoke.mjs). smoke: URLs that must answer 2xx after the stack is healthy.",
+  "composeFile": "deploy/compose/compose.yaml",
+  "waitSeconds": 300,
+  "smoke": []
+}

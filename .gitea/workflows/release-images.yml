@@ -1,0 +1,34 @@
+# Build images, push them to Zot in the LAN and gate on Zot's CVE scan (self-hosted Gitea runner).
+name: images
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: [self-hosted, lan]
+    env:
+      REGISTRY: zot.lan.vb210.se
+      ZOT_URL: https://zot.lan.vb210.se
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and push
+        id: push
+        run: |
+          set -euo pipefail
+          images=""
+          for dockerfile in deploy/docker/*.Dockerfile; do
+            name=$(basename "$dockerfile" .Dockerfile)
+            ref="$REGISTRY/${GITHUB_REPOSITORY,,}/$name:${GITHUB_REF_NAME}"
+            docker build -f "$dockerfile" -t "$ref" .
+            docker push "$ref"
+            digest=$(docker inspect --format='{{index .RepoDigests 0}}' "$ref")
+            images="$images $digest"
+          done
+          echo "images=$images" >> "$GITHUB_OUTPUT"
+      - name: CVE gate (Zot)
+        env:
+          IMAGES: ${{ steps.push.outputs.images }}
+        run: node tooling/scripts/gate.mjs build --strict

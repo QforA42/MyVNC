@@ -1,0 +1,9 @@
+{
+  "title": "Architecture decision record",
+  "required": ["decision_date"],
+  "properties": {
+    "status": { "type": "string", "enum": ["proposed", "accepted", "rejected", "superseded"] },
+    "decision_date": { "type": "string", "format": "date" },
+    "deciders": { "type": "array", "items": { "type": "string" } }
+  }
+}

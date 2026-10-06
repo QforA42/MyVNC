@@ -1,0 +1,38 @@
+{
+  "$comment": "Copied code (repo-blueprint ADR 0009), checked by the duplication gate in CI. threshold is the highest allowed share of duplicated lines in percent; set it to the measured value when adopting and lower it after cleanups. Blocks shorter than minLines or minTokens are ignored. path is relative to this file (../.. is the repository root).",
+  "path": [
+    "../.."
+  ],
+  "threshold": 3,
+  "minLines": 20,
+  "minTokens": 120,
+  "format": [
+    "typescript",
+    "tsx",
+    "javascript",
+    "jsx",
+    "csharp"
+  ],
+  "gitignore": true,
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/bin/**",
+    "**/obj/**",
+    "**/*.d.ts",
+    "**/*.generated.*",
+    "**/.local/**",
+    "**/docs/**",
+    "**/project/**",
+    "**/tooling/**",
+    "**/.agents/**",
+    "**/.claude/**",
+    "**/.codex/**"
+  ],
+  "reporters": [
+    "console"
+  ],
+  "absolute": false
+}

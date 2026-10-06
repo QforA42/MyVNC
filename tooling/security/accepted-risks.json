@@ -1,0 +1,14 @@
+{
+  "$comment": "Accepted vulnerability findings. Every entry needs a reason, who accepted it and a reviewBy date. zot-cve.mjs fails when an entry is past reviewBy, so acceptance always expires and is re-reviewed.",
+  "$example": {
+    "id": "CVE-2026-12345",
+    "package": "openssl",
+    "scope": "image",
+    "severity": "high",
+    "reason": "Not reachable: no TLS server in the image. Fixed base image expected in the next Alpine release.",
+    "acceptedBy": "magnus",
+    "acceptedOn": "2026-10-04",
+    "reviewBy": "2026-11-04"
+  },
+  "risks": []
+}

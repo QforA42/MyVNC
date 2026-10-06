@@ -1,0 +1,15 @@
+# Git hooks. Install once per clone: npx lefthook install (or add "prepare": "lefthook install").
+# Every hook delegates to the gate runner, so hooks, CI and agents run the same checks.
+pre-commit:
+  commands:
+    gates:
+      run: node tooling/scripts/gate.mjs pre-commit --staged
+      stage_fixed: true
+commit-msg:
+  commands:
+    message:
+      run: node tooling/scripts/check-commit-msg.mjs {1}
+pre-push:
+  commands:
+    gates:
+      run: node tooling/scripts/gate.mjs pre-push
