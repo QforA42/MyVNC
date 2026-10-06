@@ -11,6 +11,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <!-- Lets the Linux CI container (tooling/ci) restore and build the WPF project. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 

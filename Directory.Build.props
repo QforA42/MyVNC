@@ -8,4 +8,16 @@
     <Version Condition="Exists('$(VersionFilePath)')">$([System.IO.File]::ReadAllText('$(VersionFilePath)').Trim())</Version>
   </PropertyGroup>
 
+  <!-- Analyzers and code style (repo-blueprint .NET gates): the same rules in IDE, build and dotnet format.
+       The gates build with -warnaserror; local Debug/Release builds only warn. -->
+  <PropertyGroup>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Required for IDE0005 (unused usings) in build; XML docs themselves are not required. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <!-- Locked restore: packages.lock.json per project; CI restores with locked mode and osv-scanner reads them. -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+  </PropertyGroup>
+
 </Project>

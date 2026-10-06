@@ -13,8 +13,9 @@
 # npmDirs: [apps/web, apps/admin] lists every npm folder the CI container and doctor install (default [npmDir]);
 # the npm checks run in npmDir.
 vars:
-  dotnetDir: apps/backend
-  dotnetTarget: apps/backend
+  # MyVNC: the solution is in the root (src/, tests/), no npm project.
+  dotnetDir: "."
+  dotnetTarget: MyVNC.slnx
   dotnetUnitTestArgs: "--filter \"Category!=Integration\""
   dotnetIntegrationTestArgs: "--filter \"Category=Integration\""
   npmDir: "."
@@ -24,9 +25,9 @@ env: {}
 
 stages:
   quick: [frontmatter, names, layout, biome-check]
-  edit: [frontmatter-files, language-staged, names-staged, layout, biome-staged, prettier-staged, csharpier-format]
-  turn-end: [frontmatter-files, language-staged, names-staged, clean-code-staged, layout, agents, agents-sync, biome-files, csharpier-staged]
-  pre-commit: [frontmatter-fix, overview-fix, language-staged, names-staged, clean-code-staged, layout, agents, biome-staged, prettier-staged, eslint-staged, csharpier-staged, gitleaks-staged]
+  edit: [frontmatter-files, language-staged, names-staged, layout, biome-staged, prettier-staged, dotnet-whitespace-fix]
+  turn-end: [frontmatter-files, language-staged, names-staged, clean-code-staged, layout, agents, agents-sync, biome-files, dotnet-whitespace-staged]
+  pre-commit: [frontmatter-fix, overview-fix, language-staged, names-staged, clean-code-staged, layout, agents, biome-staged, prettier-staged, eslint-staged, dotnet-whitespace-staged, gitleaks-staged]
   pre-push: [overview, frontmatter, language, markdownlint, typecheck, lint-typed, clean-code, eslint, typecheck-npm, test-npm, deps-boundaries, test-unit, dotnet-build, dotnet-test]
   verify: [frontmatter, language, typecheck, lint-typed, clean-code, eslint, typecheck-npm, test-npm, build-npm, deps-boundaries, test-unit, test-integration, dotnet-build, dotnet-test, dotnet-test-integration, compose-smoke]
   ci: [layout, names, agents, agents-sync, overview, frontmatter, language, markdownlint, biome-check, typecheck, lint-typed, clean-code, duplication, deps-boundaries, knip, test-unit, test-integration, build, prettier-check, eslint, typecheck-npm, test-npm, build-npm, audit-npm, audit-node, dotnet-format, dotnet-build, dotnet-test, dotnet-vulnerable, osv-exceptions, osv, gitleaks-history, actionlint, hadolint, trivy-config]
@@ -198,16 +199,17 @@ checks:
     tools: [npm]
 
   # .NET: paths come from vars dotnetDir and dotnetTarget (see docs/reference/dotnet.md in the blueprint)
-  csharpier-staged:
-    run: dotnet csharpier check
-    staged: ""
-    match: "\\.cs$"
+  # MyVNC-local: dotnet format whitespace on staged files instead of CSharpier (no extra tool to install).
+  dotnet-whitespace-staged:
+    run: dotnet format whitespace --folder --verify-no-changes
+    staged: "--include"
+    match: "[.]cs$"
     requires: [${dotnetDir}/Directory.Build.props]
     tools: [dotnet]
-  csharpier-format:
-    run: dotnet csharpier format
-    staged: ""
-    match: "\\.cs$"
+  dotnet-whitespace-fix:
+    run: dotnet format whitespace --folder
+    staged: "--include"
+    match: "[.]cs$"
     requires: [${dotnetDir}/Directory.Build.props]
     tools: [dotnet]
   dotnet-format:

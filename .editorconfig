@@ -16,12 +16,22 @@ indent_size = 4
 
 [*.cs]
 # Analyzer severities live here so `dotnet build` enforces them (EnforceCodeStyleInBuild).
-dotnet_analyzer_diagnostic.category-Style.severity = warning
+# MyVNC-local: the blueprint's blanket `category-Style.severity = warning` turns ~3,000 preference hits
+# (var, braces, expression bodies) into errors; only the rules below are enforced.
+dotnet_sort_system_directives_first = true
+csharp_using_directive_placement = outside_namespace:warning
+csharp_style_namespace_declarations = file_scoped:warning
 # unnecessary using, unused and unread private members, file-scoped namespaces
 dotnet_diagnostic.IDE0005.severity = warning
 dotnet_diagnostic.IDE0051.severity = warning
 dotnet_diagnostic.IDE0052.severity = warning
 dotnet_diagnostic.IDE0161.severity = warning
-csharp_style_namespace_declarations = file_scoped:warning
-# ConfigureAwait is not needed in ASP.NET Core
+# Desktop app: ConfigureAwait(false) is deliberate where used, not required everywhere.
 dotnet_diagnostic.CA2007.severity = none
+
+# Language preferences: suggestions only, so `dotnet format` does not rewrite them
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+csharp_prefer_braces = when_multiline:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
