@@ -1,9 +1,23 @@
 # Text is stored and checked out with LF (repo-blueprint); Windows-only formats keep CRLF.
+# Git attribute patterns do not expand {a,b}, so every extension has its own line.
 * text=auto eol=lf
-*.{cmd,bat,ps1,iss} text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.iss text eol=crlf
 *.sh text eol=lf
 
 # Binary files: never touch line endings or diff as text.
-*.{png,jpg,jpeg,gif,webp,ico,pdf,zip,exe,dll,pdb} binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.exe binary
+*.dll binary
+*.pdb binary
 # Session metrics are append-only: lines from different branches are kept, never in conflict.
 project/metrics/sessions.jsonl merge=union
